@@ -4,7 +4,7 @@ import bannerImg from '../assets/images/banner.jpg';
 import SocialLinks from './SocialLinks';
 const HeroSection = () => {
   return (
-    <div className="hero  bg-gradient-to-b from-gray via-gray-50 to-gray-100 text-white pb-10">
+    <div className="hero  bg-gray text-white pb-10">
       <div className="hero-content flex-col lg:flex-row-reverse">
         {/* Right Side Image */}
         <div className="avatar">

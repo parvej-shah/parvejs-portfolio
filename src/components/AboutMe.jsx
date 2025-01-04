@@ -1,9 +1,13 @@
 import { Link } from "react-router-dom";
 import SocialLinks from "./SocialLinks";
 import aboutme from "../assets/images/aboutme.jpg";
+import SectionTitle from "./SectionTitle";
 const AboutMe = () => {
   return (
     <div className="bg-gray-200 text-gray-800  py-12 px-4 md:px-8">
+        <div className="flex justify-center items-center mb-6">
+            <SectionTitle title={"About Me"}/>
+        </div>
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 items-center">
         {/* Profile Image Section */}
         <div className="flex flex-col items-center relative">
