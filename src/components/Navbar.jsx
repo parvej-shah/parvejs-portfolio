@@ -1,5 +1,6 @@
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import useScroll from "../hooks/useScrolls";
+import CVButton from "./CVButton";
 
 export default function Navbar() {
     const scrolled = useScroll(40);
@@ -10,8 +11,8 @@ export default function Navbar() {
             {name: "Work",link:"/work"  },
             {name: "Testimonial",link:"/testimonial"  },
     ]
-    const activeLink = "text-gray-950";
-    const inActiveLink = "hover:text-gray-950 text-gray-700 hover:scale-105";
+    const activeLink = "text-secondary";
+    const inActiveLink = "hover:text-secondary text-gray-700 hover:scale-105";
     const navLink = "btn transition-all transform duration-300 btn-sm bg-transparent hover:bg-transparent border-none text-base font-semibold shadow-none";
   return (
     <div className={`sticky px-2 py-3 top-0 z-30 w-full border-b border-transparent bg-gray max-md:border-gray-100 ${scrolled ? 'bg-gray/50 backdrop-blur-xl md:border-gray-100' : ''}`}>
@@ -63,7 +64,7 @@ export default function Navbar() {
           </ul>
         </div>
         <div className="flex items-center">
-          <a className="btn btn-sm text-gray-950 bg-gray-50 hover:bg-gray-100 transition-all transform duration-300">Download CV</a>
+          <CVButton isNav={true}/>
         </div>
       </div>
     </div>

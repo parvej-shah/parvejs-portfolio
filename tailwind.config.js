@@ -21,6 +21,7 @@ export default {
             900: 'rgb(var(--app-gray-900) / <alpha-value>)',
             950: 'rgb(var(--app-gray-950) / <alpha-value>)',
           },
+          secondary:"#de322b",
         },
     },
   },
