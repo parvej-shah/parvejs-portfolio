@@ -22,7 +22,7 @@ export default function Navbar() {
             <div tabIndex={0} role="button" className="lg:hidden">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
+                className="h-8 w-8"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -49,8 +49,9 @@ export default function Navbar() {
             }
             </ul>
           </div>
-          <h1 className="text-2xl italic font-bold uppercase">{"<PS>"}</h1>
+          <h3 className="text-3xl italic font-black uppercase">{"<PS>"}</h3>
         </div> 
+        <div className="flex items-center">
         <div className="items-center gap-2 hidden lg:flex">
           <ul className="menu menu-horizontal px-1">
             {
@@ -63,7 +64,6 @@ export default function Navbar() {
             }
           </ul>
         </div>
-        <div className="flex items-center">
           <CVButton isNav={true}/>
         </div>
       </div>
