@@ -1,20 +1,23 @@
 
 import { FaJs, FaReact, FaNodeJs, FaGit, FaFigma } from "react-icons/fa";
-import { SiMongodb,  SiExpress, SiTailwindcss,  SiDaisyui, SiReactquery, SiAxios } from "react-icons/si";
+import { SiMongodb,  SiExpress, SiTailwindcss,  SiDaisyui, SiReactquery, SiAxios, SiFirebase, SiJsonwebtokens, SiBootstrap } from "react-icons/si";
 import SectionTitle from "./SectionTitle";
 
 const Skills = () => {
   const skills = [
       { icon: <SiTailwindcss className="text-blue-500" />, name: "Tailwindcss" },
       { icon: <SiDaisyui className="text-[#1ad1a5]" />, name: "DaisyUi" },
-    { icon: <FaJs className="text-yellow-500" />, name: "Javascript" },
-    { icon: <FaReact className="text-blue-400" />, name: "React" },
-    { icon: <FaGit className="text-orange-500" />, name: "Git" },
-    { icon: <SiAxios className="text-blue-400" />, name: "Axios" },
-    { icon: <SiReactquery className="text-blue-400" />, name: "React Query" },
-    { icon: <FaNodeJs className="text-green-500" />, name: "Node.js" },
-    { icon: <SiExpress className="text-gray-600" />, name: "Express.js" },
-    { icon: <SiMongodb className="text-green-600" />, name: "MongoDB" },
+      { icon: <SiBootstrap className="text-[#760fe9]" />, name: "Bootstrap" },
+      { icon: <FaJs className="text-yellow-500" />, name: "Javascript" },
+      { icon: <FaReact className="text-blue-400" />, name: "React" },
+      { icon: <FaGit className="text-orange-500" />, name: "Git" },
+      { icon: <SiFirebase className="text-orange-600" />, name: "FireBase" },
+      { icon: <SiAxios className="text-blue-400" />, name: "Axios" },
+      { icon: <SiReactquery className="text-blue-400" />, name: "React Query" },
+      { icon: <FaNodeJs className="text-green-500" />, name: "Node.js" },
+      { icon: <SiExpress className="text-gray-600" />, name: "Express.js" },
+      { icon: <SiMongodb className="text-green-600" />, name: "MongoDB" },
+      { icon: <SiJsonwebtokens className="text-gray-800" />, name: "JWT" },
     { icon: <FaFigma className="text-purple-500" />, name: "Figma" },
   ];
 
