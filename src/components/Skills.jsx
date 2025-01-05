@@ -22,7 +22,7 @@ const Skills = () => {
   ];
 
   return (
-    <div className="bg-gray text-gray-700 py-12">
+    <div id="skills" className="bg-gray text-gray-700 py-12">
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-8">
          <SectionTitle title={"Skills"}/>

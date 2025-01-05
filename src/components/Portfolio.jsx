@@ -62,7 +62,7 @@ export default function Portfolio() {
     },
   ];
   return (
-    <div className="bg-gray py-10">
+    <div id="portfolio" className="bg-gray py-10">
       <SectionTitle title="Portfolio" />
       <h1 className="text-2xl text-gray-900 font-bold mt-4 text-center">Some of the noteworthy projects I have built:</h1>
     <div className="space-y-10 mt-8 px-2">
@@ -71,7 +71,7 @@ export default function Portfolio() {
                 <div className="flex items-center justify-center border-gray-100 bg-gray-50 p-8 max-md:rounded-t-xl md:w-1/2 lg:p-12 md:rounded-l-xl md:border-r">
                 <img
                     src={project.image}
-                    alt="Album"
+                    alt={project.name}
                     className="rounded-xl w-full h-full shadow-lg transition-transform duration-500 group-hover:scale-105"
                 />
                 </div>

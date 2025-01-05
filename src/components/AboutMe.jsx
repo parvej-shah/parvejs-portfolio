@@ -4,7 +4,7 @@ import aboutme from "../assets/images/aboutme.jpg";
 import SectionTitle from "./SectionTitle";
 const AboutMe = () => {
   return (
-    <div className="bg-gray-200 text-gray-800  py-12 px-4 md:px-8">
+    <div id="about" className="bg-gray-200 text-gray-800  py-12 px-4 md:px-8">
         <div className="flex justify-center items-center mb-6">
             <SectionTitle title={"About Me"}/>
         </div>

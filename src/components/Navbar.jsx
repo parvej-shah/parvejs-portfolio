@@ -1,14 +1,18 @@
-import { NavLink } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import useScroll from "../hooks/useScrolls";
 import CVButton from "./CVButton";
+import { NavHashLink } from "react-router-hash-link";
 
 export default function Navbar() {
     const scrolled = useScroll(40);
-    const navLinks = [
+    const location = useLocation();
+    console.log(location);
+      const navLinks = [
         {
             name: "Home",link:"/"  },
-            {name: "About me",link:"/#about"  },
-            {name: "Portfolio",link:"/#portfolio"  },
+            {name: "Portfolio",link:"#portfolio"  },
+            {name: "About",link:"#about"  },
+            {name: "contact",link:"#contact"  },
     ]
     const activeLink = "text-secondary";
     const inActiveLink = "hover:text-secondary text-gray-700 hover:scale-105";
@@ -41,8 +45,7 @@ export default function Navbar() {
               {
                 navLinks.map((link,index)=>(
                         <li key={index}>
-                            <NavLink className={({isActive})=>`${navLink} ${isActive?activeLink:inActiveLink}`} to={link.link}>{link.name}
-                            </NavLink>
+                          <NavHashLink smooth scroll={el => el.scrollIntoView({ behavior: 'instant', block: 'end' })} activeClassName={activeLink} className={`${navLink} ${inActiveLink}`} to={link.link}>{link.name}</NavHashLink>
                         </li>
                 ))
             }
@@ -55,10 +58,9 @@ export default function Navbar() {
           <ul className="menu menu-horizontal px-1">
             {
                 navLinks.map((link,index)=>(
-                        <li key={index}>
-                            <NavLink className={({isActive})=>`${navLink} ${isActive?activeLink:inActiveLink}`} to={link.link}>{link.name}
-                            </NavLink>
-                        </li>
+                  <li key={index}>
+                      <NavHashLink smooth scroll={el => el.scrollIntoView({ behavior: 'instant', block: 'end' })} activeClassName={activeLink} className={`${navLink} ${inActiveLink}`} to={link.link}>{link.name}</NavHashLink>
+                  </li>
                 ))
             }
           </ul>

@@ -4,7 +4,7 @@ export default function SocialLinks() {
   return (
     <div className="flex gap-6 justify-center lg:justify-start mt-4">
             <a
-              href="https://linkedin.com"
+              href="https://www.linkedin.com/in/parvej-shah"
               target="_blank"
               rel="noopener noreferrer"
               className="text-3xl text-gray-400 hover:text-secondary transition-all duration-200"
@@ -12,7 +12,7 @@ export default function SocialLinks() {
               <FaLinkedin />
             </a>
             <a
-              href="https://github.com"
+              href="https://github.com/parvej-shah"
               target="_blank"
               rel="noopener noreferrer"
               className="text-3xl text-gray-400 hover:text-secondary transition-all duration-200"
@@ -20,7 +20,7 @@ export default function SocialLinks() {
               <FaGithub />
             </a>
             <a
-              href="https://facebook.com"
+              href="https://facebook.com/parvej.shahlabib"
               target="_blank"
               rel="noopener noreferrer"
               className="text-3xl text-gray-400 hover:text-secondary transition-all duration-200"
