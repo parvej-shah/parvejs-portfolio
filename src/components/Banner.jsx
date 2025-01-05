@@ -2,12 +2,16 @@ import Typewriter from 'typewriter-effect';
 import CVButton from './CVButton';
 import bannerImg from '../assets/images/banner.jpg';
 import SocialLinks from './SocialLinks';
+import AOS from 'aos';
+import 'aos/dist/aos.css'; 
+import { useEffect } from 'react';
 const HeroSection = () => {
+  useEffect(() => {AOS.init({ once: false,delay:"50",duration:"1000"});}, []);
   return (
     <div id='/' className="hero  bg-gray text-white pb-10">
       <div className="hero-content flex-col lg:flex-row-reverse">
         {/* Right Side Image */}
-        <div className="avatar">
+        <div data-aos="fade-left" data-aos-duration="5000" className="avatar">
           <div className="w-80 rounded-full ring ring-offset-base-100 ring-offset-2">
             <img
               src={bannerImg}
@@ -17,7 +21,7 @@ const HeroSection = () => {
           </div>
         </div>
         {/* Left Side Content */}
-        <div className="max-w-lg text-center lg:text-left">
+        <div data-aos="fade-right" data-aos-duration="5000" className="max-w-lg text-center lg:text-left">
           <h1 className="text-5xl font-bold leading-tight text-gray-950">
             Hi, I&apos;m <span className="text-gray-950">Parvej Shah</span>
           </h1>

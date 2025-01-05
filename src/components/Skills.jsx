@@ -2,7 +2,9 @@
 import { FaJs, FaReact, FaNodeJs, FaGit, FaFigma } from "react-icons/fa";
 import { SiMongodb,  SiExpress, SiTailwindcss,  SiDaisyui, SiReactquery, SiAxios, SiFirebase, SiJsonwebtokens, SiBootstrap } from "react-icons/si";
 import SectionTitle from "./SectionTitle";
-
+import AOS from 'aos';
+import 'aos/dist/aos.css'; 
+import { useEffect } from "react";
 const Skills = () => {
   const skills = [
       { icon: <SiTailwindcss className="text-blue-500" />, name: "Tailwindcss" },
@@ -20,7 +22,7 @@ const Skills = () => {
       { icon: <SiJsonwebtokens className="text-gray-800" />, name: "JWT" },
     { icon: <FaFigma className="text-purple-500" />, name: "Figma" },
   ];
-
+  useEffect(() => {AOS.init({ once: false,duration:"500"});}, []);
   return (
     <div id="skills" className="bg-gray text-gray-700 py-12">
       <div className="max-w-6xl mx-auto px-4">
@@ -30,8 +32,8 @@ const Skills = () => {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
           {skills.map((skill, index) => (
-            <div key={index} className="flex flex-col items-center text-center space-y-2">
-              <div className="text-4xl">{skill.icon}</div>
+            <div data-aos="flip-up" key={index} className="flex flex-col items-center text-center space-y-2">
+              <div  className="text-4xl">{skill.icon}</div>
               <p className="text-sm font-medium">{skill.name}</p>
             </div>
           ))}

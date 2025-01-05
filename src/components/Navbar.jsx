@@ -8,8 +8,6 @@ export default function Navbar() {
     const location = useLocation();
     console.log(location);
       const navLinks = [
-        {
-            name: "Home",link:"/"  },
             {name: "Portfolio",link:"#portfolio"  },
             {name: "About",link:"#about"  },
             {name: "contact",link:"#contact"  },
@@ -51,7 +49,7 @@ export default function Navbar() {
             }
             </ul>
           </div>
-          <h3 className="text-3xl italic font-black uppercase">{"<PS>"}</h3>
+          <h3 className="text-3xl italic font-black uppercase">{"<PS/>"}</h3>
         </div> 
         <div className="flex items-center">
         <div className="items-center gap-2 hidden lg:flex">

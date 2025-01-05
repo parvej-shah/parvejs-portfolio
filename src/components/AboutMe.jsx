@@ -2,7 +2,11 @@ import { Link } from "react-router-dom";
 import SocialLinks from "./SocialLinks";
 import aboutme from "../assets/images/aboutme.jpg";
 import SectionTitle from "./SectionTitle";
+import AOS from 'aos';
+import 'aos/dist/aos.css'; 
+import { useEffect } from "react";
 const AboutMe = () => {
+  useEffect(() => {AOS.init({ once: false,duration:"1000"});}, []);
   return (
     <div id="about" className="bg-gray-200 text-gray-800  py-12 px-4 md:px-8">
         <div className="flex justify-center items-center mb-6">
@@ -10,7 +14,7 @@ const AboutMe = () => {
         </div>
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 items-center">
         {/* Profile Image Section */}
-        <div className="flex flex-col items-center relative">
+        <div data-aos="flip-left" className="flex flex-col items-center relative">
           <div className="w-60 h-[500px] rounded-lg bg-secondary flex flex-col items-center justify-end relative shadow-lg">
             <img
               src={aboutme}
@@ -21,7 +25,7 @@ const AboutMe = () => {
           </div>
         </div>
         {/* Point 1 */}
-        <div>
+        <div data-aos="fade-up">
             <h1 className="text-2xl font-semibold mb-2">
               Crafting Seamless Digital Experiences
             </h1>
@@ -43,7 +47,7 @@ const AboutMe = () => {
             </Link>
           </div>
         {/* Content Section */}
-        <div className="space-y-8">
+        <div data-aos="fade-up" className="space-y-8">
           {/* Point 2 */}
           <div>
             <h1 className="text-2xl font-semibold mb-2">

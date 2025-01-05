@@ -5,6 +5,9 @@ import luxeory from "../assets/images/luxeory.png";
 import visasphere from "../assets/images/visasphere.jpeg";
 import lingobingo from "../assets/images/lingobingo.jpeg";
 import { SiGithub } from "react-icons/si";
+import AOS from 'aos';
+import 'aos/dist/aos.css'; 
+import { useEffect } from "react";
 export default function Portfolio() {
   const projects = [
     {
@@ -61,13 +64,14 @@ export default function Portfolio() {
       github: "https://github.com/parvej-shah/Lingo-Bingo-Japanese-Language-Learning-",
     },
   ];
+  useEffect(() => {AOS.init({ once: false,delay:"50",duration:"1000"});}, []);
   return (
     <div id="portfolio" className="bg-gray py-10">
       <SectionTitle title="Portfolio" />
       <h1 className="text-2xl text-gray-900 font-bold mt-4 text-center">Some of the noteworthy projects I have built:</h1>
     <div className="space-y-10 mt-8 px-2">
         {projects.map((project, index) => (
-            <div key={index} className="card group lg:card-side rounded-xl bg-gray shadow-lg mx-auto flex w-full max-w-6xl">
+            <div data-aos="zoom-in-up" key={index} className="card group lg:card-side rounded-xl bg-gray shadow-lg mx-auto flex w-full max-w-6xl">
                 <div className="flex items-center justify-center border-gray-100 bg-gray-50 p-8 max-md:rounded-t-xl md:w-1/2 lg:p-12 md:rounded-l-xl md:border-r">
                 <img
                     src={project.image}
