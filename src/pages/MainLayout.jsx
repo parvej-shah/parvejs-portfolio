@@ -9,9 +9,6 @@ export default function MainLayout() {
         <Navbar/>
         <Outlet/>
         <Footer/>
-        <div className="min-h-screen bg-gray-100">
-
-        </div>
     </div>
   )
 }

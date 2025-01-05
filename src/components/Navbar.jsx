@@ -7,9 +7,8 @@ export default function Navbar() {
     const navLinks = [
         {
             name: "Home",link:"/"  },
-            {name: "About me",link:"/about"  },
-            {name: "Work",link:"/work"  },
-            {name: "Testimonial",link:"/testimonial"  },
+            {name: "About me",link:"/#about"  },
+            {name: "Portfolio",link:"/#portfolio"  },
     ]
     const activeLink = "text-secondary";
     const inActiveLink = "hover:text-secondary text-gray-700 hover:scale-105";

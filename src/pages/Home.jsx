@@ -8,12 +8,12 @@ import Skills from "../components/Skills";
 export default function Home() {
   return (
     <div>
-        <HeroSection/>
-        <AboutMe/>
-        <Skills/>
-        <Education/>
-        <Portfolio/>
-        <Contact/>
+        <HeroSection id="hero"/>
+        <AboutMe id="about"/>
+        <Skills id="skills"/>
+        <Education />
+        <Portfolio id="portfolio"/>
+        <Contact id="contact"/>
     </div>
   )
 }
