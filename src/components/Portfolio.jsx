@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 import SectionTitle from "./SectionTitle";
 import { FaArrowUpRightFromSquare } from "react-icons/fa6";
-import luxeory from "../assets/images/luxeory.png";
-import visasphere from "../assets/images/visasphere.jpeg";
-import lingobingo from "../assets/images/lingobingo.jpeg";
+import luxeory from "../assets/images/luxeory.webp";
+import visasphere from "../assets/images/visasphere.webp";
+import lingobingo from "../assets/images/lingobingo.webp";
 import { SiGithub } from "react-icons/si";
 import AOS from 'aos';
 import 'aos/dist/aos.css'; 
@@ -80,7 +80,7 @@ export default function Portfolio() {
                 />
                 </div>
                 <div className="card-body md:w-1/2">
-                <h1 className="text-lg md:text-xl font-semibold text-gray-900">
+                <h1 className="text-xl md:text-xl font-semibold text-gray-900">
                     {project.name}
                 </h1>
                 <p className="text-normal text-base">{project.description}</p>

@@ -1,12 +1,9 @@
-import { useLocation } from "react-router-dom";
 import useScroll from "../hooks/useScrolls";
 import CVButton from "./CVButton";
 import { NavHashLink } from "react-router-hash-link";
 
 export default function Navbar() {
     const scrolled = useScroll(40);
-    const location = useLocation();
-    console.log(location);
       const navLinks = [
             {name: "Portfolio",link:"#portfolio"  },
             {name: "About",link:"#about"  },

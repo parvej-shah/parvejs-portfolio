@@ -12,7 +12,7 @@ const HeroSection = () => {
       <div className="hero-content flex-col lg:flex-row-reverse">
         {/* Right Side Image */}
         <div data-aos="fade-left" data-aos-duration="5000" className="avatar">
-          <div className="w-96 rounded-full ring ring-offset-base-100 ring-offset-2">
+          <div className="w-full md:w-96 rounded-full ring ring-offset-base-100 ring-offset-2">
             <img
               src={bannerImg}
               alt="Profile"
