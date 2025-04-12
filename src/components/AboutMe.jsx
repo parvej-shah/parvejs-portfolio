@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import SocialLinks from "./SocialLinks";
-import aboutme from "../assets/images/aboutme.jpg";
+import aboutme from "../assets/images/aboutme.webp";
 import SectionTitle from "./SectionTitle";
 import AOS from 'aos';
 import 'aos/dist/aos.css'; 
