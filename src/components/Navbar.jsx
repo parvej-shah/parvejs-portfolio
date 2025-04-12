@@ -10,7 +10,7 @@ export default function Navbar() {
       const navLinks = [
             {name: "Portfolio",link:"#portfolio"  },
             {name: "About",link:"#about"  },
-            {name: "contact",link:"#contact"  },
+            {name: "Contact",link:"#contact"  },
     ]
     const activeLink = "text-secondary";
     const inActiveLink = "hover:text-secondary text-gray-700 hover:scale-105";
