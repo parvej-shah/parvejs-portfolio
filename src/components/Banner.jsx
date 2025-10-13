@@ -10,7 +10,7 @@ import ParticleBg from './ParticleBg';
 const HeroSection = () => {
   useEffect(() => {AOS.init({ once: false,delay:"200",duration:"1000"});}, []);
   return (
-    <div id='/' className="hero min-h-screen glass-navbar text-white relative w-full overflow-hidden border-t-0">
+    <section id='/' className="hero min-h-screen glass-navbar text-white relative w-full overflow-hidden border-t-0" aria-label="Hero section">
       <ParticleBg />
       <div className="hero-content flex-col lg:flex-row-reverse w-full max-w-7xl mx-auto px-4 relative z-10 py-10">
         {/* Right Side Image */}
@@ -18,7 +18,7 @@ const HeroSection = () => {
           <div className="w-full md:w-96 rounded-full ring ring-offset-base-100 ring-offset-2">
             <img
               src={bannerImg}
-              alt="Profile"
+              alt="Parvej Shah - Front-End Developer and React Specialist"
               className="rounded-full"
             />
           </div>
@@ -48,7 +48,7 @@ const HeroSection = () => {
         </div>
       </div>
       
-    </div>
+    </section>
   );
 };
 
