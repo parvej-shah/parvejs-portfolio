@@ -5,11 +5,14 @@ import SocialLinks from './SocialLinks';
 import AOS from 'aos';
 import 'aos/dist/aos.css'; 
 import { useEffect } from 'react';
+import ParticleBg from './ParticleBg';
+
 const HeroSection = () => {
   useEffect(() => {AOS.init({ once: false,delay:"50",duration:"1000"});}, []);
   return (
-    <div id='/' className="hero  bg-gray text-white pb-10">
-      <div className="hero-content flex-col lg:flex-row-reverse">
+    <div id='/' className="hero min-h-screen bg-gray text-white pb-10 relative w-full">
+      <ParticleBg className="min-h-screen" />
+      <div className="hero-content flex-col lg:flex-row-reverse w-full max-w-7xl mx-auto px-4 relative z-10">
         {/* Right Side Image */}
         <div data-aos="fade-left" data-aos-duration="5000" className="avatar">
           <div className="w-full md:w-96 rounded-full ring ring-offset-base-100 ring-offset-2">
@@ -44,6 +47,7 @@ const HeroSection = () => {
           <SocialLinks/>
         </div>
       </div>
+      
     </div>
   );
 };
