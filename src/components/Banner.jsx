@@ -8,13 +8,13 @@ import { useEffect } from 'react';
 import ParticleBg from './ParticleBg';
 
 const HeroSection = () => {
-  useEffect(() => {AOS.init({ once: false,delay:"50",duration:"1000"});}, []);
+  useEffect(() => {AOS.init({ once: false,delay:"200",duration:"1000"});}, []);
   return (
-    <div id='/' className="hero min-h-screen bg-gray text-white pb-10 relative w-full">
-      <ParticleBg className="min-h-screen" />
-      <div className="hero-content flex-col lg:flex-row-reverse w-full max-w-7xl mx-auto px-4 relative z-10">
+    <div id='/' className="hero h-screen bg-gray text-white relative w-full overflow-hidden">
+      <ParticleBg />
+      <div className="hero-content flex-col lg:flex-row-reverse w-full max-w-7xl mx-auto px-4 relative z-10 py-10">
         {/* Right Side Image */}
-        <div data-aos="fade-left" data-aos-duration="5000" className="avatar">
+        <div data-aos="fade-left" data-aos-duration="1200" data-aos-delay="800" className="avatar">
           <div className="w-full md:w-96 rounded-full ring ring-offset-base-100 ring-offset-2">
             <img
               src={bannerImg}
@@ -24,7 +24,7 @@ const HeroSection = () => {
           </div>
         </div>
         {/* Left Side Content */}
-        <div data-aos="fade-right" data-aos-duration="5000" className="max-w-lg text-center lg:text-left">
+        <div data-aos="fade-right" data-aos-duration="1200" data-aos-delay="600" className="max-w-lg text-center lg:text-left">
           <h1 className="text-5xl font-bold leading-tight text-gray-950">
             Hi, I&apos;m <span className="text-gray-950">Parvej Shah</span>
           </h1>
