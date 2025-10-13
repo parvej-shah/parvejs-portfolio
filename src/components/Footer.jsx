@@ -5,23 +5,23 @@ export default function Footer() {
   return (
     <footer className="w-full p-6">
       <div className="max-w-6xl mx-auto glass-card rounded-xl overflow-hidden">
-        <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-6 px-6 py-8 pr-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-6 px-6 py-8 pr-6 text-center md:text-left">
           {/* Left: image + name/title */}
-          <div className="flex flex-col items-center gap-4 border-r border-gray-200 pt-10">
+          <div className="flex flex-col items-center gap-4 md:items-start border-b md:border-b-0 md:border-r border-gray-200 pt-6 md:pt-10 pb-6 md:pb-0">
             <div className="w-24 h-24 md:w-60 md:h-60 rounded-full overflow-hidden ring-2 ring-secondary/40">
               <img src={aboutme} alt="Parvej Shah" className="w-full h-full object-cover" />
             </div>
             <div>
               <h4 className="text-lg font-semibold text-gray-900">Parvej Shah</h4>
               <p className="text-sm text-gray-600">Full Stack Developer</p>
-              <SocialLinks />
+              <div className="mt-3 md:mt-2"><SocialLinks /></div>
             </div>
           </div>
 
 
           {/* Right: content + CTA */}
           <div className="md:col-span-1 ">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-4 md:px-0">
               <div>
                 <h2 className="text-2xl md:text-3xl font-semibold text-gray-900">
 Let’s turn your good website into a great experience.
@@ -35,7 +35,7 @@ I mix clean code with solid UX thinking to help websites hit that sweet spot bet
             </div>
           </div>
 
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex items-center justify-center md:justify-start gap-4">
             <a href="#contact" className="btn bg-secondary text-white hover:bg-secondary/90">Get Your Site Reviewed</a>
           </div>
 
