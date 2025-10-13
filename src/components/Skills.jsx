@@ -24,7 +24,7 @@ const Skills = () => {
   ];
   useEffect(() => {AOS.init({ once: false,duration:"500"});}, []);
   return (
-    <div id="skills" className="bg-gray text-gray-700 py-12">
+    <div id="skills" className="glass-dark-section text-gray-700 py-12">
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-8">
          <SectionTitle title={"Skills"}/>
@@ -32,7 +32,7 @@ const Skills = () => {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
           {skills.map((skill, index) => (
-            <div data-aos="flip-up" key={index} className="flex flex-col items-center text-center space-y-2">
+            <div data-aos="flip-up" key={index} className="flex flex-col items-center text-center space-y-2 glass-card p-4 rounded-lg transition-transform hover:scale-105">
               <div  className="text-4xl">{skill.icon}</div>
               <p className="text-sm font-medium">{skill.name}</p>
             </div>

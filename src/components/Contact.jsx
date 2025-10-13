@@ -3,7 +3,8 @@ import { FaLocationPin } from "react-icons/fa6";
 import { SiMailboxdotorg } from "react-icons/si";
 import { Link } from "react-router-dom";
 import emailjs from '@emailjs/browser';
-
+import Lottie from "lottie-react";
+import customerServiceAnimation from '../assets/images/customerService.json';
 const Contact = () => {
   const form = useRef();
   const [formData, setFormData] = useState({
@@ -85,24 +86,17 @@ const Contact = () => {
   };
 
   return (
-    <section id="contact" className="w-full px-4 py-10 bg-gray-200">
+    <section id="contact" className="w-full px-4 py-10 glass-gray-200">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        
+        
         {/* Address Section */}
         <div className="rounded-lg p-6">
-          <ul className="mt-4">
-            <li className="mb-2 flex items-center gap-2">
-              <strong><FaLocationPin className="text-red-500 text-2xl"/></strong> Amar Ekushe Hall, University of Dhaka, Dhaka.
-            </li>
-            <li className="flex items-center gap-2">
-              <Link to="mailto:parvejshahlabib007@gmail.com" className="hover:text-red-500 flex items-center gap-2">
-                  <strong><SiMailboxdotorg className="text-2xl text-red-500"/></strong>parvejshahlaib007@gmail.com
-              </Link>
-            </li>
-          </ul>
+          <Lottie animationData={customerServiceAnimation} loop={true} />
         </div>
 
         {/* Contact Form */}
-        <div className="rounded-lg p-6">
+        <div className="rounded-lg p-6 glass-card">
           <h1 className="text-2xl font-semibold text-gray-800 mb-4">Send a Message</h1>
           
           {/* Status Message */}
@@ -122,7 +116,7 @@ const Contact = () => {
                 onChange={handleInputChange}
                 required
                 disabled={isLoading}
-                className="input bg-gray-100 input-bordered w-full"
+                className="input glass-medium input-bordered w-full"
               />
             </div>
             <div className="mb-4">
@@ -134,7 +128,7 @@ const Contact = () => {
                 onChange={handleInputChange}
                 required
                 disabled={isLoading}
-                className="input input-bordered bg-gray-100 w-full"
+                className="input input-bordered glass-medium w-full"
               />
             </div>
             <div className="mb-4">
@@ -145,7 +139,7 @@ const Contact = () => {
                 onChange={handleInputChange}
                 required
                 disabled={isLoading}
-                className="textarea textarea-bordered bg-gray-100 w-full"
+                className="textarea textarea-bordered glass-medium w-full"
               ></textarea>
             </div>
             <button 

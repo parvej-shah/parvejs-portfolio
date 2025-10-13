@@ -8,7 +8,7 @@ import { useEffect } from "react";
 const AboutMe = () => {
   useEffect(() => {AOS.init({ once: false,duration:"1000"});}, []);
   return (
-    <div id="about" className="bg-gray-200 text-gray-800  py-12 px-4 md:px-8">
+    <div id="about" className="glass-gray-200 text-gray-800  py-12 px-4 md:px-8">
         <div className="flex justify-center items-center mb-6">
             <SectionTitle title={"About Me"}/>
         </div>

@@ -10,7 +10,7 @@ import ParticleBg from './ParticleBg';
 const HeroSection = () => {
   useEffect(() => {AOS.init({ once: false,delay:"200",duration:"1000"});}, []);
   return (
-    <div id='/' className="hero h-screen bg-gray text-white relative w-full overflow-hidden">
+    <div id='/' className="hero min-h-screen glass-navbar text-white relative w-full overflow-hidden border-t-0">
       <ParticleBg />
       <div className="hero-content flex-col lg:flex-row-reverse w-full max-w-7xl mx-auto px-4 relative z-10 py-10">
         {/* Right Side Image */}
@@ -42,7 +42,7 @@ const HeroSection = () => {
           </p>
           <div className="flex gap-4 justify-center mb-2 lg:justify-start">
             <CVButton/>
-            <button className="btn btn-outline ">Contact Me</button>
+            <a href='#contact' className="btn btn-outline ">Contact Me</a>
           </div>
           <SocialLinks/>
         </div>

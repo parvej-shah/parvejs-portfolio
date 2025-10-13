@@ -13,7 +13,7 @@ export default function Navbar() {
     const inActiveLink = "hover:text-secondary text-gray-700 hover:scale-105";
     const navLink = "btn transition-all transform duration-300 btn-sm bg-transparent hover:bg-transparent border-none text-base font-semibold shadow-none";
   return (
-    <div className={`sticky px-2 py-3 top-0 z-30 w-full border-b border-transparent bg-gray max-md:border-gray-100 ${scrolled ? 'bg-gray/50 backdrop-blur-xl md:border-gray-100' : ''}`}>
+    <div className={`sticky px-2 py-3 top-0 z-30 w-full transition-all duration-300 ${scrolled ? 'glass-navbar border-b border-gray-100' : 'glass-navbar border-b border-transparent'}`}>
       <div className={`flex justify-between items-center container mx-auto`}>
         <div className="flex items-center gap-2">
           <div className="dropdown">
@@ -35,7 +35,7 @@ export default function Navbar() {
             </div>
             <ul
               tabIndex={0}
-              className="menu menu-sm dropdown-content bg-gray rounded-box z-[1] mt-3 w-fit p-2 shadow"
+              className="menu menu-sm dropdown-content glass-card rounded-box z-[1] mt-3 w-fit p-2 shadow"
             >
               {
                 navLinks.map((link,index)=>(
