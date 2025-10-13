@@ -31,14 +31,14 @@ const HeroSection = () => {
           <h2 className="text-4xl mt-4 font-medium text-secondary">
             <Typewriter
               options={{
-                strings: ['Front-End Developer','React Specialist','Problem Solver'],
+                strings: ['Full Stack Developer','Front-End Specialist','Problem Solver'],
                 autoStart: true,
                 loop: true,
               }}
             />
           </h2>
           <p className="py-6 text-gray-600">
-          Crafting elegant interfaces with React, where every component sings, every pixel dances, and every line of code tells a story of precision and care. Explore my work — let’s build something beautiful together.
+          I design and code interfaces that don’t just work — they feel right. With React, I bring balance between aesthetics and performance so every user interaction feels natural and every detail reflects purpose.
           </p>
           <div className="flex gap-4 justify-center mb-2 lg:justify-start">
             <CVButton/>
