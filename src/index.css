@@ -41,3 +41,20 @@ h1{
 }
  h3{
   font-family: 'Dancing Script', cursive;}
+
+/* Wave animation for loading dots */
+@keyframes wave {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  30% {
+    transform: translateY(-10px);
+    opacity: 0.7;
+  }
+}
+
+.animate-wave {
+  display: inline-block;
+  animation: wave 1.4s ease-in-out infinite;
+}
