@@ -1,9 +1,0 @@
-# robots.txt for Parvej Shah Portfolio
-User-agent: *
-Allow: /
-
-# Sitemaps
-Sitemap: https://parvej-shah.netlify.app/sitemap.xml
-
-# Crawl-delay (optional, helps prevent overwhelming your server)
-Crawl-delay: 1
