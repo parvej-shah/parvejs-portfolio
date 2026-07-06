@@ -1,12 +1,14 @@
-export default function sitemap() {
-  const baseUrl = "https://parvej-shah.netlify.app";
-  const lastModified = "2025-10-13";
+const baseUrl = "https://parvejshah.vercel.app";
 
+export default function sitemap() {
+  // Single-page site: fragment URLs (#about etc.) are ignored by crawlers,
+  // so the root is the only real entry.
   return [
-    { url: `${baseUrl}/`, lastModified, changeFrequency: "weekly", priority: 1.0 },
-    { url: `${baseUrl}/#about`, lastModified, changeFrequency: "monthly", priority: 0.8 },
-    { url: `${baseUrl}/#skills`, lastModified, changeFrequency: "monthly", priority: 0.8 },
-    { url: `${baseUrl}/#portfolio`, lastModified, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${baseUrl}/#contact`, lastModified, changeFrequency: "monthly", priority: 0.7 },
+    {
+      url: `${baseUrl}/`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 1.0,
+    },
   ];
 }

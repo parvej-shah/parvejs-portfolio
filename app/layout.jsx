@@ -8,56 +8,34 @@ import { cn } from "@/lib/utils";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
-const siteUrl = "https://parvej-shah.netlify.app/";
+// Single source of truth for the site's canonical origin.
+// When the custom domain goes live, change it here only.
+const siteUrl = "https://parvejshah.vercel.app";
 
 export const metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Parvej Shah - Full Stack Web Developer | MERN Developer | Web Developer Bangladesh",
+  title: "Parvej Shah — Full Stack Web Developer | Dhaka, Bangladesh",
   description:
-    "Parvej Shah - Professional Full Stack Web Developer from Dhaka University (IIT DU). Expert in building modern, scalable web applications with React, Node.js, Express, and MongoDB. Bangladesh's top web developer offering freelance web development services.",
-  keywords: [
-    "Parvej Shah",
-    "web developer Bangladesh",
-    "full stack web developer",
-    "MERN stack developer",
-    "React developer",
-    "IIT DU",
-    "Dhaka University",
-    "software engineering student",
-    "freelance web developer BD",
-    "JavaScript developer",
-    "responsive web design",
-    "web developer Dhaka",
-    "React specialist Bangladesh",
-    "portfolio website developer",
-  ],
+    "Full-stack developer building fast, scalable web products with React, Next.js, Node.js and MongoDB. Based in Dhaka — available for freelance projects worldwide.",
   authors: [{ name: "Parvej Shah Labib" }],
   robots: { index: true, follow: true },
-  alternates: { canonical: siteUrl },
-  icons: { icon: "/banner.jpg" },
+  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     url: siteUrl,
-    title: "Parvej Shah - Full Stack Web Developer | MERN Stack Bangladesh",
+    title: "Parvej Shah — Full Stack Web Developer",
     description:
-      "Professional Full Stack Web Developer from Dhaka University. Expert in React, Node.js, Express, MongoDB, and modern web development. Available for freelance projects.",
-    images: ["/banner.jpg"],
+      "Fast, scalable web products with React, Next.js, Node.js and MongoDB — from the first wireframe to the final deploy.",
+    images: [{ url: "/og.jpg", width: 1200, height: 630, alt: "Parvej Shah — Full Stack Web Developer" }],
     locale: "en_US",
-    siteName: "Parvej Shah Portfolio",
+    siteName: "Parvej Shah — Portfolio",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Parvej Shah - Full Stack Web Developer | MERN Stack",
+    title: "Parvej Shah — Full Stack Web Developer",
     description:
-      "Professional Full Stack Web Developer from Dhaka University. Expert in React, Node.js, Express, MongoDB, and modern web development.",
-    images: ["/banner.jpg"],
-  },
-  other: {
-    "geo.region": "BD-C",
-    "geo.placename": "Dhaka",
-    "geo.position": "23.8103;90.4125",
-    ICBM: "23.8103, 90.4125",
-    "revisit-after": "7 days",
+      "Fast, scalable web products with React, Next.js, Node.js and MongoDB — from the first wireframe to the final deploy.",
+    images: ["/og.jpg"],
   },
 };
 
@@ -66,8 +44,8 @@ const personJsonLd = {
   "@type": "Person",
   name: "Parvej Shah Labib",
   alternateName: "Parvej Shah",
-  url: "https://parvejshah.com",
-  image: "https://parvej-shah.netlify.app/banner.jpg",
+  url: siteUrl,
+  image: `${siteUrl}/og.jpg`,
   jobTitle: "Full Stack Web Developer",
   worksFor: { "@type": "Organization", name: "Freelance" },
   alumniOf: {
@@ -78,14 +56,14 @@ const personJsonLd = {
   address: { "@type": "PostalAddress", addressLocality: "Dhaka", addressCountry: "BD" },
   email: "parvejshahlabib007@gmail.com",
   knowsAbout: [
+    "Full-Stack Web Development",
     "React",
-    "JavaScript",
-    "Front-End Development",
-    "Web Development",
-    "UI/UX",
-    "Tailwind CSS",
+    "Next.js",
     "Node.js",
+    "Express",
     "MongoDB",
+    "JavaScript",
+    "Tailwind CSS",
   ],
   sameAs: ["https://github.com/parvej-shah", "https://www.linkedin.com/in/parvej-shah"],
 };
@@ -93,30 +71,29 @@ const personJsonLd = {
 const websiteJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: "Parvej Shah Portfolio",
-  url: "https://parvej-shah.netlify.app",
-  description: "Professional portfolio of Parvej Shah - Full Stack Web Developer from Bangladesh",
+  name: "Parvej Shah — Portfolio",
+  url: siteUrl,
+  description:
+    "Portfolio of Parvej Shah — Full Stack Web Developer based in Dhaka, Bangladesh",
   author: { "@type": "Person", name: "Parvej Shah" },
-  potentialAction: {
-    "@type": "SearchAction",
-    target: "https://parvej-shah.netlify.app/?s={search_term_string}",
-    "query-input": "required name=search_term_string",
-  },
 };
 
 const serviceJsonLd = {
   "@context": "https://schema.org",
   "@type": "ProfessionalService",
   name: "Parvej Shah Web Development Services",
-  description: "Professional web development and React development services in Bangladesh",
+  description:
+    "Full-stack web development services — React, Next.js, Node.js and MongoDB",
+  url: siteUrl,
   provider: { "@type": "Person", name: "Parvej Shah" },
-  areaServed: { "@type": "Country", name: "Bangladesh" },
+  areaServed: "Worldwide",
   hasOfferCatalog: {
     "@type": "OfferCatalog",
     name: "Web Development Services",
     itemListElement: [
-      { "@type": "Offer", itemOffered: { "@type": "Service", name: "React Development" } },
-      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Front-End Development" } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "Full-Stack Web Development" } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "React & Next.js Development" } },
+      { "@type": "Offer", itemOffered: { "@type": "Service", name: "API & Backend Development" } },
       { "@type": "Offer", itemOffered: { "@type": "Service", name: "Responsive Web Design" } },
     ],
   },

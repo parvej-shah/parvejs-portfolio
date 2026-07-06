@@ -3,8 +3,7 @@ export default function robots() {
     rules: {
       userAgent: "*",
       allow: "/",
-      crawlDelay: 1,
     },
-    sitemap: "https://parvej-shah.netlify.app/sitemap.xml",
+    sitemap: "https://parvejshah.vercel.app/sitemap.xml",
   };
 }
