@@ -107,9 +107,12 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* giant outlined wordmark */}
-      <div className="select-none overflow-hidden" aria-hidden>
-        <div className="graffiti w-full whitespace-nowrap text-center text-[22vw] leading-none">
+      {/* giant outlined wordmark — sized to fit one line, bottom edge cropped for anchor */}
+      <div className="pointer-events-none select-none overflow-hidden pb-8" aria-hidden>
+        <div
+          className="graffiti w-full whitespace-nowrap text-center text-[11.5vw] leading-[0.85] tracking-tight opacity-70"
+          style={{ transform: "none" }}
+        >
           Work Together
         </div>
       </div>
