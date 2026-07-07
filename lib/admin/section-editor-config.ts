@@ -9,7 +9,14 @@ type PrimitiveField = {
   description?: string;
 };
 
-export type IconSet = "service" | "contact" | "social" | "skill";
+type NumberField = {
+  kind: "number";
+  label: string;
+  min?: number;
+  max?: number;
+};
+
+export type IconSet = "service" | "process" | "contact" | "social" | "skill";
 
 type IconPickerField = {
   kind: "iconPicker";
@@ -39,6 +46,7 @@ type ObjectArrayField<T extends Record<string, unknown>> = {
 
 export type FieldConfig =
   | PrimitiveField
+  | NumberField
   | IconPickerField
   | ObjectField<Record<string, unknown>>
   | StringArrayField
@@ -46,16 +54,18 @@ export type FieldConfig =
 
 type NormalizedFieldValue<T> = NonNullable<T>;
 
-type FieldFor<T> = NormalizedFieldValue<T> extends string
-  ? PrimitiveField | IconPickerField
-  : NormalizedFieldValue<T> extends string[]
-    ? StringArrayField
-    : NormalizedFieldValue<T> extends Array<infer U>
-      ? U extends string
-        ? StringArrayField
-        : U extends Record<string, unknown>
-          ? ObjectArrayField<U>
-          : never
+type FieldFor<T> = NormalizedFieldValue<T> extends number
+  ? NumberField
+  : NormalizedFieldValue<T> extends string
+    ? PrimitiveField | IconPickerField
+    : NormalizedFieldValue<T> extends string[]
+      ? StringArrayField
+      : NormalizedFieldValue<T> extends Array<infer U>
+        ? U extends string
+          ? StringArrayField
+          : U extends Record<string, unknown>
+            ? ObjectArrayField<U>
+            : never
       : NormalizedFieldValue<T> extends Record<string, unknown>
         ? ObjectField<NormalizedFieldValue<T>>
         : never;
@@ -156,6 +166,26 @@ export const sectionEditorConfig: { [K in SectionKey]: SectionEditorDefinition<K
       },
     },
   }),
+  process: defineSection({
+    label: "Process",
+    description: "Homepage working process section: positioning copy and repeatable steps.",
+    fields: {
+      eyebrow: { kind: "text", label: "Eyebrow" },
+      heading: { kind: "textarea", label: "Heading" },
+      description: { kind: "textarea", label: "Description" },
+      steps: {
+        kind: "objectArray",
+        label: "Process steps",
+        itemLabel: "Step",
+        fields: {
+          icon: { kind: "iconPicker", label: "Icon", iconSet: "process" },
+          title: { kind: "text", label: "Title" },
+          description: { kind: "textarea", label: "Description" },
+          deliverable: { kind: "text", label: "Deliverable (e.g. Scope & roadmap)" },
+        },
+      },
+    },
+  }),
   about: defineSection({
     label: "About",
     description: "About copy, image, quote, bullet points, and CTA.",
@@ -204,8 +234,11 @@ export const sectionEditorConfig: { [K in SectionKey]: SectionEditorDefinition<K
         fields: {
           quote: { kind: "textarea", label: "Quote" },
           name: { kind: "text", label: "Name" },
-          role: { kind: "text", label: "Role" },
+          role: { kind: "text", label: "Role (e.g. Founder, Acme Inc.)" },
           initials: { kind: "text", label: "Initials" },
+          avatarUrl: { kind: "url", label: "Avatar image URL (optional)" },
+          rating: { kind: "number", label: "Rating (1-5)", min: 1, max: 5 },
+          href: { kind: "url", label: "Link to case study (optional)" },
         },
       },
       clients: { kind: "stringArray", label: "Client marquee", itemLabel: "Client" },

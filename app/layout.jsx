@@ -110,7 +110,12 @@ export default async function RootLayout({ children }) {
   };
 
   return (
-    <html lang="en" data-theme="dark" className={cn("font-sans", geist.variable)}>
+    <html
+      lang="en"
+      data-theme="dark"
+      data-scroll-behavior="smooth"
+      className={cn("font-sans", geist.variable)}
+    >
       <head>
         <script
           type="application/ld+json"

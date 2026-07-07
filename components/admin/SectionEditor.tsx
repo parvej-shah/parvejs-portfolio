@@ -42,6 +42,8 @@ function createEmptyValue(field: FieldConfig): unknown {
     case "url":
     case "email":
       return "";
+    case "number":
+      return 5;
     case "stringArray":
       return [""];
     case "object":
@@ -64,6 +66,15 @@ export function SectionEditor() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
+  function createEmptySection(key: SectionKey): EditorValue {
+    return Object.fromEntries(
+      Object.entries(sectionEditorConfig[key].fields).map(([fieldKey, field]) => [
+        fieldKey,
+        createEmptyValue(field),
+      ])
+    ) as EditorValue;
+  }
+
   useEffect(() => {
     let isCancelled = false;
 
@@ -77,8 +88,15 @@ export function SectionEditor() {
         if (!isCancelled) setDraft(data as EditorValue);
       } catch (loadError) {
         if (!isCancelled) {
-          setError(loadError instanceof Error ? loadError.message : "Failed to load section.");
-          setDraft(null);
+          const message = loadError instanceof Error ? loadError.message : "Failed to load section.";
+
+          if (message.startsWith("Section not found:")) {
+            setDraft(createEmptySection(selectedKey));
+            setMessage(`${sectionEditorConfig[selectedKey].label} has not been saved yet. Add content and save it.`);
+          } else {
+            setError(message);
+            setDraft(null);
+          }
         }
       } finally {
         if (!isCancelled) setIsLoading(false);
@@ -263,6 +281,24 @@ export function SectionEditor() {
             ))}
           </div>
         </div>
+      );
+    }
+
+    if (field.kind === "number") {
+      const numberValue = typeof value === "number" ? value : "";
+
+      return (
+        <label className="block space-y-2 rounded-2xl border border-line bg-ink-2/60 p-4">
+          <span className="text-sm font-semibold text-white">{field.label}</span>
+          <Input
+            type="number"
+            min={field.min}
+            max={field.max}
+            value={numberValue}
+            onChange={(event: ChangeEvent<HTMLInputElement>) => updateField(path, Number(event.target.value))}
+            className="rounded-xl border-line bg-ink-3"
+          />
+        </label>
       );
     }
 

@@ -28,10 +28,26 @@ async function seedProjects() {
     {
       slug: "luxeory",
       title: "Luxeory",
-      summary: "Hotel booking platform",
+      summary:
+        "A full-stack hotel booking platform with property discovery, secure authentication, booking workflows, and admin-ready data management.",
       status: "PUBLISHED" as const,
       featured: true,
       techStack: ["React", "Node.js", "MongoDB", "Firebase", "JWT"],
+      keyFeatures: [
+        "Secure JWT-based authentication",
+        "End-to-end booking flow",
+        "Searchable hotel listings",
+        "Protected routes for guest and admin views",
+        "Database-backed content management",
+      ],
+      problem:
+        "Independent hotels and small property owners rely on generic listing sites or manual booking processes — spreadsheets, phone calls, and email chains — that make it hard to manage availability, take bookings reliably, or present properties well online. Luxeory set out to solve this: a booking platform where guests can discover properties and book with confidence, and owners get a system that actually tracks reservations instead of losing them.",
+      approach:
+        "I built Luxeory as a full MERN-stack application, starting with the data model: hotels, rooms, bookings, and users as distinct collections in MongoDB with clear relationships. Authentication runs on Firebase for identity plus JWT for authorizing API requests, so every booking and admin action is tied to a verified user. Routes are split between public browsing/search and protected booking/admin flows, guarded by middleware that checks the JWT before any write operation touches the database.",
+      solution:
+        "The result is a working platform covering the full guest journey: browse and search hotels, view detailed property pages, and complete a booking through a guarded checkout flow. Authenticated users get a dashboard to review their bookings, and the data layer is structured so an admin view can manage listings and reservations without schema changes. The frontend is a responsive React SPA styled for both desktop and mobile guest use.",
+      results:
+        "Implemented end-to-end booking flow from search to confirmation. Built secure JWT authentication protecting all booking and admin routes. Designed a responsive guest experience that works across mobile and desktop. Structured MongoDB data models to support admin-ready content management without rework.",
       order: 0,
     },
     {
@@ -171,6 +187,38 @@ const sectionContent: Record<SectionKey, unknown> = {
       { value: "100", suffix: "%", label: "On-time delivery — and clients who come back" },
     ],
   },
+  process: {
+    eyebrow: "How I Work",
+    heading: "A clear path from first idea to launched product.",
+    description:
+      "A focused process keeps the work calm, fast, and measurable: first we clarify what matters, then we design, build, and launch without losing sight of the business goal.",
+    steps: [
+      {
+        icon: "Search",
+        title: "Discover",
+        description: "Define the audience, product goal, must-have flows, and the smallest scope worth launching.",
+        deliverable: "Scope & roadmap",
+      },
+      {
+        icon: "LayoutGrid",
+        title: "Design",
+        description: "Shape the experience with clear content hierarchy, conversion paths, and responsive interface details.",
+        deliverable: "UI & prototype",
+      },
+      {
+        icon: "Code2",
+        title: "Build",
+        description: "Develop the product with maintainable architecture, fast pages, and practical admin workflows.",
+        deliverable: "Production code",
+      },
+      {
+        icon: "Rocket",
+        title: "Launch",
+        description: "Ship with QA, deployment support, performance checks, and a clear plan for the next iteration.",
+        deliverable: "Live product",
+      },
+    ],
+  },
   about: {
     eyebrow: "About Me",
     heading: "Developer driven by purpose and precision.",
@@ -218,15 +266,21 @@ const sectionContent: Record<SectionKey, unknown> = {
         quote:
           "Working with Parvej was a great experience from start to finish. The project was delivered on time with excellent attention to detail. Communication was clear and professional throughout.",
         name: "Client Name",
-        role: "Startup Founder",
+        role: "Startup Founder, Zenvix",
         initials: "CN",
+        avatarUrl: "",
+        rating: 5,
+        href: "",
       },
       {
         quote:
           "Clean code, thoughtful UX, and a genuine care for the end result. Parvej understood exactly what we needed and shipped it faster than we expected.",
         name: "Client Name",
-        role: "Product Manager",
+        role: "Product Manager, Glovix",
         initials: "CN",
+        avatarUrl: "",
+        rating: 5,
+        href: "",
       },
     ],
     clients: ["Zenvix", "Glovix", "Crevox", "Markon", "Brandex", "Nexora"],
@@ -279,7 +333,7 @@ const sectionContent: Record<SectionKey, unknown> = {
     newsletterHeading: "Let's stay in touch",
     newsletterDescription: "Got an idea worth building? One message starts it — I reply within 24 hours.",
     ctaLabel: "Start a Project",
-    ctaHref: "#contact",
+    ctaHref: "/#contact",
     copyrightName: "Parvej Shah Labib",
     copyrightRole: "Full Stack Web Developer",
   },

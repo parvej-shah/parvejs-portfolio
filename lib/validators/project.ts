@@ -18,6 +18,7 @@ export const projectSchema = z.object({
   role: z.string().nullable().optional(),
   timeline: z.string().nullable().optional(),
   techStack: z.array(z.string()).default([]),
+  keyFeatures: z.array(z.string()).default([]),
 
   order: z.number().int().default(0),
   featured: z.boolean().default(false),

@@ -39,13 +39,25 @@ import {
 import {
   SiAxios,
   SiBootstrap,
+  SiCss3,
+  SiDocker,
   SiExpress,
   SiFirebase,
+  SiGraphql,
+  SiHtml5,
   SiJsonwebtokens,
   SiMongodb,
+  SiNextdotjs,
+  SiPostgresql,
+  SiPrisma,
+  SiPython,
   SiReactquery,
+  SiRedis,
+  SiSass,
   SiShadcnui,
   SiTailwindcss,
+  SiTypescript,
+  SiVercel,
   SiX,
 } from "react-icons/si";
 import aboutImage from "@/assets/images/aboutme.webp";
@@ -66,6 +78,17 @@ const serviceIcons = {
   Sparkles,
   TerminalSquare,
   LayoutGrid,
+  Zap,
+} as const;
+
+const processIcons = {
+  Search,
+  LayoutGrid,
+  Code2,
+  Rocket,
+  Sparkles,
+  Gauge,
+  Shield,
   Zap,
 } as const;
 
@@ -93,16 +116,28 @@ const socialIcons = {
 const skillIcons = {
   FaReact,
   FaJs,
+  SiTypescript,
+  SiNextdotjs,
   SiTailwindcss,
   SiShadcnui,
   SiBootstrap,
+  SiHtml5,
+  SiCss3,
+  SiSass,
   FaNodeJs,
   SiExpress,
   SiMongodb,
+  SiPostgresql,
+  SiPrisma,
   SiFirebase,
+  SiRedis,
+  SiGraphql,
   SiReactquery,
   SiAxios,
   SiJsonwebtokens,
+  SiDocker,
+  SiVercel,
+  SiPython,
   FaGit,
   FaFigma,
 } as const;
@@ -114,6 +149,7 @@ const knownSectionImages: Record<string, StaticImageData> = {
 
 export const iconSets = {
   service: serviceIcons,
+  process: processIcons,
   contact: contactIcons,
   social: socialIcons,
   skill: skillIcons,
@@ -121,6 +157,10 @@ export const iconSets = {
 
 export function resolveServiceIcon(icon: string) {
   return serviceIcons[icon as keyof typeof serviceIcons] ?? Code2;
+}
+
+export function resolveProcessIcon(icon: string) {
+  return processIcons[icon as keyof typeof processIcons] ?? Search;
 }
 
 export function resolveContactIcon(icon: string) {

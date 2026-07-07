@@ -2,12 +2,12 @@ import SocialLinks from "./SocialLinks";
 import { getSection } from "@/lib/data/public";
 
 const quickLinks = [
-  { name: "Home", href: "#top" },
-  { name: "Services", href: "#services" },
-  { name: "Portfolio", href: "#portfolio" },
-  { name: "About", href: "#about" },
-  { name: "Insights", href: "#insights" },
-  { name: "Contact", href: "#contact" },
+  { name: "Home", href: "/#top" },
+  { name: "Services", href: "/#services" },
+  { name: "Portfolio", href: "/#portfolio" },
+  { name: "About", href: "/#about" },
+  { name: "Insights", href: "/#insights" },
+  { name: "Contact", href: "/#contact" },
 ];
 
 const defaultFooter = {
@@ -18,7 +18,7 @@ const defaultFooter = {
   newsletterHeading: "Let's stay in touch",
   newsletterDescription: "Got an idea worth building? One message starts it — I reply within 24 hours.",
   ctaLabel: "Start a Project",
-  ctaHref: "#contact",
+  ctaHref: "/#contact",
   copyrightName: "Parvej Shah Labib",
   copyrightRole: "Full Stack Web Developer",
 };

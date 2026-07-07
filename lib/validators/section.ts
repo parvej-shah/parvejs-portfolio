@@ -40,6 +40,20 @@ const statsSchema = z.object({
   ),
 });
 
+const processSchema = z.object({
+  eyebrow: z.string().min(1),
+  heading: z.string().min(1),
+  description: z.string().min(1),
+  steps: z.array(
+    z.object({
+      icon: z.string().min(1),
+      title: z.string().min(1),
+      description: z.string().min(1),
+      deliverable: z.string().min(1),
+    })
+  ),
+});
+
 const aboutSchema = z.object({
   eyebrow: z.string().min(1),
   heading: z.string().min(1),
@@ -70,6 +84,9 @@ const testimonialsSchema = z.object({
       name: z.string().min(1),
       role: z.string().min(1),
       initials: z.string().min(1),
+      avatarUrl: z.string().optional(),
+      rating: z.number().min(1).max(5).default(5),
+      href: z.string().optional(),
     })
   ),
   clients: z.array(z.string().min(1)),
@@ -131,6 +148,7 @@ export const sectionSchemas = {
   hero: heroSchema,
   services: servicesSchema,
   stats: statsSchema,
+  process: processSchema,
   about: aboutSchema,
   skills: skillsSchema,
   testimonials: testimonialsSchema,

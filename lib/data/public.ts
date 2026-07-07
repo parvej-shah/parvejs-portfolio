@@ -17,6 +17,7 @@ const publishedProjectSelect = {
   role: true,
   timeline: true,
   techStack: true,
+  keyFeatures: true,
   order: true,
   featured: true,
   createdAt: true,

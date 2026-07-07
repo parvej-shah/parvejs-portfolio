@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
-import { ArrowLeft, ArrowUpRight } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, CircleHelp, Compass, Hammer, Trophy } from "lucide-react";
 import Reveal from "@/components/Reveal";
+import ProjectGallery from "@/components/ProjectGallery";
 import { buttonVariants } from "@/components/ui/button";
 import { getProjectBySlug, getPublishedProjects } from "@/lib/data/public";
 import { markdownRemarkPlugins } from "@/lib/markdown";
@@ -15,10 +15,10 @@ type PageProps = {
 };
 
 const caseStudySections = [
-  { key: "problem", label: "Problem" },
-  { key: "approach", label: "Approach" },
-  { key: "solution", label: "Solution" },
-  { key: "results", label: "Results" },
+  { key: "problem", label: "Problem", step: "01", icon: CircleHelp },
+  { key: "approach", label: "Approach", step: "02", icon: Compass },
+  { key: "solution", label: "Solution", step: "03", icon: Hammer },
+  { key: "results", label: "Results", step: "04", icon: Trophy },
 ] as const;
 
 export async function generateStaticParams() {
@@ -111,26 +111,10 @@ export default async function ProjectDetailPage({ params }: PageProps) {
 
       {project.gallery.length > 0 ? (
         <section className="border-b border-line py-12 lg:py-16">
-          <div className="mx-auto grid max-w-7xl gap-6 px-5 lg:grid-cols-12">
-            {project.gallery.map((asset, index) => (
-              <Reveal
-                key={asset.id}
-                delay={(index % 3) * 90}
-                className={cn(
-                  "relative overflow-hidden rounded-[1.6rem] border border-line bg-ink-2",
-                  index === 0 ? "aspect-[16/10] lg:col-span-7" : "aspect-[4/3] lg:col-span-5"
-                )}
-              >
-                <Image
-                  src={asset.url}
-                  alt={asset.alt || project.title}
-                  fill
-                  sizes={index === 0 ? "(max-width: 1024px) 100vw, 58vw" : "(max-width: 1024px) 100vw, 35vw"}
-                  className="object-cover"
-                />
-              </Reveal>
-            ))}
-          </div>
+          <Reveal className="mx-auto mb-8 max-w-7xl px-5">
+            <span className="eyebrow">Gallery</span>
+          </Reveal>
+          <ProjectGallery assets={project.gallery} projectTitle={project.title} />
         </section>
       ) : null}
 
@@ -150,6 +134,19 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                 ))}
               </div>
             </div>
+            {project.keyFeatures.length > 0 ? (
+              <div className="card-surface p-6">
+                <span className="eyebrow mb-5">Key Features</span>
+                <ul className="space-y-2.5">
+                  {project.keyFeatures.map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-sm leading-6 text-muted-foreground">
+                      <span className="mt-2 size-1.5 shrink-0 rounded-full bg-brand" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
             <div className="card-surface p-6">
               <span className="eyebrow mb-5">Working Together</span>
               <p className="text-sm leading-7 text-muted-foreground">
@@ -169,15 +166,30 @@ export default async function ProjectDetailPage({ params }: PageProps) {
             </div>
           </Reveal>
 
-          <div className="space-y-8">
+          <div className="relative space-y-10">
+            <div
+              className="absolute left-6 top-2 bottom-2 hidden w-px bg-gradient-to-b from-brand/50 via-line to-transparent sm:block"
+              aria-hidden
+            />
             {caseStudySections.map((section, index) => {
               const value = project[section.key];
 
               if (!value) return null;
+              const Icon = section.icon;
 
               return (
-                <Reveal key={section.key} delay={index * 70} className="card-surface p-7 sm:p-8">
-                  <span className="eyebrow mb-5">{section.label}</span>
+                <Reveal
+                  key={section.key}
+                  delay={index * 70}
+                  className="relative card-surface p-7 sm:ml-16 sm:p-8"
+                >
+                  <div className="absolute -left-16 top-7 hidden size-12 items-center justify-center rounded-full border border-line bg-ink-2 sm:flex">
+                    <Icon className="size-5 text-brand" />
+                  </div>
+                  <div className="mb-5 flex items-center gap-3">
+                    <span className="font-mono text-xs text-muted-foreground/70">{section.step}</span>
+                    <span className="eyebrow">{section.label}</span>
+                  </div>
                   <div className="prose-portfolio">
                     <ReactMarkdown remarkPlugins={markdownRemarkPlugins}>{value}</ReactMarkdown>
                   </div>

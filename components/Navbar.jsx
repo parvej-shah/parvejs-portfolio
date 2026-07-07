@@ -1,17 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Menu, X, ArrowUpRight } from "lucide-react";
 import useScroll from "../hooks/useScrolls";
 import { buttonVariants } from "./ui/button";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
-  { name: "About Me", link: "#about" },
-  { name: "Services", link: "#services" },
-  { name: "Portfolio", link: "#portfolio" },
-  { name: "Insights", link: "#insights" },
-  { name: "Contact", link: "#contact" },
+  { name: "About Me", link: "/#about" },
+  { name: "Services", link: "/#services" },
+  { name: "Portfolio", link: "/projects" },
+  { name: "Insights", link: "/blog" },
+  { name: "Contact", link: "/#contact" },
 ];
 
 export default function Navbar() {
@@ -27,27 +28,27 @@ export default function Navbar() {
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
-        <a href="#top" className="flex items-center gap-2 text-2xl font-black tracking-tight">
+        <Link href="/#top" className="flex items-center gap-2 text-2xl font-black tracking-tight">
           <span className="text-brand">{"<"}</span>
           <span className="text-white">PS</span>
           <span className="text-brand">{"/>"}</span>
-        </a>
+        </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
           {navLinks.map((l) => (
-            <a
+            <Link
               key={l.link}
               href={l.link}
               className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-white"
             >
               {l.name}
-            </a>
+            </Link>
           ))}
         </nav>
 
         <div className="flex items-center gap-3">
-          <a
-            href="#contact"
+          <Link
+            href="/#contact"
             className={cn(
               buttonVariants(),
               "hidden h-10 rounded-full bg-brand px-5 text-sm font-semibold text-[#05140b] hover:bg-brand-dark sm:inline-flex [&_svg]:size-4"
@@ -55,7 +56,7 @@ export default function Navbar() {
           >
             Start a Project
             <ArrowUpRight />
-          </a>
+          </Link>
 
           <button
             aria-label="Toggle menu"
@@ -72,7 +73,7 @@ export default function Navbar() {
         <div className="border-t border-line bg-ink/95 backdrop-blur-xl lg:hidden">
           <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-5 py-4">
             {navLinks.map((l) => (
-              <a
+              <Link
                 key={l.link}
                 href={l.link}
                 onClick={() => setOpen(false)}
@@ -80,10 +81,10 @@ export default function Navbar() {
               >
                 {l.name}
                 <ArrowUpRight className="size-4 text-brand" />
-              </a>
+              </Link>
             ))}
-            <a
-              href="#contact"
+            <Link
+              href="/#contact"
               onClick={() => setOpen(false)}
               className={cn(
                 buttonVariants(),
@@ -91,7 +92,7 @@ export default function Navbar() {
               )}
             >
               Start a Project
-            </a>
+            </Link>
           </nav>
         </div>
       )}

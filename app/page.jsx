@@ -1,6 +1,7 @@
 import HeroSection from "../components/Banner";
 import Services from "../components/Services";
 import Stats from "../components/Stats";
+import Process from "../components/Process";
 import Portfolio from "../components/Portfolio";
 import AboutMe from "../components/AboutMe";
 import Skills from "../components/Skills";
@@ -15,6 +16,7 @@ export default async function Home() {
     heroSection,
     servicesSection,
     statsSection,
+    processSection,
     aboutSection,
     skillsSection,
     ctaSection,
@@ -27,6 +29,7 @@ export default async function Home() {
     getSection("hero"),
     getSection("services"),
     getSection("stats"),
+    getSection("process"),
     getSection("about"),
     getSection("skills"),
     getSection("cta"),
@@ -46,6 +49,7 @@ export default async function Home() {
       <HeroSection section={heroSection ?? undefined} socialLinks={socialSection?.links} />
       <Services section={servicesSection ?? undefined} />
       <Stats section={statsSection ?? undefined} />
+      <Process section={processSection ?? undefined} />
       <Portfolio projects={featuredProjects} />
       <AboutMe section={aboutSection ?? undefined} />
       <Skills section={skillsSection ?? undefined} />

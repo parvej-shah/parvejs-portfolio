@@ -93,28 +93,53 @@ export function ProjectForm({ project }: ProjectFormProps) {
         </label>
       </div>
 
-      <Controller
-        control={control}
-        name="techStack"
-        render={({ field }) => (
-          <label className="block space-y-2">
-            <span className="text-sm font-medium text-white">Tech stack (comma-separated)</span>
-            <Input
-              type="text"
-              className="rounded-xl border-line bg-ink-3"
-              value={(field.value ?? []).join(", ")}
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                field.onChange(
-                  event.target.value
-                    .split(",")
-                    .map((item) => item.trim())
-                    .filter(Boolean)
-                )
-              }
-            />
-          </label>
-        )}
-      />
+      <div className="grid gap-6 md:grid-cols-2">
+        <Controller
+          control={control}
+          name="techStack"
+          render={({ field }) => (
+            <label className="block space-y-2">
+              <span className="text-sm font-medium text-white">Tech stack (comma-separated)</span>
+              <Input
+                type="text"
+                className="rounded-xl border-line bg-ink-3"
+                value={(field.value ?? []).join(", ")}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  field.onChange(
+                    event.target.value
+                      .split(",")
+                      .map((item) => item.trim())
+                      .filter(Boolean)
+                  )
+                }
+              />
+            </label>
+          )}
+        />
+
+        <Controller
+          control={control}
+          name="keyFeatures"
+          render={({ field }) => (
+            <label className="block space-y-2">
+              <span className="text-sm font-medium text-white">Key features (comma-separated)</span>
+              <Input
+                type="text"
+                className="rounded-xl border-line bg-ink-3"
+                value={(field.value ?? []).join(", ")}
+                onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                  field.onChange(
+                    event.target.value
+                      .split(",")
+                      .map((item) => item.trim())
+                      .filter(Boolean)
+                  )
+                }
+              />
+            </label>
+          )}
+        />
+      </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Controller
