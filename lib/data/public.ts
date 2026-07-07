@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSectionSchema, type SectionKey } from "@/lib/validators/section";
@@ -101,10 +102,10 @@ const getProjectBySlugCached = unstable_cache(
   { tags: ["projects"] }
 );
 
-export async function getProjectBySlug(slug: string) {
+export const getProjectBySlug = cache(async (slug: string) => {
   const project = await getProjectBySlugCached(slug);
   return project ? reviveProjectDates(project) : null;
-}
+});
 
 export async function getPublishedPosts() {
   const posts = await getPublishedPostsCached();
@@ -121,10 +122,10 @@ const getPostBySlugCached = unstable_cache(
   { tags: ["posts"] }
 );
 
-export async function getPostBySlug(slug: string) {
+export const getPostBySlug = cache(async (slug: string) => {
   const post = await getPostBySlugCached(slug);
   return post ? revivePostDates(post) : null;
-}
+});
 
 const getSectionCached = unstable_cache(
   async (key: SectionKey) => {
@@ -136,7 +137,7 @@ const getSectionCached = unstable_cache(
   { tags: ["sections"] }
 );
 
-export async function getSection<K extends SectionKey>(key: K) {
+export const getSection = cache(async <K extends SectionKey>(key: K) => {
   return (await getSectionCached(key)) as SectionData<K> | null;
-}
+});
 

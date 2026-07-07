@@ -295,6 +295,21 @@ body {
   animation-delay: var(--rise-delay, 0ms);
 }
 
+/* transform-only variant for the LCP element: never opacity-0, so the
+   entrance animation doesn't delay the Largest Contentful Paint. */
+@keyframes hero-rise-move {
+  from {
+    transform: translateY(28px);
+  }
+  to {
+    transform: none;
+  }
+}
+.hero-rise-lcp {
+  animation: hero-rise-move 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--rise-delay, 0ms);
+}
+
 .prose-portfolio {
   color: var(--color-muted-ink);
 }

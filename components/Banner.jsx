@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { ArrowUpRight, Star } from "lucide-react";
 import bannerImg from "../assets/images/banner-cutout.webp";
 import SocialLinks from "./SocialLinks";
@@ -131,10 +132,10 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
           </div>
         </div>
 
-        {/* Right: portrait — hero-rise on outer (owns opacity), portrait-float on inner */}
+        {/* Right: portrait — transform-only rise so the LCP image is never hidden */}
         <div
-          className="hero-rise relative mx-auto w-full max-w-sm sm:max-w-md"
-          style={{ "--rise-delay": "220ms" }}
+          className="hero-rise-lcp relative mx-auto w-full max-w-sm sm:max-w-md"
+          style={{ "--rise-delay": "0ms" }}
         >
          <div className="portrait-float relative">
           {/* soft breathing halo behind the frame — calm, no rotation */}
@@ -149,13 +150,15 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
               aria-hidden
             />
 
-            {/* Plain img so height comes from the image's own aspect ratio —
-                no dependency on parent height, no fill/absolute quirks. */}
-            <img
-              src={typeof portraitSrc === "string" ? portraitSrc : portraitSrc.src}
+            {/* LCP element: priority preload + responsive srcset. Explicit width/height
+                keeps height driven by the image's own aspect ratio (h-auto). */}
+            <Image
+              src={portraitSrc}
               alt={content.portraitAlt}
               width={typeof portraitSrc === "string" ? bannerImg.width : portraitSrc.width}
               height={typeof portraitSrc === "string" ? bannerImg.height : portraitSrc.height}
+              priority
+              sizes="(max-width: 640px) 100vw, 448px"
               className="relative block h-auto w-full select-none object-cover brightness-[.94] [mask-image:linear-gradient(to_bottom,black_68%,transparent_98%)] transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
               draggable={false}
             />
