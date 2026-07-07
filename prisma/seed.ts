@@ -30,6 +30,7 @@ async function seedProjects() {
       title: "Luxeory",
       summary: "Hotel booking platform",
       status: "PUBLISHED" as const,
+      featured: true,
       techStack: ["React", "Node.js", "MongoDB", "Firebase", "JWT"],
       order: 0,
     },
@@ -38,6 +39,7 @@ async function seedProjects() {
       title: "VisaSphere",
       summary: "Visa application navigator",
       status: "PUBLISHED" as const,
+      featured: true,
       techStack: ["React", "Node.js", "MongoDB", "Firebase"],
       order: 1,
     },
@@ -46,6 +48,7 @@ async function seedProjects() {
       title: "Lingo Bingo",
       summary: "Japanese language learning",
       status: "PUBLISHED" as const,
+      featured: true,
       techStack: ["React", "Firebase", "Tailwind CSS"],
       order: 2,
     },
@@ -83,6 +86,7 @@ Every feature you don't build is a feature you don't have to maintain, test, or 
 
 None of this is groundbreaking. It's just consistently applied discipline, and that's usually enough.`,
       status: "PUBLISHED" as const,
+      featured: true,
     },
     {
       slug: "the-case-for-boring-frontend-architecture",
@@ -105,6 +109,7 @@ A typed contract between the API and the UI — a Zod schema, a generated type, 
 
 Boring architecture doesn't make headlines. It just means fewer 2am incidents and a codebase new teammates can understand in an afternoon.`,
       status: "PUBLISHED" as const,
+      featured: true,
     },
   ];
 
