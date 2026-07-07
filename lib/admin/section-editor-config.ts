@@ -1,0 +1,287 @@
+import type { SectionData, SectionKey } from "@/lib/types";
+
+type PrimitiveKind = "text" | "textarea" | "url" | "email";
+
+type PrimitiveField = {
+  kind: PrimitiveKind;
+  label: string;
+  placeholder?: string;
+  description?: string;
+};
+
+export type IconSet = "service" | "contact" | "social" | "skill";
+
+type IconPickerField = {
+  kind: "iconPicker";
+  label: string;
+  iconSet: IconSet;
+};
+
+type ObjectField<T extends Record<string, unknown>> = {
+  kind: "object";
+  label: string;
+  fields: FieldMap<T>;
+};
+
+type StringArrayField = {
+  kind: "stringArray";
+  label: string;
+  itemLabel: string;
+  placeholder?: string;
+};
+
+type ObjectArrayField<T extends Record<string, unknown>> = {
+  kind: "objectArray";
+  label: string;
+  itemLabel: string;
+  fields: FieldMap<T>;
+};
+
+export type FieldConfig =
+  | PrimitiveField
+  | IconPickerField
+  | ObjectField<Record<string, unknown>>
+  | StringArrayField
+  | ObjectArrayField<Record<string, unknown>>;
+
+type NormalizedFieldValue<T> = NonNullable<T>;
+
+type FieldFor<T> = NormalizedFieldValue<T> extends string
+  ? PrimitiveField | IconPickerField
+  : NormalizedFieldValue<T> extends string[]
+    ? StringArrayField
+    : NormalizedFieldValue<T> extends Array<infer U>
+      ? U extends string
+        ? StringArrayField
+        : U extends Record<string, unknown>
+          ? ObjectArrayField<U>
+          : never
+      : NormalizedFieldValue<T> extends Record<string, unknown>
+        ? ObjectField<NormalizedFieldValue<T>>
+        : never;
+
+export type FieldMap<T> = {
+  [K in keyof T]-?: FieldFor<T[K]>;
+};
+
+type SectionEditorDefinition<K extends SectionKey> = {
+  label: string;
+  description: string;
+  fields: FieldMap<SectionData<K>>;
+};
+
+function defineSection<K extends SectionKey>(config: SectionEditorDefinition<K>) {
+  return config;
+}
+
+export const sectionEditorConfig: { [K in SectionKey]: SectionEditorDefinition<K> } = {
+  hero: defineSection({
+    label: "Hero",
+    description: "Main above-the-fold copy, CTAs, trust strip, and hero portrait settings.",
+    fields: {
+      eyebrow: { kind: "text", label: "Eyebrow" },
+      headlineLines: { kind: "stringArray", label: "Headline lines", itemLabel: "Line" },
+      description: { kind: "textarea", label: "Description" },
+      primaryCta: {
+        kind: "object",
+        label: "Primary CTA",
+        fields: {
+          label: { kind: "text", label: "Label" },
+          href: { kind: "text", label: "Href", placeholder: "#contact" },
+        },
+      },
+      secondaryCta: {
+        kind: "object",
+        label: "Secondary CTA",
+        fields: {
+          label: { kind: "text", label: "Label" },
+          href: { kind: "text", label: "Href", placeholder: "#portfolio" },
+        },
+      },
+      trustLabel: { kind: "text", label: "Trust label" },
+      trustStats: {
+        kind: "objectArray",
+        label: "Trust stats",
+        itemLabel: "Stat",
+        fields: {
+          value: { kind: "text", label: "Value" },
+          label: { kind: "text", label: "Label" },
+        },
+      },
+      portraitImage: { kind: "text", label: "Portrait image URL or asset path" },
+      portraitAlt: { kind: "text", label: "Portrait alt text" },
+      experienceBadge: {
+        kind: "object",
+        label: "Experience badge",
+        fields: {
+          value: { kind: "text", label: "Value" },
+          label: { kind: "text", label: "Label" },
+        },
+      },
+    },
+  }),
+  services: defineSection({
+    label: "Services",
+    description: "Core expertise intro plus repeatable service cards.",
+    fields: {
+      eyebrow: { kind: "text", label: "Eyebrow" },
+      heading: { kind: "textarea", label: "Heading" },
+      description: { kind: "textarea", label: "Description" },
+      tagline: { kind: "text", label: "Tagline" },
+      items: {
+        kind: "objectArray",
+        label: "Service items",
+        itemLabel: "Service",
+        fields: {
+          icon: { kind: "iconPicker", label: "Icon", iconSet: "service" },
+          title: { kind: "text", label: "Title" },
+          desc: { kind: "textarea", label: "Description" },
+        },
+      },
+    },
+  }),
+  stats: defineSection({
+    label: "Stats",
+    description: "Numbers strip shown beneath the services section.",
+    fields: {
+      items: {
+        kind: "objectArray",
+        label: "Stats",
+        itemLabel: "Stat",
+        fields: {
+          value: { kind: "text", label: "Value" },
+          suffix: { kind: "text", label: "Suffix" },
+          label: { kind: "text", label: "Label" },
+        },
+      },
+    },
+  }),
+  about: defineSection({
+    label: "About",
+    description: "About copy, image, quote, bullet points, and CTA.",
+    fields: {
+      eyebrow: { kind: "text", label: "Eyebrow" },
+      heading: { kind: "textarea", label: "Heading" },
+      image: { kind: "text", label: "Image URL or asset path" },
+      imageAlt: { kind: "text", label: "Image alt text" },
+      quote: { kind: "textarea", label: "Quote" },
+      quoteAuthor: { kind: "text", label: "Quote author" },
+      quoteRole: { kind: "text", label: "Quote role" },
+      points: { kind: "stringArray", label: "Bullet points", itemLabel: "Point" },
+      badgeValue: { kind: "text", label: "Badge value" },
+      badgeLabel: { kind: "text", label: "Badge label" },
+      ctaLabel: { kind: "text", label: "CTA label" },
+      ctaHref: { kind: "text", label: "CTA href" },
+    },
+  }),
+  skills: defineSection({
+    label: "Skills",
+    description: "Tech stack heading plus repeatable skill tiles.",
+    fields: {
+      eyebrow: { kind: "text", label: "Eyebrow" },
+      heading: { kind: "textarea", label: "Heading" },
+      items: {
+        kind: "objectArray",
+        label: "Skills",
+        itemLabel: "Skill",
+        fields: {
+          name: { kind: "text", label: "Name" },
+          icon: { kind: "iconPicker", label: "Icon", iconSet: "skill" },
+        },
+      },
+    },
+  }),
+  testimonials: defineSection({
+    label: "Testimonials",
+    description: "Quotes plus marquee client names.",
+    fields: {
+      eyebrow: { kind: "text", label: "Eyebrow" },
+      heading: { kind: "textarea", label: "Heading" },
+      items: {
+        kind: "objectArray",
+        label: "Testimonials",
+        itemLabel: "Testimonial",
+        fields: {
+          quote: { kind: "textarea", label: "Quote" },
+          name: { kind: "text", label: "Name" },
+          role: { kind: "text", label: "Role" },
+          initials: { kind: "text", label: "Initials" },
+        },
+      },
+      clients: { kind: "stringArray", label: "Client marquee", itemLabel: "Client" },
+    },
+  }),
+  cta: defineSection({
+    label: "CTA Band",
+    description: "Homepage conversion band above testimonials.",
+    fields: {
+      rating: { kind: "text", label: "Rating" },
+      ratingLabel: { kind: "text", label: "Rating label" },
+      heading: { kind: "textarea", label: "Heading" },
+      description: { kind: "textarea", label: "Description" },
+      ctaLabel: { kind: "text", label: "CTA label" },
+      ctaHref: { kind: "text", label: "CTA href" },
+    },
+  }),
+  contact: defineSection({
+    label: "Contact",
+    description: "Contact intro and repeatable contact info rows.",
+    fields: {
+      eyebrow: { kind: "text", label: "Eyebrow" },
+      heading: { kind: "textarea", label: "Heading" },
+      description: { kind: "textarea", label: "Description" },
+      info: {
+        kind: "objectArray",
+        label: "Contact info",
+        itemLabel: "Row",
+        fields: {
+          icon: { kind: "iconPicker", label: "Icon", iconSet: "contact" },
+          label: { kind: "text", label: "Label" },
+          value: { kind: "text", label: "Value" },
+          href: { kind: "text", label: "Href" },
+        },
+      },
+    },
+  }),
+  social: defineSection({
+    label: "Social Links",
+    description: "Links used across hero, contact, and footer.",
+    fields: {
+      links: {
+        kind: "objectArray",
+        label: "Links",
+        itemLabel: "Link",
+        fields: {
+          icon: { kind: "iconPicker", label: "Icon", iconSet: "social" },
+          label: { kind: "text", label: "Label" },
+          href: { kind: "url", label: "Href" },
+        },
+      },
+    },
+  }),
+  footer: defineSection({
+    label: "Footer",
+    description: "Global footer copy and primary CTA.",
+    fields: {
+      tagline: { kind: "textarea", label: "Tagline" },
+      email: { kind: "email", label: "Email" },
+      location: { kind: "text", label: "Location" },
+      newsletterHeading: { kind: "text", label: "Newsletter heading" },
+      newsletterDescription: { kind: "textarea", label: "Newsletter description" },
+      ctaLabel: { kind: "text", label: "CTA label" },
+      ctaHref: { kind: "text", label: "CTA href" },
+      copyrightName: { kind: "text", label: "Copyright name" },
+      copyrightRole: { kind: "text", label: "Copyright role" },
+    },
+  }),
+  seo: defineSection({
+    label: "SEO",
+    description: "Site-wide metadata defaults used for homepage metadata, robots, and sitemap origin.",
+    fields: {
+      title: { kind: "text", label: "Title" },
+      description: { kind: "textarea", label: "Description" },
+      ogImage: { kind: "text", label: "Open Graph image" },
+      siteUrl: { kind: "url", label: "Canonical site URL" },
+    },
+  }),
+};

@@ -1,25 +1,38 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Mail, MapPin, Clock, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import emailjs from "@emailjs/browser";
 import Reveal from "./Reveal";
 import SocialLinks from "./SocialLinks";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
+import { resolveContactIcon } from "@/lib/section-rendering";
 
-const contactInfo = [
-  { Icon: Mail, label: "Email", value: "parvejshahlabib007@gmail.com", href: "mailto:parvejshahlabib007@gmail.com" },
-  { Icon: MapPin, label: "Location", value: "Dhaka, Bangladesh", href: null },
-  { Icon: Clock, label: "Response time", value: "Within 24 hours", href: null },
-];
+const defaultSection = {
+  eyebrow: "Let's Work Together",
+  heading: "Let's turn your idea into something real.",
+  description:
+    "Tell me a little about what you're building — scope, timeline, or just the rough shape of it — and I'll reply within 24 hours with clear next steps.",
+  info: [
+    {
+      icon: "Mail",
+      label: "Email",
+      value: "parvejshahlabib007@gmail.com",
+      href: "mailto:parvejshahlabib007@gmail.com",
+    },
+    { icon: "MapPin", label: "Location", value: "Dhaka, Bangladesh", href: null },
+    { icon: "Clock", label: "Response time", value: "Within 24 hours", href: null },
+  ],
+};
 
-export default function Contact() {
+export default function Contact({ section = defaultSection, socialLinks = [] }) {
   const form = useRef();
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "" });
+  const content = { ...defaultSection, ...section };
 
   const handleInputChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -76,18 +89,15 @@ export default function Contact() {
         <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr]">
           {/* Left: info */}
           <Reveal>
-            <span className="eyebrow mb-5">Let&apos;s Work Together</span>
+            <span className="eyebrow mb-5">{content.eyebrow}</span>
             <h2 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
-              Let&apos;s turn your idea into something real.
+              {content.heading}
             </h2>
-            <p className="mt-4 max-w-md text-muted-foreground">
-              Tell me a little about what you&apos;re building — scope, timeline,
-              or just the rough shape of it — and I&apos;ll reply within 24 hours
-              with clear next steps.
-            </p>
+            <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">{content.description}</p>
 
             <div className="mt-8 space-y-4">
-              {contactInfo.map(({ Icon, label, value, href }) => {
+              {content.info.map(({ icon, label, value, href }) => {
+                const Icon = resolveContactIcon(icon);
                 const Wrapper = href ? "a" : "div";
                 return (
                   <Wrapper
@@ -100,7 +110,7 @@ export default function Contact() {
                     </span>
                     <div className="min-w-0">
                       <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
-                      <p className="truncate font-medium text-white transition-colors duration-300 group-hover:text-brand">
+                      <p className="break-all font-medium text-white transition-colors duration-300 group-hover:text-brand sm:break-normal sm:truncate">
                         {value}
                       </p>
                     </div>
@@ -110,7 +120,7 @@ export default function Contact() {
             </div>
 
             <div className="mt-8">
-              <SocialLinks />
+              <SocialLinks links={socialLinks} />
             </div>
           </Reveal>
 
@@ -123,7 +133,7 @@ export default function Contact() {
               className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-brand/10 blur-3xl"
               aria-hidden
             />
-            <div className="relative flex items-center justify-between gap-4">
+            <div className="relative flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center sm:gap-4">
               <h3 className="text-xl font-semibold text-white">Send a message</h3>
               <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-3 py-1 text-xs font-medium text-brand">
                 <span className="relative flex size-1.5">
