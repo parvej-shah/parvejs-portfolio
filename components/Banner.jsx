@@ -55,25 +55,23 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
             {content.eyebrow}
           </span>
 
+          {/* headline + description are LCP candidates: no entrance animation,
+              or the browser won't count them as painted until it finishes */}
           <h1 className="text-4xl font-extrabold leading-[0.95] tracking-tight min-[420px]:text-5xl sm:text-6xl lg:text-7xl">
             {content.headlineLines.map((line, index) => (
               <span
                 key={`${line}-${index}`}
                 className={cn(
-                  "hero-rise block",
+                  "block",
                   index === 1 && "graffiti my-1 text-4xl min-[420px]:text-5xl sm:text-6xl lg:text-7xl"
                 )}
-                style={{ "--rise-delay": `${80 + index * 100}ms` }}
               >
                 {line}
               </span>
             ))}
           </h1>
 
-          <p
-            className="hero-rise mt-6 max-w-xl text-sm leading-relaxed text-muted-foreground sm:mt-7 sm:text-base"
-            style={{ "--rise-delay": "420ms" }}
-          >
+          <p className="mt-6 max-w-xl text-sm leading-relaxed text-muted-foreground sm:mt-7 sm:text-base">
             {content.description}
           </p>
 
