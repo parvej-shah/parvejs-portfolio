@@ -8,11 +8,11 @@ import { useEffect } from "react";
  */
 export default function useReveal() {
   useEffect(() => {
-    const els = document.querySelectorAll(".reveal");
-    if (!("IntersectionObserver" in window) || els.length === 0) {
-      els.forEach((el) => el.classList.add("in-view"));
+    if (!("IntersectionObserver" in window)) {
+      document.querySelectorAll(".reveal").forEach((el) => el.classList.add("in-view"));
       return;
     }
+
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -24,7 +24,26 @@ export default function useReveal() {
       },
       { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
     );
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
+
+    document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+
+    // Page content (e.g. async Server Components) can stream/hydrate in after this
+    // effect runs, so `.reveal` elements may not exist yet on first mount — watch
+    // for new ones and observe them too, otherwise they stay stuck at opacity: 0.
+    const mo = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        mutation.addedNodes.forEach((node) => {
+          if (!(node instanceof Element)) return;
+          if (node.matches(".reveal")) io.observe(node);
+          node.querySelectorAll?.(".reveal").forEach((el) => io.observe(el));
+        });
+      }
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      io.disconnect();
+      mo.disconnect();
+    };
   }, []);
 }
