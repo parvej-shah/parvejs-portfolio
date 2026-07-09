@@ -1,6 +1,7 @@
 import "./globals.css";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import AppNavbar from "../components/AppNavbar";
 import Footer from "../components/Footer";
 import RevealProvider from "../components/RevealProvider";
@@ -149,6 +150,7 @@ export default async function RootLayout({ children }) {
           `}
         </Script>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
