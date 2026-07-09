@@ -2,6 +2,7 @@
 
 import { Controller } from "react-hook-form";
 import type { ChangeEvent } from "react";
+import { useState } from "react";
 import { LoaderCircle, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,8 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { SlugInput } from "@/components/admin/SlugInput";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { MarkdownEditor } from "@/components/admin/MarkdownEditor";
+import { ProjectGalleryUploader } from "@/components/admin/ProjectGalleryUploader";
 import { useProjectForm } from "@/lib/admin/hooks/useProjectForm";
-import type { Project } from "@/lib/types";
+import type { Asset, Project } from "@/lib/types";
 
 type ProjectFormProps = {
   project?: Project;
@@ -20,6 +22,7 @@ export function ProjectForm({ project }: ProjectFormProps) {
   const { form, error, isSubmitting, isDeleting, onSubmit, onDelete } = useProjectForm({ project });
   const { control, register, watch, setValue } = form;
   const status = watch("status") ?? "DRAFT";
+  const [gallery, setGallery] = useState<Asset[]>(project?.gallery ?? []);
 
   return (
     <form onSubmit={onSubmit} className="space-y-8">
@@ -92,6 +95,8 @@ export function ProjectForm({ project }: ProjectFormProps) {
           <Input type="text" className="rounded-xl border-line bg-ink-3" {...register("timeline")} />
         </label>
       </div>
+
+      <ProjectGalleryUploader projectId={project?.id} value={gallery} onChange={setGallery} />
 
       <div className="grid gap-6 md:grid-cols-2">
         <Controller

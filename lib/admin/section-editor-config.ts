@@ -24,6 +24,12 @@ type IconPickerField = {
   iconSet: IconSet;
 };
 
+type ImageField = {
+  kind: "image";
+  label: string;
+  description?: string;
+};
+
 type ObjectField<T extends Record<string, unknown>> = {
   kind: "object";
   label: string;
@@ -48,6 +54,7 @@ export type FieldConfig =
   | PrimitiveField
   | NumberField
   | IconPickerField
+  | ImageField
   | ObjectField<Record<string, unknown>>
   | StringArrayField
   | ObjectArrayField<Record<string, unknown>>;
@@ -57,7 +64,7 @@ type NormalizedFieldValue<T> = NonNullable<T>;
 type FieldFor<T> = NormalizedFieldValue<T> extends number
   ? NumberField
   : NormalizedFieldValue<T> extends string
-    ? PrimitiveField | IconPickerField
+    ? PrimitiveField | IconPickerField | ImageField
     : NormalizedFieldValue<T> extends string[]
       ? StringArrayField
       : NormalizedFieldValue<T> extends Array<infer U>
@@ -118,7 +125,7 @@ export const sectionEditorConfig: { [K in SectionKey]: SectionEditorDefinition<K
           label: { kind: "text", label: "Label" },
         },
       },
-      portraitImage: { kind: "text", label: "Portrait image URL or asset path" },
+      portraitImage: { kind: "image", label: "Portrait image" },
       portraitAlt: { kind: "text", label: "Portrait alt text" },
       experienceBadge: {
         kind: "object",
@@ -192,7 +199,7 @@ export const sectionEditorConfig: { [K in SectionKey]: SectionEditorDefinition<K
     fields: {
       eyebrow: { kind: "text", label: "Eyebrow" },
       heading: { kind: "textarea", label: "Heading" },
-      image: { kind: "text", label: "Image URL or asset path" },
+      image: { kind: "image", label: "Image" },
       imageAlt: { kind: "text", label: "Image alt text" },
       quote: { kind: "textarea", label: "Quote" },
       quoteAuthor: { kind: "text", label: "Quote author" },
@@ -236,7 +243,7 @@ export const sectionEditorConfig: { [K in SectionKey]: SectionEditorDefinition<K
           name: { kind: "text", label: "Name" },
           role: { kind: "text", label: "Role (e.g. Founder, Acme Inc.)" },
           initials: { kind: "text", label: "Initials" },
-          avatarUrl: { kind: "url", label: "Avatar image URL (optional)" },
+          avatarUrl: { kind: "image", label: "Avatar image (optional)" },
           rating: { kind: "number", label: "Rating (1-5)", min: 1, max: 5 },
           href: { kind: "url", label: "Link to case study (optional)" },
         },
@@ -313,7 +320,7 @@ export const sectionEditorConfig: { [K in SectionKey]: SectionEditorDefinition<K
     fields: {
       title: { kind: "text", label: "Title" },
       description: { kind: "textarea", label: "Description" },
-      ogImage: { kind: "text", label: "Open Graph image" },
+      ogImage: { kind: "image", label: "Open Graph image" },
       siteUrl: { kind: "url", label: "Canonical site URL" },
     },
   }),

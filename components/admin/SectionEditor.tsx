@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUploader } from "@/components/admin/ImageUploader";
+import type { Asset } from "@/lib/types";
 
 type PathSegment = string | number;
 type EditorValue = SectionData<SectionKey>;
@@ -280,6 +282,26 @@ export function SectionEditor() {
               </button>
             ))}
           </div>
+        </div>
+      );
+    }
+
+    if (field.kind === "image") {
+      const imageUrl = typeof value === "string" ? value : "";
+      const asset: Asset | null = imageUrl
+        ? { id: imageUrl, key: imageUrl, url: imageUrl, alt: null, width: null, height: null, projectId: null, createdAt: new Date() }
+        : null;
+
+      return (
+        <div className="rounded-2xl border border-line bg-ink-2/60 p-4">
+          <ImageUploader
+            label={field.label}
+            value={asset}
+            onChange={(nextAsset) => updateField(path, nextAsset?.url ?? "")}
+          />
+          {field.description ? (
+            <span className="mt-2 block text-xs text-muted-foreground">{field.description}</span>
+          ) : null}
         </div>
       );
     }

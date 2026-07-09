@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 // Singleton pattern: one S3Client instance reused across requests.
 const globalForR2 = globalThis as unknown as {
@@ -39,4 +39,8 @@ export async function uploadObject(
 
 export function getPublicUrl(key: string): string {
   return `${process.env.R2_PUBLIC_URL}/${key}`;
+}
+
+export async function deleteObject(key: string): Promise<void> {
+  await r2Client.send(new DeleteObjectCommand({ Bucket: process.env.R2_BUCKET, Key: key }));
 }

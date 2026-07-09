@@ -132,13 +132,22 @@ export const apiClient = {
       body: schema.parse(input),
     });
   },
-  async uploadAsset(file: File): Promise<Asset> {
+  async uploadAsset(file: File, projectId?: string): Promise<Asset> {
     const formData = new FormData();
     formData.set("file", file);
+    if (projectId) formData.set("projectId", projectId);
 
     return request("/api/upload", assetSchema, {
       method: "POST",
       body: formData,
+    });
+  },
+  deleteAsset(id: string) {
+    return fetch(`/api/assets/${id}`, {
+      method: "DELETE",
+      credentials: "same-origin",
+    }).then((response) => {
+      if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
     });
   },
 };

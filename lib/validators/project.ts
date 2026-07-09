@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { assetSchema } from "./asset";
 
 export const statusSchema = z.enum(["DRAFT", "PUBLISHED"]);
 
@@ -20,6 +21,9 @@ export const projectSchema = z.object({
   techStack: z.array(z.string()).default([]),
   keyFeatures: z.array(z.string()).default([]),
 
+  // Gallery is managed via /api/upload and /api/assets/[id], not written through PATCH.
+  gallery: z.array(assetSchema).default([]),
+
   order: z.number().int().default(0),
   featured: z.boolean().default(false),
 
@@ -29,6 +33,7 @@ export const projectSchema = z.object({
 
 export const createProjectSchema = projectSchema.omit({
   id: true,
+  gallery: true,
   createdAt: true,
   updatedAt: true,
 });

@@ -1,13 +1,15 @@
 import { prisma } from "@/lib/prisma";
 import type { CreateProject, UpdateProject } from "@/lib/types";
 
+const galleryInclude = { gallery: { orderBy: { createdAt: "asc" as const } } };
+
 // Repository pattern: all Project Prisma access lives here. No business logic.
 export function findAllProjects() {
-  return prisma.project.findMany({ orderBy: { order: "asc" } });
+  return prisma.project.findMany({ orderBy: { order: "asc" }, include: galleryInclude });
 }
 
 export function findProjectById(id: string) {
-  return prisma.project.findUnique({ where: { id } });
+  return prisma.project.findUnique({ where: { id }, include: galleryInclude });
 }
 
 export function findProjectBySlug(slug: string) {
@@ -15,11 +17,11 @@ export function findProjectBySlug(slug: string) {
 }
 
 export function createProject(data: CreateProject) {
-  return prisma.project.create({ data });
+  return prisma.project.create({ data, include: galleryInclude });
 }
 
 export function updateProject(id: string, data: UpdateProject) {
-  return prisma.project.update({ where: { id }, data });
+  return prisma.project.update({ where: { id }, data, include: galleryInclude });
 }
 
 export function deleteProject(id: string) {
