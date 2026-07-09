@@ -19,6 +19,8 @@ const publishedProjectSelect = {
   timeline: true,
   techStack: true,
   keyFeatures: true,
+  liveUrl: true,
+  githubUrl: true,
   order: true,
   featured: true,
   createdAt: true,

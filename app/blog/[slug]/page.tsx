@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
-import { ArrowLeft } from "lucide-react";
 import Reveal from "@/components/Reveal";
 import { getPostBySlug, getPublishedPosts } from "@/lib/data/public";
 import { getReadingStats, markdownRemarkPlugins } from "@/lib/markdown";
@@ -63,17 +61,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
     <main className="border-b border-line">
       <section className="border-b border-line py-16 lg:py-24">
         <div className="mx-auto max-w-5xl px-5">
-          <Reveal>
-            <Link
-              href="/blog"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-white"
-            >
-              <ArrowLeft className="size-4" />
-              Back to blog
-            </Link>
-          </Reveal>
-
-          <Reveal delay={70} className="mt-8">
+          <Reveal delay={70}>
             <span className="eyebrow mb-4">Article</span>
             <h1 className="max-w-4xl text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
               {post.title}

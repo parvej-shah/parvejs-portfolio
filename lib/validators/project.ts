@@ -20,6 +20,8 @@ export const projectSchema = z.object({
   timeline: z.string().nullable().optional(),
   techStack: z.array(z.string()).default([]),
   keyFeatures: z.array(z.string()).default([]),
+  liveUrl: z.preprocess((v) => (v === "" ? null : v), z.string().url().nullable().optional()),
+  githubUrl: z.preprocess((v) => (v === "" ? null : v), z.string().url().nullable().optional()),
 
   // Gallery is managed via /api/upload and /api/assets/[id], not written through PATCH.
   gallery: z.array(assetSchema).default([]),

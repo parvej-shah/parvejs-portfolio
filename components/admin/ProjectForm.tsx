@@ -96,6 +96,17 @@ export function ProjectForm({ project }: ProjectFormProps) {
         </label>
       </div>
 
+      <div className="grid gap-6 md:grid-cols-2">
+        <label className="block space-y-2">
+          <span className="text-sm font-medium text-white">Live URL</span>
+          <Input type="url" className="rounded-xl border-line bg-ink-3" {...register("liveUrl")} />
+        </label>
+        <label className="block space-y-2">
+          <span className="text-sm font-medium text-white">GitHub URL</span>
+          <Input type="url" className="rounded-xl border-line bg-ink-3" {...register("githubUrl")} />
+        </label>
+      </div>
+
       <ProjectGalleryUploader projectId={project?.id} value={gallery} onChange={setGallery} />
 
       <div className="grid gap-6 md:grid-cols-2">

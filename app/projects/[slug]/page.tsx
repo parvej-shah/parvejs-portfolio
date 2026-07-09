@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
-import { ArrowLeft, ArrowUpRight, CircleHelp, Compass, Hammer, Trophy } from "lucide-react";
+import { ArrowUpRight, Code2, CircleHelp, Compass, Hammer, Trophy } from "lucide-react";
 import Reveal from "@/components/Reveal";
 import ProjectGallery from "@/components/ProjectGallery";
 import { buttonVariants } from "@/components/ui/button";
@@ -58,16 +57,6 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     <main className="border-b border-line">
       <section className="border-b border-line py-16 lg:py-24">
         <div className="mx-auto max-w-7xl px-5">
-          <Reveal className="mb-8">
-            <Link
-              href="/projects"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-white"
-            >
-              <ArrowLeft className="size-4" />
-              Back to projects
-            </Link>
-          </Reveal>
-
           <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
             <Reveal>
               <span className="eyebrow mb-4">Case Study</span>
@@ -77,6 +66,38 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
                 {project.summary}
               </p>
+              {project.liveUrl || project.githubUrl ? (
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {project.liveUrl ? (
+                    <a
+                      href={project.liveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn(
+                        buttonVariants(),
+                        "h-10 rounded-full bg-brand px-4 text-sm font-semibold text-[#05140b] hover:bg-brand-dark"
+                      )}
+                    >
+                      Live site
+                      <ArrowUpRight className="size-4" />
+                    </a>
+                  ) : null}
+                  {project.githubUrl ? (
+                    <a
+                      href={project.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn(
+                        buttonVariants(),
+                        "h-10 rounded-full border border-line bg-transparent px-4 text-sm font-semibold text-white hover:border-brand/50"
+                      )}
+                    >
+                      <Code2 className="size-4" />
+                      Source
+                    </a>
+                  ) : null}
+                </div>
+              ) : null}
             </Reveal>
 
             <Reveal delay={90} className="grid gap-4 sm:grid-cols-3">

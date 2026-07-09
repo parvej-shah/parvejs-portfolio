@@ -38,6 +38,8 @@ model Project {
   timeline    String?
   techStack   String[]
   keyFeatures String[] @default([])
+  liveUrl     String?
+  githubUrl   String?
 
   gallery Asset[]
 

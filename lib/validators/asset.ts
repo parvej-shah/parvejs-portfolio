@@ -8,7 +8,8 @@ export const assetSchema = z.object({
   width: z.number().int().positive().nullable().optional(),
   height: z.number().int().positive().nullable().optional(),
   projectId: z.string().nullable().optional(),
-  createdAt: z.date(),
+  // API responses serialize Date as an ISO string; coerce so client-side parsing accepts it.
+  createdAt: z.coerce.date(),
 });
 
 export const createAssetSchema = assetSchema.omit({ id: true, createdAt: true });

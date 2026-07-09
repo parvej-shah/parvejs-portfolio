@@ -37,6 +37,8 @@ export function useProjectForm({ project }: UseProjectFormOptions = {}) {
           role: project.role ?? "",
           timeline: project.timeline ?? "",
           techStack: project.techStack,
+          liveUrl: project.liveUrl ?? "",
+          githubUrl: project.githubUrl ?? "",
           order: project.order,
           featured: project.featured,
         }
@@ -53,6 +55,8 @@ export function useProjectForm({ project }: UseProjectFormOptions = {}) {
           role: "",
           timeline: "",
           techStack: [],
+          liveUrl: "",
+          githubUrl: "",
           order: 0,
           featured: false,
         },
