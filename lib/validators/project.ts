@@ -29,8 +29,8 @@ export const projectSchema = z.object({
   order: z.number().int().default(0),
   featured: z.boolean().default(false),
 
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
 
 export const createProjectSchema = projectSchema.omit({
@@ -41,3 +41,7 @@ export const createProjectSchema = projectSchema.omit({
 });
 
 export const updateProjectSchema = createProjectSchema.partial();
+
+export const reorderProjectsSchema = z.object({
+  orderedIds: z.array(z.string()).min(1),
+});

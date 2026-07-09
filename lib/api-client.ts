@@ -142,6 +142,12 @@ export const apiClient = {
       body: formData,
     });
   },
+  updateAssetAlt(id: string, alt: string): Promise<Asset> {
+    return request(`/api/assets/${id}`, assetSchema, {
+      method: "PATCH",
+      body: { alt },
+    });
+  },
   deleteAsset(id: string) {
     return fetch(`/api/assets/${id}`, {
       method: "DELETE",

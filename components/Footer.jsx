@@ -102,7 +102,7 @@ export default async function Footer() {
       {/* giant outlined wordmark — sized to fit one line, bottom edge cropped for anchor */}
       <div className="pointer-events-none select-none overflow-hidden pb-8" aria-hidden>
         <div
-          className="graffiti w-full whitespace-nowrap px-3 text-center text-[18vw] leading-[0.85] tracking-tight opacity-70 sm:text-[14vw] lg:text-[11.5vw]"
+          className="graffiti w-full whitespace-nowrap px-3 text-center text-[15vw] leading-[0.85] tracking-tight opacity-70 xs:text-[14vw] sm:text-[14vw] lg:text-[11.5vw]"
           style={{ transform: "none" }}
         >
           Work Together

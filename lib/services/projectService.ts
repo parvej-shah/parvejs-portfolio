@@ -53,3 +53,8 @@ export async function deleteProject(id: string) {
   revalidateTag("projects", "max");
   return project;
 }
+
+export async function reorderProjects(orderedIds: string[]) {
+  await projectRepo.reorderProjects(orderedIds);
+  revalidateTag("projects", "max");
+}

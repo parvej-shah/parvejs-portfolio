@@ -3,8 +3,7 @@ import { Plus } from "lucide-react";
 import * as projectService from "@/lib/services/projectService";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { DataTable } from "@/components/admin/DataTable";
-import { StatusBadge } from "@/components/admin/StatusBadge";
+import { ProjectsTable } from "@/components/admin/ProjectsTable";
 
 export default async function AdminProjectsPage() {
   const projects = await projectService.listProjects();
@@ -25,25 +24,7 @@ export default async function AdminProjectsPage() {
         </Link>
       </div>
 
-      <DataTable
-        rows={projects}
-        rowKey={(project) => project.id}
-        emptyMessage="No projects yet. Create your first one."
-        columns={[
-          {
-            header: "Title",
-            cell: (project) => (
-              <Link href={`/admin/projects/${project.id}`} className="font-medium text-white hover:text-brand">
-                {project.title}
-              </Link>
-            ),
-          },
-          { header: "Slug", cell: (project) => <span className="font-mono text-xs">{project.slug}</span> },
-          { header: "Status", cell: (project) => <StatusBadge status={project.status} /> },
-          { header: "Featured", cell: (project) => (project.featured ? "Yes" : "—") },
-          { header: "Order", cell: (project) => project.order },
-        ]}
-      />
+      <ProjectsTable initialProjects={projects} />
     </div>
   );
 }

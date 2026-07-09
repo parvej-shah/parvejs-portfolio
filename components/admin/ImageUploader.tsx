@@ -36,6 +36,15 @@ export function ImageUploader({ label, value, onChange }: ImageUploaderProps) {
     }
   }
 
+  async function handleAltBlur(alt: string) {
+    if (!value || alt === (value.alt ?? "")) return; // no image or unchanged
+    try {
+      onChange(await apiClient.updateAssetAlt(value.id, alt));
+    } catch (altError) {
+      setError(altError instanceof Error ? altError.message : "Failed to save alt text.");
+    }
+  }
+
   return (
     <div className="space-y-2">
       <span className="text-sm font-medium text-white">{label}</span>
@@ -74,6 +83,16 @@ export function ImageUploader({ label, value, onChange }: ImageUploaderProps) {
           ) : null}
         </div>
       </div>
+      {value ? (
+        <input
+          key={value.id}
+          type="text"
+          defaultValue={value.alt ?? ""}
+          placeholder="Alt text (for SEO & accessibility)"
+          onBlur={(event) => handleAltBlur(event.target.value.trim())}
+          className="w-full rounded-lg border border-line bg-ink-3 px-3 py-2 text-sm text-white placeholder:text-muted-foreground focus:border-brand/50 focus:outline-none"
+        />
+      ) : null}
       {error ? <p className="text-sm text-red-300">{error}</p> : null}
     </div>
   );

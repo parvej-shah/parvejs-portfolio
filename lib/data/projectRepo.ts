@@ -27,3 +27,9 @@ export function updateProject(id: string, data: UpdateProject) {
 export function deleteProject(id: string) {
   return prisma.project.delete({ where: { id } });
 }
+
+export function reorderProjects(orderedIds: string[]) {
+  return prisma.$transaction(
+    orderedIds.map((id, order) => prisma.project.update({ where: { id }, data: { order } }))
+  );
+}

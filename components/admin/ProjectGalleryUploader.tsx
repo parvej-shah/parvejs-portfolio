@@ -38,6 +38,16 @@ export function ProjectGalleryUploader({ projectId, value, onChange }: ProjectGa
     }
   }
 
+  async function handleAltBlur(asset: Asset, alt: string) {
+    if (alt === (asset.alt ?? "")) return; // unchanged — skip the request
+    try {
+      const updated = await apiClient.updateAssetAlt(asset.id, alt);
+      onChange(value.map((item) => (item.id === updated.id ? updated : item)));
+    } catch (altError) {
+      setError(altError instanceof Error ? altError.message : "Failed to save alt text.");
+    }
+  }
+
   async function handleRemove(assetId: string) {
     setRemovingId(assetId);
     setError(null);
@@ -65,21 +75,30 @@ export function ProjectGalleryUploader({ projectId, value, onChange }: ProjectGa
 
       <div className="flex flex-wrap gap-3">
         {value.map((asset, index) => (
-          <div key={asset.id} className="relative size-24 shrink-0 overflow-hidden rounded-xl border border-line bg-ink-3">
-            <Image src={asset.url} alt={asset.alt ?? ""} fill className="object-cover" sizes="96px" />
-            {index === 0 ? (
-              <span className="absolute inset-x-0 bottom-0 bg-brand/90 px-1.5 py-0.5 text-center text-[0.6rem] font-medium text-[#05140b]">
-                Cover
-              </span>
-            ) : null}
-            <button
-              type="button"
-              onClick={() => handleRemove(asset.id)}
-              disabled={removingId === asset.id}
-              className="absolute right-1 top-1 flex size-6 items-center justify-center rounded-full bg-black/70 text-white hover:bg-red-500/80"
-            >
-              {removingId === asset.id ? <LoaderCircle className="size-3.5 animate-spin" /> : <X className="size-3.5" />}
-            </button>
+          <div key={asset.id} className="flex w-24 shrink-0 flex-col gap-1.5">
+            <div className="relative size-24 overflow-hidden rounded-xl border border-line bg-ink-3">
+              <Image src={asset.url} alt={asset.alt ?? ""} fill className="object-cover" sizes="96px" />
+              {index === 0 ? (
+                <span className="absolute inset-x-0 bottom-0 bg-brand/90 px-1.5 py-0.5 text-center text-[0.6rem] font-medium text-[#05140b]">
+                  Cover
+                </span>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => handleRemove(asset.id)}
+                disabled={removingId === asset.id}
+                className="absolute right-1 top-1 flex size-6 items-center justify-center rounded-full bg-black/70 text-white hover:bg-red-500/80"
+              >
+                {removingId === asset.id ? <LoaderCircle className="size-3.5 animate-spin" /> : <X className="size-3.5" />}
+              </button>
+            </div>
+            <input
+              type="text"
+              defaultValue={asset.alt ?? ""}
+              placeholder="Alt text"
+              onBlur={(event) => handleAltBlur(asset, event.target.value.trim())}
+              className="w-full rounded-md border border-line bg-ink-3 px-1.5 py-1 text-[0.65rem] text-white placeholder:text-muted-foreground focus:border-brand/50 focus:outline-none"
+            />
           </div>
         ))}
 

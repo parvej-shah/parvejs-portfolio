@@ -11,9 +11,9 @@ export const postSchema = z.object({
   featured: z.boolean().default(false),
   coverImageId: z.string().nullable().optional(),
 
-  publishedAt: z.date().nullable().optional(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  publishedAt: z.coerce.date().nullable().optional(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
 
 export const createPostSchema = postSchema.omit({

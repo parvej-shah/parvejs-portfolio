@@ -49,13 +49,13 @@ export default async function ProjectsPage() {
 
   return (
     <main className="border-b border-line">
-      <section className="border-b border-line py-20 lg:py-28">
+      <section className="border-b border-line py-14 lg:py-20">
         <div className="mx-auto max-w-7xl px-5">
-          <Reveal className="flex flex-col gap-6">
+          <Reveal className="flex flex-col gap-5">
             <span className="eyebrow">Projects</span>
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <h1 className="max-w-3xl text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
+                <h1 className="max-w-3xl text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">
                   Case studies that show how strategy and engineering meet.
                 </h1>
                 <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
@@ -71,7 +71,7 @@ export default async function ProjectsPage() {
         </div>
       </section>
 
-      <section className="py-20 lg:py-28">
+      <section className="pb-20 pt-12 lg:pb-28 lg:pt-16">
         <div className="mx-auto grid max-w-7xl gap-8 px-5">
           {projects.length === 0 ? (
             <div className="card-surface p-10 text-center text-muted-foreground">
