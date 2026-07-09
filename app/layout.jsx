@@ -1,5 +1,6 @@
 import "./globals.css";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 import AppNavbar from "../components/AppNavbar";
 import Footer from "../components/Footer";
 import RevealProvider from "../components/RevealProvider";
@@ -147,6 +148,7 @@ export default async function RootLayout({ children }) {
             gtag('config', 'G-D6W1SP6Y6H');
           `}
         </Script>
+        <Analytics />
       </body>
     </html>
   );
