@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { ArrowUpRight, CalendarDays, Clock } from "lucide-react";
 import Reveal from "@/components/Reveal";
+import MarkdownExcerpt from "@/components/MarkdownExcerpt";
 import { getPostBySlug, getPublishedPosts, getSection } from "@/lib/data/public";
 import { getReadingStats, markdownRemarkPlugins } from "@/lib/markdown";
 import { buttonVariants } from "@/components/ui/button";
@@ -87,20 +88,20 @@ export default async function BlogDetailPage({ params }: PageProps) {
 
       {/* Editorial hero: ambient brand glow behind the title, with a byline row.
           When there's no cover image the glow itself carries the header. */}
-      <section className="relative overflow-hidden border-b border-line py-12 lg:py-16">
+      <section className="relative overflow-hidden border-b border-line py-12 lg:py-14">
         <div
           className="pointer-events-none absolute -top-40 left-1/2 h-[34rem] w-[52rem] -translate-x-1/2 rounded-full bg-brand/10 blur-[130px]"
           aria-hidden
         />
-        <div className="relative mx-auto max-w-3xl px-5">
+        <div className="relative mx-auto max-w-5xl px-5">
           <Reveal delay={70}>
             <span className="eyebrow mb-4 block">Article</span>
-            <h1 className="text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="max-w-4xl text-4xl font-black leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-[3.5rem]">
               {post.title}
             </h1>
-            <p className="mt-5 text-lg leading-8 text-muted-foreground sm:text-xl">
+            <MarkdownExcerpt className="mt-5 max-w-4xl text-lg leading-8 sm:text-xl">
               {post.excerpt}
-            </p>
+            </MarkdownExcerpt>
 
             <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-line pt-5">
               <div className="flex items-center gap-3">

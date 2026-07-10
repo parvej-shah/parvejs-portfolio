@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import Reveal from "@/components/Reveal";
+import MarkdownExcerpt from "@/components/MarkdownExcerpt";
 import { getPublishedPosts } from "@/lib/data/public";
 import { getReadingStats } from "@/lib/markdown";
 
@@ -94,9 +95,9 @@ export default async function BlogPage() {
                     {featured.title}
                   </Link>
                 </h2>
-                <p className="text-sm leading-7 text-muted-foreground sm:text-base">
+                <MarkdownExcerpt className="text-sm leading-7 sm:text-base">
                   {featured.excerpt}
-                </p>
+                </MarkdownExcerpt>
                 <Link
                   href={`/blog/${featured.slug}`}
                   className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-white transition-colors hover:text-brand"
@@ -147,9 +148,9 @@ export default async function BlogPage() {
                         <h2 className="mt-4 text-xl font-semibold leading-snug text-white transition-colors group-hover:text-brand">
                           {post.title}
                         </h2>
-                        <p className="mt-3 flex-1 text-sm leading-7 text-muted-foreground">
+                        <MarkdownExcerpt className="mt-3 flex-1 text-sm leading-7">
                           {post.excerpt}
-                        </p>
+                        </MarkdownExcerpt>
                         <div className="mt-6 flex items-center gap-2 text-sm font-semibold text-white">
                           Read article
                           <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brand" />
@@ -166,4 +167,3 @@ export default async function BlogPage() {
     </main>
   );
 }
-

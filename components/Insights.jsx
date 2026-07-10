@@ -1,6 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import Reveal from "./Reveal";
+import MarkdownExcerpt from "./MarkdownExcerpt";
 import { buttonVariants } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { getReadingStats } from "@/lib/markdown";
@@ -14,7 +15,7 @@ export default function Insights({ posts = [] }) {
         <Reveal className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
             <span className="eyebrow mb-4">Insights</span>
-            <h2 className="max-w-xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+            <h2 className="max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
               Ideas &amp; insights on building for the web.
             </h2>
           </div>
@@ -56,9 +57,9 @@ export default function Insights({ posts = [] }) {
                     <h3 className="text-lg font-semibold leading-snug text-white transition-colors group-hover:text-brand">
                       {post.title}
                     </h3>
-                    <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
+                    <MarkdownExcerpt className="mt-2 flex-1 text-sm leading-relaxed">
                       {post.excerpt}
-                    </p>
+                    </MarkdownExcerpt>
                     <div className="mt-5 flex items-center justify-between border-t border-line pt-4">
                       <span className="text-xs text-muted-foreground">{dateLabel}</span>
                       <ArrowUpRight className="size-4 text-muted-foreground transition-all group-hover:-translate-y-0.5 group-hover:text-brand" />

@@ -391,6 +391,34 @@ body {
   font-size: 1.05rem;
 }
 
+.markdown-excerpt {
+  color: var(--color-muted-ink);
+}
+
+.markdown-excerpt > * {
+  display: inline;
+}
+
+.markdown-excerpt > * + *::before {
+  content: " ";
+}
+
+.markdown-excerpt strong {
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+.markdown-excerpt em {
+  color: color-mix(in srgb, var(--foreground) 88%, var(--color-muted-ink));
+  font-style: italic;
+}
+
+.markdown-excerpt a {
+  color: var(--color-brand);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
 @keyframes float-y {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
