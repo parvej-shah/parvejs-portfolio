@@ -310,6 +310,17 @@ const sectionContent: Record<SectionKey, unknown> = {
       { icon: "Clock", label: "Response time", value: "Within 24 hours", href: null },
     ],
   },
+  meeting: {
+    eyebrow: "Set a Meeting",
+    heading: "Want to talk it through live?",
+    description:
+      "Propose a date and time that works for you and I'll confirm by email. Once confirmed, you can add it straight to your Google Calendar.",
+    durationLabel: "30 min call",
+    notes: [
+      "I'm based in Dhaka, Bangladesh (GMT+6) — mention your timezone if different.",
+      "I'll reply within 8 hours to confirm or suggest another time.",
+    ],
+  },
   social: {
     links: [
       { icon: "FaGithub", label: "Github", href: "https://github.com/parvej-shah" },

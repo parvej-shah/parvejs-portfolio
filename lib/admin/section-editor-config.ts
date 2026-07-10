@@ -283,6 +283,17 @@ export const sectionEditorConfig: { [K in SectionKey]: SectionEditorDefinition<K
       },
     },
   }),
+  meeting: defineSection({
+    label: "Meeting",
+    description: "Book-a-meeting intro copy and scheduling notes.",
+    fields: {
+      eyebrow: { kind: "text", label: "Eyebrow" },
+      heading: { kind: "textarea", label: "Heading" },
+      description: { kind: "textarea", label: "Description" },
+      durationLabel: { kind: "text", label: "Duration label", placeholder: "30 min call" },
+      notes: { kind: "stringArray", label: "Notes", itemLabel: "Note" },
+    },
+  }),
   social: defineSection({
     label: "Social Links",
     description: "Links used across hero, contact, and footer.",

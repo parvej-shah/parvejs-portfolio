@@ -8,6 +8,7 @@ import Skills from "../components/Skills";
 import CtaBand from "../components/CtaBand";
 import Testimonials from "../components/Testimonials";
 import Insights from "../components/Insights";
+import Meeting from "../components/Meeting";
 import Contact from "../components/Contact";
 import { getPublishedPosts, getPublishedProjects, getSection } from "@/lib/data/public";
 
@@ -21,6 +22,7 @@ export default async function Home() {
     skillsSection,
     ctaSection,
     testimonialsSection,
+    meetingSection,
     contactSection,
     socialSection,
     projects,
@@ -34,6 +36,7 @@ export default async function Home() {
     getSection("skills"),
     getSection("cta"),
     getSection("testimonials"),
+    getSection("meeting"),
     getSection("contact"),
     getSection("social"),
     getPublishedProjects(),
@@ -56,6 +59,7 @@ export default async function Home() {
       <CtaBand section={ctaSection ?? undefined} />
       <Testimonials section={testimonialsSection ?? undefined} />
       <Insights posts={featuredPosts} />
+      <Meeting section={meetingSection ?? undefined} />
       <Contact section={contactSection ?? undefined} socialLinks={socialSection?.links} />
     </main>
   );

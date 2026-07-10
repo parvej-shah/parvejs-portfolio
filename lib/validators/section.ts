@@ -115,6 +115,14 @@ const contactSchema = z.object({
   ),
 });
 
+const meetingSchema = z.object({
+  eyebrow: z.string().min(1),
+  heading: z.string().min(1),
+  description: z.string().min(1),
+  durationLabel: z.string().min(1),
+  notes: z.array(z.string().min(1)),
+});
+
 const socialSchema = z.object({
   links: z.array(
     z.object({
@@ -154,6 +162,7 @@ export const sectionSchemas = {
   testimonials: testimonialsSchema,
   cta: ctaSchema,
   contact: contactSchema,
+  meeting: meetingSchema,
   social: socialSchema,
   footer: footerSchema,
   seo: seoSchema,
