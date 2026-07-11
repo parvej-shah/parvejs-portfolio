@@ -95,27 +95,62 @@ export function PostForm({ post }: PostFormProps) {
         )}
       />
 
-      <div className="flex flex-wrap items-center gap-6">
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            className="size-4 rounded border-line"
-            checked={watch("featured")}
-            onChange={(event) => setValue("featured", event.target.checked)}
-          />
-          <span className="text-sm font-medium text-white">Featured on homepage</span>
+      <label className="flex w-fit items-center gap-2">
+        <input
+          type="checkbox"
+          className="size-4 rounded border-line"
+          checked={watch("featured")}
+          onChange={(event) => setValue("featured", event.target.checked)}
+        />
+        <span className="text-sm font-medium text-white">Featured on homepage</span>
+      </label>
+
+      <div className="grid gap-6 rounded-2xl border border-line bg-ink-3 p-5 sm:grid-cols-2">
+        <label className="block space-y-2">
+          <span className="text-sm font-medium text-white">Status</span>
+          <select
+            className="h-8 w-full rounded-lg border border-line bg-transparent px-2.5 text-sm text-white outline-none focus-visible:border-ring"
+            value={status}
+            onChange={(event) => {
+              const nextStatus = event.target.value as "DRAFT" | "SCHEDULED" | "PUBLISHED";
+              setValue("status", nextStatus);
+              if (nextStatus !== "SCHEDULED") setValue("publishedAt", null);
+            }}
+          >
+            <option value="DRAFT">Draft</option>
+            <option value="SCHEDULED">Scheduled</option>
+            <option value="PUBLISHED">Published</option>
+          </select>
         </label>
 
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            className="size-4 rounded border-line"
-            checked={status === "PUBLISHED"}
-            onChange={(event) => setValue("status", event.target.checked ? "PUBLISHED" : "DRAFT")}
-          />
-          <span className="text-sm font-medium text-white">Published</span>
-        </label>
+        {status === "SCHEDULED" ? (
+          <label className="block space-y-2">
+            <span className="text-sm font-medium text-white">Publish at</span>
+            <Controller
+              control={control}
+              name="publishedAt"
+              render={({ field }) => (
+                <Input
+                  type="datetime-local"
+                  className="rounded-xl border-line bg-ink-2"
+                  value={toDatetimeLocal(field.value as Date | string | null | undefined)}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                    field.onChange(event.target.value ? new Date(event.target.value) : null)
+                  }
+                />
+              )}
+            />
+          </label>
+        ) : null}
       </div>
     </form>
   );
+}
+
+// datetime-local inputs need "YYYY-MM-DDTHH:mm" in local time, not an ISO string.
+function toDatetimeLocal(value: Date | string | null | undefined) {
+  if (!value) return "";
+  const date = new Date(value);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }

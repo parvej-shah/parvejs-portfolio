@@ -32,6 +32,7 @@ export function usePostForm({ post }: UsePostFormOptions = {}) {
           status: post.status,
           featured: post.featured,
           coverImageId: post.coverImageId ?? null,
+          publishedAt: post.publishedAt,
         }
       : {
           slug: "",
@@ -41,6 +42,7 @@ export function usePostForm({ post }: UsePostFormOptions = {}) {
           status: "DRAFT",
           featured: false,
           coverImageId: null,
+          publishedAt: null,
         },
   });
 

@@ -57,10 +57,12 @@ const getPublishedProjectsCached = unstable_cache(
   { tags: ["projects"] }
 );
 
+// publishedAt <= now is a safety net: it keeps a SCHEDULED post (or a PUBLISHED one with a
+// future date) hidden even if the cron job hasn't run yet.
 const getPublishedPostsCached = unstable_cache(
   async () =>
     prisma.post.findMany({
-      where: { status: "PUBLISHED" },
+      where: { status: "PUBLISHED", publishedAt: { lte: new Date() } },
       orderBy: [{ featured: "desc" }, { publishedAt: "desc" }, { createdAt: "desc" }],
       select: publishedPostSelect,
     }),
@@ -117,7 +119,7 @@ export async function getPublishedPosts() {
 const getPostBySlugCached = unstable_cache(
   async (slug: string) =>
     prisma.post.findFirst({
-      where: { slug, status: "PUBLISHED" },
+      where: { slug, status: "PUBLISHED", publishedAt: { lte: new Date() } },
       select: publishedPostSelect,
     }),
   ["published-post-by-slug"],

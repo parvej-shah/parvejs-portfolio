@@ -16,10 +16,29 @@ export const postSchema = z.object({
   updatedAt: z.coerce.date(),
 });
 
-export const createPostSchema = postSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+// A scheduled post must carry a future go-live time so the cron/visibility filter has
+// something to act on.
+function hasFutureSchedule(data: { status?: string; publishedAt?: Date | null }) {
+  return data.status !== "SCHEDULED" || (!!data.publishedAt && data.publishedAt > new Date());
+}
+const scheduleRuleOptions = {
+  message: "Scheduled posts require a publish date in the future",
+  path: ["publishedAt"] as string[],
+};
 
-export const updatePostSchema = createPostSchema.partial();
+export const createPostSchema = postSchema
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .refine(hasFutureSchedule, scheduleRuleOptions);
+
+export const updatePostSchema = postSchema
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .partial()
+  .refine(hasFutureSchedule, scheduleRuleOptions);

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { assetSchema } from "./asset";
 
-export const statusSchema = z.enum(["DRAFT", "PUBLISHED"]);
+export const statusSchema = z.enum(["DRAFT", "SCHEDULED", "PUBLISHED"]);
 
 export const projectSchema = z.object({
   id: z.string(),

@@ -14,6 +14,17 @@ export function findPostBySlug(slug: string) {
   return prisma.post.findUnique({ where: { slug } });
 }
 
+export function findDueScheduledPosts() {
+  return prisma.post.findMany({
+    where: { status: "SCHEDULED", publishedAt: { lte: new Date() } },
+    select: { id: true },
+  });
+}
+
+export function publishPosts(ids: string[]) {
+  return prisma.post.updateMany({ where: { id: { in: ids } }, data: { status: "PUBLISHED" } });
+}
+
 export function createPost(data: CreatePost) {
   return prisma.post.create({ data });
 }

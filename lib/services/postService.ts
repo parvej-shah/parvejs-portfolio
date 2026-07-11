@@ -20,6 +20,17 @@ export function listPosts() {
   return postRepo.findAllPosts();
 }
 
+// Promotes due SCHEDULED posts to PUBLISHED. Called by the cron endpoint; the
+// publishedAt <= now filter in lib/data/public.ts keeps visibility correct even between runs.
+export async function publishDueScheduled() {
+  const due = await postRepo.findDueScheduledPosts();
+  if (due.length === 0) return { publishedCount: 0 };
+
+  await postRepo.publishPosts(due.map((post) => post.id));
+  revalidateTag("posts", "max");
+  return { publishedCount: due.length };
+}
+
 export async function getPost(id: string) {
   const post = await postRepo.findPostById(id);
   if (!post) throw new PostNotFoundError(id);

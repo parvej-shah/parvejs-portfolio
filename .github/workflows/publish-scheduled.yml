@@ -1,0 +1,21 @@
+name: Publish scheduled posts
+
+on:
+  schedule:
+    # Every 15 minutes. GitHub's scheduler is best-effort and can run late under load,
+    # but the app's publishedAt <= now filter keeps a due post correctly visible on its
+    # next page load regardless — this workflow only drives proactive cache revalidation.
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call publish-scheduled endpoint
+        run: |
+          curl --fail-with-body -X POST "${SITE_URL}/api/cron/publish-scheduled" \
+            -H "Authorization: Bearer ${CRON_SECRET}"
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
