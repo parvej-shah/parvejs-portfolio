@@ -60,6 +60,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         : undefined,
       modifiedTime: project.updatedAt.toISOString(),
     },
+    twitter: {
+      card: "summary_large_image",
+      title: project.title,
+      description: project.summary,
+      images: project.gallery[0] ? [project.gallery[0].url] : undefined,
+    },
   };
 }
 
