@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { statusSchema } from "./project";
+import { assetSchema } from "./asset";
 
 export const postSchema = z.object({
   id: z.string(),
@@ -10,6 +11,7 @@ export const postSchema = z.object({
   status: statusSchema.default("DRAFT"),
   featured: z.boolean().default(false),
   coverImageId: z.string().nullable().optional(),
+  coverImage: assetSchema.nullable().optional(),
 
   publishedAt: z.coerce.date().nullable().optional(),
   createdAt: z.coerce.date(),
@@ -31,6 +33,7 @@ export const createPostSchema = postSchema
     id: true,
     createdAt: true,
     updatedAt: true,
+    coverImage: true,
   })
   .refine(hasFutureSchedule, scheduleRuleOptions);
 
@@ -39,6 +42,7 @@ export const updatePostSchema = postSchema
     id: true,
     createdAt: true,
     updatedAt: true,
+    coverImage: true,
   })
   .partial()
   .refine(hasFutureSchedule, scheduleRuleOptions);

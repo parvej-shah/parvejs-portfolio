@@ -25,7 +25,7 @@ export function PostForm({ post, defaultScheduledAt }: PostFormProps) {
   });
   const { control, register, watch, setValue } = form;
   const status = watch("status") ?? "DRAFT";
-  const [coverAsset, setCoverAsset] = useState<Asset | null>(null);
+  const [coverAsset, setCoverAsset] = useState<Asset | null>(post?.coverImage ?? null);
 
   return (
     <form onSubmit={onSubmit} className="space-y-8">

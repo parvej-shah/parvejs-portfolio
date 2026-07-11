@@ -7,7 +7,7 @@ export function findAllPosts() {
 }
 
 export function findPostById(id: string) {
-  return prisma.post.findUnique({ where: { id } });
+  return prisma.post.findUnique({ where: { id }, include: { coverImage: true } });
 }
 
 export function findPostBySlug(slug: string) {
