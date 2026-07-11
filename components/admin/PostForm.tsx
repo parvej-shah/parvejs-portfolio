@@ -15,10 +15,14 @@ import type { Asset, Post } from "@/lib/types";
 
 type PostFormProps = {
   post?: Post;
+  defaultScheduledAt?: Date;
 };
 
-export function PostForm({ post }: PostFormProps) {
-  const { form, error, isSubmitting, isDeleting, onSubmit, onDelete } = usePostForm({ post });
+export function PostForm({ post, defaultScheduledAt }: PostFormProps) {
+  const { form, error, isSubmitting, isDeleting, onSubmit, onDelete } = usePostForm({
+    post,
+    defaultScheduledAt,
+  });
   const { control, register, watch, setValue } = form;
   const status = watch("status") ?? "DRAFT";
   const [coverAsset, setCoverAsset] = useState<Asset | null>(null);

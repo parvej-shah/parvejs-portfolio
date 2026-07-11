@@ -11,11 +11,13 @@ import type { CreatePost, Post } from "@/lib/types";
 
 type UsePostFormOptions = {
   post?: Post;
+  // Pre-fills a new post as Scheduled for this date (used when starting from a calendar day).
+  defaultScheduledAt?: Date;
 };
 
 type PostFormValues = z.input<typeof createPostSchema>;
 
-export function usePostForm({ post }: UsePostFormOptions = {}) {
+export function usePostForm({ post, defaultScheduledAt }: UsePostFormOptions = {}) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,10 +41,10 @@ export function usePostForm({ post }: UsePostFormOptions = {}) {
           title: "",
           excerpt: "",
           content: "",
-          status: "DRAFT",
+          status: defaultScheduledAt ? "SCHEDULED" : "DRAFT",
           featured: false,
           coverImageId: null,
-          publishedAt: null,
+          publishedAt: defaultScheduledAt ?? null,
         },
   });
 

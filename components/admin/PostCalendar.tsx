@@ -2,8 +2,9 @@
 
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, LoaderCircle, Plus, X } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
+import { slugify } from "@/components/admin/SlugInput";
 import { cn } from "@/lib/utils";
 import type { Post } from "@/lib/types";
 
@@ -31,6 +32,10 @@ function startOfMonth(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), 1);
 }
 
+function formatDayLabel(date: Date) {
+  return date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+}
+
 function buildMonthGrid(monthStart: Date) {
   const firstDay = startOfMonth(monthStart);
   const gridStart = new Date(firstDay);
@@ -49,6 +54,7 @@ export function PostCalendar({ posts: initialPosts }: PostCalendarProps) {
   const [dragPostId, setDragPostId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [plannerDay, setPlannerDay] = useState<Date | null>(null);
 
   const days = useMemo(() => buildMonthGrid(monthStart), [monthStart]);
   const today = new Date();
@@ -90,6 +96,28 @@ export function PostCalendar({ posts: initialPosts }: PostCalendarProps) {
         setError(updateError instanceof Error ? updateError.message : "Failed to reschedule post.");
       }
     });
+  }
+
+  async function createQuickPost(day: Date, title: string) {
+    // Quick-planned posts stay DRAFT until someone actually writes the content and
+    // deliberately schedules/publishes it — otherwise a forgotten placeholder could go
+    // live via cron with "TODO: write content" as the body. publishedAt still carries the
+    // planned date so it shows up on the right day here; DRAFT keeps it off the public site.
+    const publishedAt = new Date(day);
+    publishedAt.setHours(9, 0, 0, 0);
+
+    const post = await apiClient.createPost({
+      title,
+      slug: slugify(title),
+      excerpt: "TODO: write excerpt",
+      content: "TODO: write content",
+      status: "DRAFT",
+      featured: false,
+      coverImageId: null,
+      publishedAt,
+    });
+
+    setPosts((prev) => [...prev, post]);
   }
 
   return (
@@ -147,10 +175,11 @@ export function PostCalendar({ posts: initialPosts }: PostCalendarProps) {
             <div
               key={day.toISOString()}
               className={cn(
-                "min-h-[7rem] bg-ink-2 p-2 transition-colors",
+                "group relative min-h-[7rem] cursor-pointer bg-ink-2 p-2 transition-colors hover:bg-ink-3/60",
                 !isCurrentMonth && "bg-ink-2/40",
                 dragPostId && "outline-1 outline-dashed outline-line/60"
               )}
+              onClick={() => setPlannerDay(day)}
               onDragOver={(event) => {
                 if (!dragPostId) return;
                 event.preventDefault();
@@ -162,15 +191,18 @@ export function PostCalendar({ posts: initialPosts }: PostCalendarProps) {
                 setDragPostId(null);
               }}
             >
-              <span
-                className={cn(
-                  "text-xs",
-                  isCurrentMonth ? "text-muted-foreground" : "text-muted-foreground/40",
-                  isToday && "font-bold text-brand"
-                )}
-              >
-                {day.getDate()}
-              </span>
+              <div className="flex items-center justify-between">
+                <span
+                  className={cn(
+                    "text-xs",
+                    isCurrentMonth ? "text-muted-foreground" : "text-muted-foreground/40",
+                    isToday && "font-bold text-brand"
+                  )}
+                >
+                  {day.getDate()}
+                </span>
+                <Plus className="size-3.5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+              </div>
 
               <div className="mt-1.5 flex flex-col gap-1">
                 {dayPosts.map((post) => (
@@ -178,6 +210,7 @@ export function PostCalendar({ posts: initialPosts }: PostCalendarProps) {
                     key={post.id}
                     href={`/admin/posts/${post.id}`}
                     draggable
+                    onClick={(event) => event.stopPropagation()}
                     onDragStart={(event) => {
                       event.dataTransfer.setData("text/plain", post.id);
                       setDragPostId(post.id);
@@ -198,6 +231,97 @@ export function PostCalendar({ posts: initialPosts }: PostCalendarProps) {
           );
         })}
       </div>
+
+      {plannerDay ? (
+        <QuickPlanModal
+          day={plannerDay}
+          onClose={() => setPlannerDay(null)}
+          onCreate={async (title) => {
+            await createQuickPost(plannerDay, title);
+            setPlannerDay(null);
+          }}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+type QuickPlanModalProps = {
+  day: Date;
+  onClose: () => void;
+  onCreate: (title: string) => Promise<void>;
+};
+
+function QuickPlanModal({ day, onClose, onCreate }: QuickPlanModalProps) {
+  const [title, setTitle] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    if (!title.trim()) return;
+
+    setIsSaving(true);
+    setError(null);
+
+    try {
+      await onCreate(title.trim());
+    } catch (createError) {
+      setError(createError instanceof Error ? createError.message : "Failed to plan post.");
+      setIsSaving(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
+      <form
+        onClick={(event) => event.stopPropagation()}
+        onSubmit={handleSubmit}
+        className="w-full max-w-sm rounded-2xl border border-line bg-ink-2 p-5 shadow-xl"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Plan a post</p>
+            <p className="mt-1 text-sm font-medium text-white">{formatDayLabel(day)}</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded p-1 text-muted-foreground hover:text-white"
+            aria-label="Close"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+
+        <label className="mt-4 block space-y-2">
+          <span className="text-sm font-medium text-white">Title</span>
+          <input
+            type="text"
+            autoFocus
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            placeholder="What's the post about?"
+            className="h-9 w-full rounded-xl border border-line bg-ink-3 px-3 text-sm text-white outline-none focus-visible:border-ring"
+          />
+        </label>
+
+        {error ? <p className="mt-2 text-sm text-red-300">{error}</p> : null}
+
+        <p className="mt-3 text-xs text-muted-foreground">
+          Saved as a draft on this day — write the content and schedule it later from the post
+          editor.
+        </p>
+
+        <button
+          type="submit"
+          disabled={isSaving || !title.trim()}
+          className="mt-4 flex h-9 w-full items-center justify-center gap-2 rounded-full bg-brand text-sm font-semibold text-[#05140b] hover:bg-brand-dark disabled:opacity-50"
+        >
+          {isSaving ? <LoaderCircle className="size-4 animate-spin" /> : null}
+          Save draft
+        </button>
+      </form>
     </div>
   );
 }
