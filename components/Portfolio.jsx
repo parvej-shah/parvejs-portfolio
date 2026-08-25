@@ -154,9 +154,6 @@ export default function Portfolio({ projects = [] }) {
                   )}
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-3/90 via-transparent to-transparent opacity-80 transition-opacity duration-700 group-hover:opacity-50" />
                   <div className="card-sheen" aria-hidden />
-                  <span className="absolute left-4 top-4 max-w-[calc(100%-2rem)] rounded-full border border-line bg-ink/70 px-3 py-1 text-xs font-medium text-white/80 backdrop-blur transition-colors duration-300 group-hover:border-brand/40 group-hover:text-brand">
-                    {project.summary}
-                  </span>
                 </div>
 
                 <div className="p-5 sm:p-6">

@@ -68,7 +68,9 @@ export default async function BlogPage() {
                     src={featured.coverImage.url}
                     alt={featured.coverImage.alt || featured.title}
                     fill
-                    sizes="(max-width: 1024px) 100vw, 58vw"
+                    quality={100}
+                    unoptimized
+                    sizes="100vw"
                     className="object-cover transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
                     priority
                   />
@@ -128,7 +130,9 @@ export default async function BlogPage() {
                             src={post.coverImage.url}
                             alt={post.coverImage.alt || post.title}
                             fill
-                            sizes="(max-width: 1280px) 100vw, 33vw"
+                            quality={100}
+                            unoptimized
+                            sizes="100vw"
                             className="object-cover transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
                           />
                         ) : (

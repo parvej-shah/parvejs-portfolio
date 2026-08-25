@@ -132,6 +132,8 @@ export default async function BlogDetailPage({ params }: PageProps) {
                 src={post.coverImage.url}
                 alt={post.coverImage.alt || post.title}
                 fill
+                quality={100}
+                unoptimized
                 sizes="100vw"
                 className="object-cover"
                 priority

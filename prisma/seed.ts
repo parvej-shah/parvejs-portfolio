@@ -518,61 +518,48 @@ async function seedProjects() {
   }
 }
 
+import { blogPosts } from "./posts-data";
+
 async function seedPosts() {
-  const posts = [
-    {
-      slug: "shipping-fast-without-breaking-things",
-      title: "Shipping Fast Without Breaking Things",
-      excerpt:
-        "A practical look at the habits that let small teams move quickly — tight feedback loops, boring infrastructure, and knowing what not to build.",
-      content: `Speed gets treated like a personality trait — some teams "just move fast" and others don't. In practice, speed is a byproduct of a few boring habits repeated consistently.
+  const validSlugs = blogPosts.map((p) => p.slug);
+  await prisma.post.deleteMany({
+    where: { slug: { notIn: validSlugs } },
+  });
 
-## Tight feedback loops
+  for (const postData of blogPosts) {
+    const { coverImage, ...postFields } = postData;
 
-The biggest speed tax on any project is the gap between writing code and finding out if it works. Local dev servers, fast test suites, and preview deployments aren't nice-to-haves — they're the difference between shipping ten times a day and shipping once a week.
+    let coverAssetId: string | undefined = undefined;
 
-## Boring infrastructure
+    if (coverImage) {
+      const assetKey = `post-cover-${postFields.slug}`;
+      const asset = await prisma.asset.upsert({
+        where: { key: assetKey },
+        update: {
+          url: coverImage.url,
+          alt: coverImage.alt,
+        },
+        create: {
+          key: assetKey,
+          url: coverImage.url,
+          alt: coverImage.alt,
+        },
+      });
+      coverAssetId = asset.id;
+    }
 
-Novel infrastructure is a tax you pay on every future feature. Postgres, a standard ORM, a well-known auth pattern — none of it is exciting, but none of it will page you at 2am either. Save the creativity for the product, not the plumbing.
-
-## Knowing what not to build
-
-Every feature you don't build is a feature you don't have to maintain, test, or explain to a confused user. The fastest teams are ruthless about scope — not because they lack ambition, but because they know unshipped simplicity beats shipped complexity.
-
-None of this is groundbreaking. It's just consistently applied discipline, and that's usually enough.`,
-      status: "PUBLISHED" as const,
-      featured: true,
-    },
-    {
-      slug: "the-case-for-boring-frontend-architecture",
-      title: "The Case for Boring Frontend Architecture",
-      excerpt:
-        "Server components, a thin client layer, and clear data boundaries — why the least exciting architecture is usually the one that scales with a team.",
-      content: `Frontend architecture discourse loves novelty — new state managers, new rendering strategies, new ways to fetch data. Most of it is solving problems that a smaller, more boring architecture never has in the first place.
-
-## Push logic to the server
-
-Every piece of business logic that lives in a server component is a piece of logic that doesn't need to be tested across browsers, doesn't ship extra JavaScript, and can't drift from what the database actually contains. Client components should be reserved for genuine interactivity — forms, toggles, anything that needs a browser event.
-
-## Keep the client layer thin
-
-A thin client layer means less state to reason about. Fetch what you need, validate it at the boundary, and let the UI be a straightforward function of that data. The fewer places state can live, the fewer places it can go stale.
-
-## Clear data boundaries
-
-A typed contract between the API and the UI — a Zod schema, a generated type, anything that fails loudly at build time — removes an entire category of runtime bugs. It's not glamorous, but it's the reason a team of two can maintain a codebase that feels like it was built by ten.
-
-Boring architecture doesn't make headlines. It just means fewer 2am incidents and a codebase new teammates can understand in an afternoon.`,
-      status: "PUBLISHED" as const,
-      featured: true,
-    },
-  ];
-
-  for (const post of posts) {
     await prisma.post.upsert({
-      where: { slug: post.slug },
-      update: { ...post, publishedAt: new Date() },
-      create: { ...post, publishedAt: new Date() },
+      where: { slug: postFields.slug },
+      update: {
+        ...postFields,
+        status: "PUBLISHED",
+        coverImageId: coverAssetId,
+      },
+      create: {
+        ...postFields,
+        status: "PUBLISHED",
+        coverImageId: coverAssetId,
+      },
     });
   }
 }
