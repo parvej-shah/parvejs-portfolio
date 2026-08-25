@@ -46,6 +46,9 @@ export default function Portfolio({ projects = [] }) {
                   src={flagship.gallery[0].url}
                   alt={flagship.gallery[0].alt || flagship.title}
                   fill
+                  quality={100}
+                  unoptimized
+                  sizes="100vw"
                   className="object-cover object-top transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
                 />
               ) : (
@@ -138,6 +141,9 @@ export default function Portfolio({ projects = [] }) {
                       src={heroImage.url}
                       alt={heroImage.alt || project.title}
                       fill
+                      quality={100}
+                      unoptimized
+                      sizes="100vw"
                       className="object-cover object-top transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
                     />
                   ) : (

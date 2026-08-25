@@ -55,22 +55,26 @@ async function seedProjects() {
         "Real-time unit-cost inference telemetry dashboard ($0.041 per generated asset)",
       ],
       problem:
-        "Trade and home service contractors lose thousands of dollars in high-margin emergency jobs whenever incoming calls hit voicemail while technicians are on roofs, under sinks, or off-hours. Over 40% of callers never leave a message and simply hire the first competitor who picks up.",
+        "Service contractors frequently miss inbound customer calls while on active job sites or after business hours, leading to lost inquiries and delayed responses.",
       approach:
-        "We engineered an ultra-low-latency voice agent pipeline capable of answering calls in under 1.8 seconds with natural pacing and real job-site noise filtering. For operations, we built a deterministic multi-agent state machine that scrapes industry signals, drafts technical content, runs automated critic verification, and stages multi-channel assets directly to Cloudflare R2 and live web properties.",
+        "Engineered a low-latency voice pipeline integrated with SIP voice agents and LLMs. Built a deterministic multi-agent state machine to automate industry signal research, drafting, critic validation, and asset publishing to Cloudflare R2.",
       solution:
-        "Delivered Minions.AI featuring 5 specialized digital crew members: Rex (24/7 Voice Dispatcher), Zip (4s SMS lead recovery), Pip (Grounded Web Chat), Gia (Review & Follow-up Automation), and Otto (Client Intake Automation). Backed by a full executive mission control cockpit with real-time multi-agent orchestration and telemetry.",
+        "Delivered Minions.AI featuring automated voice answering, rapid SMS lead follow-ups, and a central mission control dashboard for agent orchestration.",
       results:
-        "Achieved 100% 24/7 inbound call coverage, sub-1.8s voice response latency, under 4-second SMS recovery speed, and zero double-bookings across connected client calendars.",
+        "Delivered 24/7 call and message coverage with automated booking scheduling and consistent multi-agent content drafting.",
       liveUrl: "https://www.getminions.ai",
       gallery: [
+        {
+          url: "/projects/minions-landing.png",
+          alt: "Minions.AI 24/7 AI Voice Dispatcher & Speed-to-Lead Platform",
+        },
         {
           url: "/projects/minions-cockpit.png",
           alt: "Minions.AI Multi-Agent Mission Control Cockpit & Telemetry",
         },
         {
-          url: "/projects/minions-landing.png",
-          alt: "24/7 AI Voice Dispatcher & Speed-to-Lead Platform",
+          url: "/projects/minions-crew.png",
+          alt: "Minions Digital Crew Members & Voice Pipeline Architecture",
         },
         {
           url: "/projects/minions-blog.png",
@@ -83,7 +87,7 @@ async function seedProjects() {
       slug: "genmorphics-ai",
       title: "GenMorphics AI",
       summary:
-        "Enterprise LLM precision data platform, RLHF, supervised fine-tuning (SFT), and STEM expert annotation workforce management system.",
+        "Enterprise workforce management and annotation platform for domain-specific LLM data collection, fine-tuning, and evaluation.",
       status: "PUBLISHED" as const,
       featured: true,
       client: "GenMorphics AI Solutions",
@@ -100,22 +104,26 @@ async function seedProjects() {
         "Role-Based Access Control (RBAC)",
       ],
       keyFeatures: [
-        "Multi-tier role-based access control and onboarding for Software Engineers, AI Engineers, and STEM Experts",
-        "Granular skill profiling matrix (General, Coding, STEM, HSS, BEM, Arts, TVET) and software capabilities",
-        "Seamless enterprise authentication supporting Google Workspace and Microsoft Azure SSO",
-        "Automated task dispatching, quality assurance scoring, and worker verification telemetry",
-        "Supabase-backed secure asset storage for datasets, audio transcription, and image/video bounding box annotations",
+        "Multi-tier role-based access control for annotators, review leads, and administrators",
+        "Granular skill profiling matrix categorizing expertise across Coding, STEM, Linguistics, and Technical domains",
+        "Enterprise single sign-on supporting Google Workspace and Microsoft Azure SSO",
+        "Task assignment workflow, quality evaluation tracking, and earnings dashboard",
+        "Supabase-backed secure asset storage for datasets and multi-modal annotation tasks",
       ],
       problem:
-        "Frontier AI model developers require high-accuracy domain-expert datasets (code generation, mathematics, advanced reasoning), but struggle with unverified annotators, fragmented tools, and complex enterprise SSO security.",
+        "Managing distributed pools of specialized subject-matter experts for AI data annotation requires secure enterprise authentication, granular skill categorization, and structured task assignments.",
       approach:
-        "Engineered an enterprise data workforce platform featuring multi-tier skill profiling, strict verification benchmarks, automated task routing, and seamless Google and Microsoft single sign-on.",
+        "Architected a Next.js and Supabase web portal with role-based access control, dynamic skill assessment profiles, and OAuth integration.",
       solution:
-        "Shipped GenMorphics AI with an intuitive dark-mode dashboard for domain annotators, real-time benchmark testing, automated weekly payout tracking, and centralized project assignment workflows.",
+        "Built an intuitive dashboard enabling annotators to manage profiles, complete skill assessments, and work on structured data annotation projects.",
       results:
-        "Accelerated model training data delivery by 3x, onboarded thousands of specialized STEM annotators, and maintained 99.9% pipeline reliability.",
+        "Streamlined domain expert onboarding with zero authentication friction and centralized skill verification.",
       liveUrl: "https://app.genmorphicsai.com",
       gallery: [
+        {
+          url: "/projects/genmorphics-app.png",
+          alt: "GenMorphics AI Secure Google & Microsoft Enterprise SSO Sign In",
+        },
         {
           url: "/projects/genmorphics-overview.png",
           alt: "GenMorphics AI Annotator & STEM Expert Dashboard",
@@ -128,10 +136,6 @@ async function seedProjects() {
           url: "/projects/genmorphics-home.png",
           alt: "GenMorphics AI Solutions Public Portal & Data Training Suite",
         },
-        {
-          url: "/projects/genmorphics-app.png",
-          alt: "Secure Google & Microsoft Enterprise SSO Sign In",
-        },
       ],
       order: 1,
     },
@@ -139,7 +143,7 @@ async function seedProjects() {
       slug: "sellervai",
       title: "SellerVai",
       summary:
-        "Multi-platform AI-powered social commerce automation and conversational sales system empowering 5,000+ local merchants across Bangladesh.",
+        "AI-powered conversational social commerce sales and customer support assistant for online merchants.",
       status: "PUBLISHED" as const,
       featured: true,
       client: "SellerVai Technologies",
@@ -149,7 +153,6 @@ async function seedProjects() {
         "Next.js (App Router)",
         "TypeScript",
         "Tailwind CSS",
-        "Conversational AI / LLM",
         "Node.js",
         "WhatsApp Business API",
         "Meta Messenger API",
@@ -158,20 +161,19 @@ async function seedProjects() {
         "PostgreSQL",
       ],
       keyFeatures: [
-        "Omnichannel conversational AI answering customer messages in seconds across WhatsApp, Facebook, Instagram, and Telegram",
-        "Automated Cash on Delivery (COD) phone verification and fake order screening",
-        "Natural conversational order taking and stock verification in bilingual Bengali and English",
-        "Instant online storefront generator with subdomains and ready product catalogs in under 24 hours",
-        "Unified merchant inbox managing multi-channel conversations in a single calm dashboard",
+        "Conversational AI automated customer messaging across WhatsApp, Facebook Messenger, Instagram, and Telegram",
+        "Bilingual Bengali and English product recommendations, FAQ answering, and order assistance",
+        "Order intake and Cash on Delivery (COD) confirmation workflow",
+        "Centralized merchant inbox for managing customer inquiries across connected social channels",
       ],
       problem:
-        "Social commerce sellers in Bangladesh lose up to 40% of interested buyers when inquiries go unanswered for more than 5 minutes, especially during peak midnight hours. Additionally, fake COD orders cause significant return logistics losses.",
+        "Online sellers on social media spend hours manually replying to repetitive product inquiries, price checks, and delivery questions.",
       approach:
-        "Developed an omnichannel AI salesperson that connects directly into WhatsApp, Messenger, Instagram, and Telegram APIs. Built natural language understanding tailored for Bangladeshi conversational shopping habits (Banglish & Bengali) and implemented algorithmic risk scoring for COD order validation.",
+        "Built a multi-platform chatbot integration connecting to social messaging APIs with conversational LLM responses tailored for local e-commerce queries.",
       solution:
-        "Shipped SellerVai as a complete social commerce suite that operates 24/7, handles customer objections, confirms deliveries, screens fraudulent orders, and synchronizes inventory across channels without requiring human intervention.",
+        "Shipped SellerVai to automate 24/7 customer chat support, order capture, and multichannel message handling.",
       results:
-        "Empowered 5,000+ merchants across Bangladesh, recovered 50,000+ orders, reduced message response times by 2x, and maintained 99% always-on platform uptime.",
+        "Reduced customer waiting times, automated routine order inquiries, and provided a unified messaging dashboard for merchants.",
       liveUrl: "https://www.sellervai.com",
       gallery: [
         {
@@ -182,6 +184,10 @@ async function seedProjects() {
           url: "/projects/sellervai-solutions.png",
           alt: "Omnichannel Support across WhatsApp, Messenger, Instagram & Telegram",
         },
+        {
+          url: "/projects/sellervai-pricing.png",
+          alt: "SellerVai Merchant Subscription & Automation Packages",
+        },
       ],
       order: 2,
     },
@@ -189,7 +195,7 @@ async function seedProjects() {
       slug: "mathpro-academy",
       title: "MathPro Academy",
       summary:
-        "Comprehensive online mathematics coaching and exam preparation platform for JSC, SSC, and HSC students with automated bKash/Nagad payments.",
+        "Online mathematics coaching and exam preparation web platform for JSC, SSC, and HSC students with automated bKash/Nagad checkout.",
       status: "PUBLISHED" as const,
       featured: true,
       client: "MathPro Academic & Admission Care / Abdul Aziz",
@@ -207,20 +213,19 @@ async function seedProjects() {
         "Prisma ORM",
       ],
       keyFeatures: [
-        "Dual-curriculum tracks customized for both Bangla Medium and English Version mathematical syllabi",
-        "High-performance client/server KaTeX mathematical formula rendering and proof formatting",
-        "Automated 1-minute mobile payment checkout with instant course unlocking (bKash & Nagad)",
-        "Interactive student dashboard with chapter progress tracking, daily MCQ/CQ quizzes, and leaderboard rankings",
-        "24/7 dedicated Telegram mentor doubt-solving integration",
+        "Structured course tracks for General Math and Higher Math (Bangla Medium and English Version)",
+        "KaTeX mathematical notation rendering for formulas, proofs, and practice problems",
+        "Automated mobile checkout integration supporting bKash and Nagad payment gateways",
+        "Student dashboard with chapter progress tracking, recorded lectures, and practice quizzes",
       ],
       problem:
-        "Math students across Bangladesh struggle with memorization-focused teaching and lack access to structured video archives, instant doubt-solving, and automated payment/enrollment systems.",
+        "Math students need structured online access to video lectures, mathematical notes, and instant automated course enrollment.",
       approach:
-        "Engineered a responsive Next.js web platform optimized for fast Core Web Vitals and seamless mobile browsing. Built custom mathematical notation rendering with KaTeX and integrated direct webhooks with Bangladesh's leading mobile financial services (MFS).",
+        "Built a responsive Next.js application with fast server rendering, client-side KaTeX formula formatting, and secure mobile financial service (MFS) payment callbacks.",
       solution:
-        "Created an end-to-end EdTech portal featuring live classes, unlimited recorded HD revision lectures, chapter-wise model tests, and an automated payment-to-enrollment workflow.",
+        "Delivered a complete student learning portal with categorized video lessons, chapter tests, and automated enrollment verification.",
       results:
-        "Platform actively mentors 4,000+ students, hosts 1,000+ interactive classes, and maintains a 98% positive rating from students and parents nationwide.",
+        "Supports registered math students with seamless automated course unlocking upon payment confirmation.",
       liveUrl: "https://www.mathpro.academy",
       gallery: [
         {
@@ -231,6 +236,10 @@ async function seedProjects() {
           url: "/projects/mathpro-courses.png",
           alt: "JSC, SSC & HSC Specialized Mathematics Course Tracks",
         },
+        {
+          url: "/projects/mathpro-features.png",
+          alt: "Interactive Math Learning Features & Automated Checkout",
+        },
       ],
       order: 3,
     },
@@ -238,7 +247,7 @@ async function seedProjects() {
       slug: "codervai-cp",
       title: "Codervai CP Platform",
       summary:
-        "Competitive programming and ACM ICPC training academy featuring 300+ problem archives, student module dashboards, and automated batch unlock systems.",
+        "Competitive programming and algorithmic problem-solving training academy featuring 300+ problem sets, video editorials, and progress tracking.",
       status: "PUBLISHED" as const,
       featured: true,
       client: "Codervai / BUET CSE Alumni & Googlers",
@@ -252,25 +261,27 @@ async function seedProjects() {
         "Node.js",
         "RESTful APIs",
         "Video Streaming Engine",
-        "Dynamic Course Unlock Engine",
       ],
       keyFeatures: [
-        "300+ custom curated algorithmic problems with in-depth video solution walkthroughs",
-        "50+ hours of studio-grade video lectures taught by BUET CSE alumni and Googlers",
-        "Automated scheduled batch timeline and module unlock mechanics to build consistent daily coding habits",
-        "Student ranking system, learning streaks, and peer comparison leaderboard",
-        "Comprehensive curriculum spanning C++ STL, Dynamic Programming, Graph Theory, and Tree Algorithms",
+        "300+ curated algorithmic problems with in-depth video solution walkthroughs",
+        "Structured topic progression covering C++ STL, Dynamic Programming, Graphs, and Trees",
+        "Student dashboard tracking module completion, learning streaks, and rankings",
+        "Scheduled batch progression and dynamic lesson unlock mechanism",
       ],
       problem:
-        "Aspiring programmers preparing for competitive programming contests (ACM ICPC) and tech giant interviews often struggle with unstructured resources and a lack of high-quality localized video editorials.",
+        "Students preparing for coding contests and technical interviews need a structured learning roadmap with localized video explanations and tracked progress.",
       approach:
-        "Designed and implemented a gamified learning portal with structured progression tiers, time-released problem sets, and seamless video streaming infrastructure.",
+        "Engineered a gamified learning platform with module-by-module video streaming, progress milestones, and algorithmic practice sets.",
       solution:
-        "Shipped a specialized competitive programming platform that guides students systematically from fundamental syntax to advanced algorithmic problem solving.",
+        "Created a comprehensive learning portal guiding students from foundational algorithms to advanced competitive programming techniques.",
       results:
-        "Over 2,000+ active software engineering students enrolled across 3 consecutive batches with an average 4.9/5 student rating.",
+        "Enrolled over 2,000 students across training cohorts with high course completion and engagement rates.",
       liveUrl: "https://cpnew.codervai.com",
       gallery: [
+        {
+          url: "/projects/codervai-courses.png",
+          alt: "Codervai All Courses & Bundle Catalog",
+        },
         {
           url: "/projects/codervai-module-dashboard.png",
           alt: "Codervai Student Learning Cockpit, Streaks & Module Progression",
@@ -280,8 +291,8 @@ async function seedProjects() {
           alt: "Enrolled Competitive Programming Courses & Course Bundles",
         },
         {
-          url: "/projects/codervai-courses.png",
-          alt: "300+ Algorithmic Problems and Video Solution Catalog",
+          url: "/projects/codervai-home.png",
+          alt: "Codervai Competitive Programming Academy Homepage",
         },
       ],
       order: 4,
@@ -290,7 +301,7 @@ async function seedProjects() {
       slug: "cprbd-du",
       title: "CPR BDDU (University of Dhaka)",
       summary:
-        "Official institutional portal, policy research repository, and executive education platform for the University of Dhaka's think tank.",
+        "Institutional portal, policy research catalog, and executive education platform for the Center for Policy Research on Business and Development, University of Dhaka.",
       status: "PUBLISHED" as const,
       featured: true,
       client: "Department of International Business, University of Dhaka",
@@ -301,26 +312,25 @@ async function seedProjects() {
         "TypeScript",
         "Tailwind CSS",
         "Radix UI",
-        "Prisma",
+        "Prisma ORM",
         "PostgreSQL",
         "Certificate Verification Engine",
         "PDF Document Viewer",
       ],
       keyFeatures: [
-        "Public online certificate verification engine for executive training cohorts (such as ICII Certification)",
-        "Searchable academic publication catalog with interactive PDF reading capabilities",
-        "Institutional training cohort and batch management directories",
-        "Governing body and academic leadership directory with comprehensive scholar profiles",
-        "Institutional typography and responsive, accessible university branding",
+        "Online certificate verification tool for executive training cohort participants",
+        "Academic publication and research paper repository with embedded document viewing",
+        "Executive education cohort directory and program details",
+        "Faculty and scholar directory with academic profiles",
       ],
       problem:
-        "The Center for Policy Research on Business and Development needed a modern digital home to publish research papers, engage international partners, and provide instantaneous public verification for executive program graduates.",
+        "The policy research center needed a dignified digital presence to showcase publications, announce executive cohorts, and provide online certificate verification.",
       approach:
-        "Built a high-performance web platform adhering to University of Dhaka aesthetic standards, featuring server-side rendered publication catalogs and a secure cryptographic certificate verification system.",
+        "Built a server-side rendered institutional web portal adhering to academic branding standards with secure verification lookups.",
       solution:
-        "Delivered a portal that centralizes research projects, executive education cohorts, media releases, and partner collaborations in an accessible architecture.",
+        "Delivered a clean portal organizing research papers, policy dialogues, and training programs with instant public certificate lookup.",
       results:
-        "Showcases 12+ major national research initiatives, 30+ institutional partners, 20+ policy dialogues, and hundreds of verified certified professionals.",
+        "Centralizes research publications, institutional events, and provides verified credential lookups for program graduates.",
       liveUrl: "https://cprbddu.org",
       gallery: [
         {
@@ -331,6 +341,10 @@ async function seedProjects() {
           url: "/projects/cprbd-programs.png",
           alt: "National Executive Training Cohorts & Certificate Verification",
         },
+        {
+          url: "/projects/cprbd-researches.png",
+          alt: "National Policy Research & Academic Publications Repository",
+        },
       ],
       order: 5,
     },
@@ -338,7 +352,7 @@ async function seedProjects() {
       slug: "linkedin-brand-assistant",
       title: "LinkedIn Brand Assistant",
       summary:
-        "AI-powered Chrome extension and companion dashboard for automated post summarization and high-converting comment generation.",
+        "AI-powered Manifest V3 Chrome extension and companion web app for LinkedIn post summarization and context-aware comment drafting.",
       status: "PUBLISHED" as const,
       featured: true,
       client: "LinkedIn Brand Assistant / Chrome Web Store",
@@ -353,19 +367,19 @@ async function seedProjects() {
         "OpenAI API",
       ],
       keyFeatures: [
-        "One-click intelligent post summarization directly in the LinkedIn feed",
-        "Tone-customizable smart comment generator (Insightful, Inquiring, Supportive, Contrarian)",
-        "Seamless DOM injection matching LinkedIn's native dark and light design themes",
-        "Privacy-focused local credential storage and token-efficient prompt pipeline",
+        "In-feed post summarization directly inside the LinkedIn web interface",
+        "Tone-customizable smart comment generator (Insightful, Inquiring, Supportive)",
+        "Native DOM injection styled to match LinkedIn's light and dark UI",
+        "Client-side API key configuration for private and secure token management",
       ],
       problem:
-        "Founders, creators, and professionals spend hours drafting thoughtful comments to grow their presence on LinkedIn, but lack tools that integrate natively into their browser with custom brand voice presets.",
+        "Active LinkedIn creators and professionals spend significant time reading long posts and drafting thoughtful, contextual responses.",
       approach:
-        "Engineered a Manifest V3 browser extension using content script injection, background service workers, and structured prompt engineering with the OpenAI API.",
+        "Engineered a Chrome extension using Manifest V3 content scripts, background workers, and structured OpenAI API prompts.",
       solution:
-        "Created an intuitive in-feed assistant that helps professionals craft engaging, context-aware comments in seconds while preserving authenticity.",
+        "Created a lightweight browser companion that generates relevant comment drafts directly alongside posts.",
       results:
-        "Published to the Chrome Web Store and deployed live companion landing page with sub-second comment generation response times.",
+        "Published to the Chrome Web Store with fast, in-browser comment drafting.",
       liveUrl: "https://lnbrandassistant.xyz",
       githubUrl: "https://chromewebstore.google.com/detail/linkedin-brand-assistant/liicmnighkinlpgaagipbjbjkokknjhi",
       gallery: [
@@ -377,18 +391,22 @@ async function seedProjects() {
           url: "/projects/ln-assistant-store.png",
           alt: "Chrome Web Store Published Extension",
         },
+        {
+          url: "/projects/ln-assistant-features.png",
+          alt: "AI Comment Tone Customization & Workflow Engine",
+        },
       ],
       order: 6,
     },
     {
       slug: "badhan-blood-network",
-      title: "Badhan Blood Donation Network",
+      title: "Badhan Blood Donation (Amar Ekushey Hall Unit)",
       summary:
-        "Real-time emergency blood donor locator, eligibility tracking, and volunteer dispatch platform with offline-capable PWA support.",
+        "Emergency blood donor directory, donation logging, and volunteer management platform built for the Badhan Amar Ekushey Hall Unit.",
       status: "PUBLISHED" as const,
       featured: false,
-      client: "Voluntary Blood Donor Community",
-      role: "Creator & Lead Full-Stack Architect",
+      client: "Badhan — Amar Ekushey Hall Unit, University of Dhaka",
+      role: "Lead Full-Stack Developer & Platform Architect",
       timeline: "2024 – 2025",
       techStack: [
         "Next.js",
@@ -397,32 +415,35 @@ async function seedProjects() {
         "PostgreSQL",
         "Tailwind CSS",
         "Workbox PWA",
-        "Twilio SMS API",
       ],
       keyFeatures: [
-        "Multi-district and blood group query filtering with instant eligibility date calculation",
-        "One-tap emergency WhatsApp and SMS dispatch triggers for rapid volunteer mobilization",
-        "Offline-capable PWA caching allowing hospital field volunteers to look up donor records in weak connectivity areas",
-        "Strict health donation interval tracking (90/120 days) and verified donor badge system",
+        "Unit-specific donor registry with real-time donation logging and blood group breakdown (A+, B+, O+, AB+)",
+        "Searchable donor database with name, phone, batch, and referral tracking",
+        "Calculated donation eligibility intervals ensuring health compliance before dispatch",
+        "PWA offline caching for volunteer access in hospital wards and low-connectivity zones",
       ],
       problem:
-        "During critical medical emergencies, finding compatible blood donors often relies on chaotic social media messages with long response delays and unverified donor availability.",
+        "Student volunteers at the Amar Ekushey Hall Unit of Badhan manage hundreds of voluntary blood donations annually, requiring an accurate, instantly searchable registry to match patients with eligible hall donors during urgent emergencies.",
       approach:
-        "Architected a relational database schema in Prisma with indexed eligibility queries, offline-first PWA caching, and direct contact dispatch triggers.",
+        "Architected a dedicated Next.js and Prisma platform with relational indexing on blood groups, donation timestamps, and member batches, paired with offline PWA support.",
       solution:
-        "Built a fast, mobile-first web app that connects patients and hospitals with eligible, verified donors across Bangladesh in seconds.",
+        "Shipped a mobile-friendly dashboard displaying monthly donation totals, blood group breakdowns, and quick-search donor contact records for hall volunteers.",
       results:
-        "Successfully deployed with hundreds of verified volunteer donors and active community usage across multiple districts.",
+        "Actively tracks over 590+ total donations and 400+ unique donors for the Amar Ekushey Hall Unit with live reporting and search.",
       liveUrl: "https://badhan.mathpro.academy",
       githubUrl: "https://github.com/parvej-shah/badhan-blood-update",
       gallery: [
         {
           url: "/projects/badhan-home.png",
-          alt: "Badhan Blood Donation Live Statistics & Blood Group Breakdown",
+          alt: "Badhan Amar Ekushey Hall Unit Dashboard & Live Blood Group Breakdown",
         },
         {
           url: "/projects/badhan-search.png",
           alt: "Real-time Donor Search & Multi-criteria Eligibility Filter",
+        },
+        {
+          url: "/projects/badhan-records.png",
+          alt: "Donor Records & Unit Donation Logs",
         },
       ],
       order: 7,
@@ -431,28 +452,27 @@ async function seedProjects() {
       slug: "luxeory",
       title: "Luxeory",
       summary:
-        "A full-stack hotel booking platform with property discovery, secure authentication, booking workflows, and admin-ready data management.",
+        "Full-stack hotel and room booking platform with property discovery, date availability selection, and authenticated guest workflows.",
       status: "PUBLISHED" as const,
       featured: false,
       client: "Independent Product",
       role: "Full-Stack Developer",
       timeline: "2024",
-      techStack: ["React", "Node.js", "MongoDB", "Firebase", "JWT", "Tailwind CSS"],
+      techStack: ["React", "Node.js", "Express.js", "MongoDB", "JWT", "Tailwind CSS"],
       keyFeatures: [
-        "Secure JWT-based authentication",
-        "End-to-end booking flow with date range selection",
-        "Searchable hotel and suite listings with price filters",
-        "Protected routes for guest and admin views",
-        "Database-backed content management",
+        "JWT-based user authentication and protected booking routes",
+        "Searchable hotel and suite listings with price and amenity filters",
+        "End-to-end room reservation flow with date selection",
+        "Relational data modeling for properties, rooms, users, and reservations",
       ],
       problem:
-        "Independent hotels and small property owners rely on generic listing sites or manual booking processes that make it hard to manage availability, take bookings reliably, or present properties well online.",
+        "Independent hospitality properties need a dedicated online booking flow to manage reservations directly without complex third-party systems.",
       approach:
-        "Built Luxeory as a full MERN-stack application, starting with the data model: hotels, rooms, bookings, and users as distinct collections in MongoDB with clear relationships and JWT authorization.",
+        "Developed a full-stack MERN application with clear MongoDB data models for rooms, bookings, and user accounts.",
       solution:
-        "The result is a working platform covering the full guest journey: browse and search hotels, view detailed property pages, and complete a booking through a guarded checkout flow.",
+        "Built an end-to-end booking application with responsive property exploration and secure checkout steps.",
       results:
-        "Implemented end-to-end booking flow from search to confirmation with responsive mobile-first UI and role-based route protection.",
+        "Completed functional property discovery and reservation pipeline with mobile-first UI.",
       githubUrl: "https://github.com/parvej-shah",
       gallery: [
         {
@@ -462,6 +482,10 @@ async function seedProjects() {
         {
           url: "/projects/luxeory-preview.jpg",
           alt: "Luxeory Reservation & Property Management Overview",
+        },
+        {
+          url: "/projects/luxeory-booking.jpg",
+          alt: "Luxeory Guarded Checkout & Room Selection",
         },
       ],
       order: 8,

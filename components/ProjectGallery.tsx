@@ -82,8 +82,10 @@ export default function ProjectGallery({ assets, projectTitle }: ProjectGalleryP
               src={asset.url}
               alt={asset.alt || projectTitle}
               fill
-              sizes={index === 0 ? "(max-width: 1024px) 100vw, 1100px" : "(max-width: 1024px) 100vw, 560px"}
-              className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+              quality={100}
+              unoptimized
+              sizes="100vw"
+              className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.02]"
             />
 
             {/* Gradient scrim + caption + expand affordance, revealed on hover */}

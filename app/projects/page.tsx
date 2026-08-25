@@ -90,8 +90,10 @@ export default async function ProjectsPage() {
                     src={flagship.gallery[0].url}
                     alt={flagship.gallery[0].alt || flagship.title}
                     fill
-                    sizes="(max-width: 1024px) 100vw, 62vw"
-                    className="object-cover transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+                    quality={100}
+                    unoptimized
+                    sizes="100vw"
+                    className="object-cover object-top transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
                     priority
                   />
                 ) : (
@@ -188,8 +190,10 @@ export default async function ProjectsPage() {
                           src={heroImage.url}
                           alt={heroImage.alt || project.title}
                           fill
-                          sizes="(max-width: 768px) 100vw, 45vw"
-                          className="object-cover transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+                          quality={100}
+                          unoptimized
+                          sizes="100vw"
+                          className="object-cover object-top transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
                         />
                       ) : (
                         <div className="dot-grid flex h-full flex-col items-center justify-center gap-2 bg-ink-2">
