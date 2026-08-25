@@ -16,55 +16,36 @@ export const blogPosts: PostSeedData[] = [
     slug: "architecting-sub-18s-voice-ai-pipelines",
     title: "Architecting Sub-1.8s Voice AI Pipelines: Real-Time Audio Streaming, SIP Trunks, and LLM Orchestration",
     excerpt:
-      "A deep dive into building production-grade voice agents for trade contractors — solving packet jitter, Voice Activity Detection (VAD) false triggers, and cascading latency across STT, LLM, and TTS pipelines.",
+      "A technical retrospective on building real-time voice dispatch infrastructure for trade contractors — optimizing audio packet chunking, neural VAD, and overlapping speech-to-speech pipelines.",
     coverImage: {
       url: "/blog/voice-ai-sub-18s.png",
       alt: "Sub-1.8s Voice AI Pipelines Architecture Cover",
     },
     featured: true,
     publishedAt: new Date("2026-02-15T09:00:00.000Z"),
-    content: `In conversational voice AI, latency is the difference between a natural interaction and an awkward, robotic standoff. Human conversation relies on rapid turn-taking cues; the average gap between conversational turns in spoken dialogue is roughly 200 to 300 milliseconds. When an automated agent introduces a 2.5-second pause, callers immediately sense friction, speak over the system, or hang up.
+    content: `In conversational voice AI, latency is the difference between a natural phone interaction and an awkward standoff. In human dialogue, the average turn-taking gap between speakers is roughly 200 to 300 milliseconds. When an automated telephone agent takes 2.5 seconds to reply, callers assume the call dropped, start repeating themselves, or hang up.
 
-When designing the real-time voice infrastructure for **Minions.AI**, our target was uncompromising: achieve sub-1.8-second total round-trip latency over standard cellular SIP telephone networks while sustaining natural conversational pacing and zero double-booking on live dispatch schedules.
-
-\`\`\`
-[ Caller Phone ] <--- PSTN / SIP Trunk ---> [ Audio Ingestion & VAD ]
-                                                      |  (Opus Audio Chunks)
-                                                      v
-                                            [ Fast STT Streaming ]
-                                                      |  (Interim Transcripts)
-                                                      v
-                                            [ LLM Inference Engine ]
-                                                      |  (Token Stream with Tool Call)
-                                                      v
-                                            [ Streaming TTS Synthesis ]
-                                                      |  (PCM / Opus Buffers)
-                                                      v
-                                            [ Audio Output Stream ]
-\`\`\`
+When designing the real-time telephony dispatcher for **Minions.AI**, we targeted a sub-1.8-second round-trip latency over standard cellular SIP telephone networks. This required eliminating sequential processing and replacing it with an overlapping streaming pipeline.
 
 ---
 
-## 1. Deconstructing the Latency Budget
+## The Sequential Bottleneck vs. Streaming Pipeline
 
-A traditional, unoptimized voice agent pipeline operates sequentially:
+A traditional sequential voice pipeline processes audio in monolithic steps:
 
-1. **Audio Ingestion & Silence Detection**: Wait for caller to stop speaking (~800ms).
-2. **Speech-to-Text (STT)**: Transcribe full audio buffer (~400ms).
-3. **LLM Inference**: Send complete prompt, await generation and full response (~1,200ms).
-4. **Text-to-Speech (TTS)**: Synthesize speech buffer (~500ms).
-5. **Network / Telephony Delivery**: Transmit audio back to SIP trunk (~150ms).
-
-Total turn-around time: **3.05+ seconds** — utterly unusable for emergency service dispatch.
-
-To shatter this ceiling and reach **< 1.8 seconds**, every sequential stage must be transformed into an overlapping, streaming pipeline.
+| Pipeline Stage | Sequential Approach | Streaming Target |
+| :--- | :--- | :--- |
+| **Silence Detection** | Wait 800ms for full pause | 280ms–320ms neural VAD |
+| **Transcription (STT)** | Wait for full phrase (~400ms) | Interim chunk streaming (~120ms) |
+| **LLM Generation** | Wait for full paragraph (~1200ms) | First clause token streaming (~180ms) |
+| **Synthesis (TTS)** | Synthesize whole response (~500ms) | Stream first clause audio buffer (~150ms) |
+| **Total Turnaround** | **~3,000ms+ (Unusable)** | **~1,400ms–1,800ms (Natural)** |
 
 ---
 
-## 2. Streaming Audio Pipeline Architecture
+## 1. Neural Voice Activity Detection & Barge-In
 
-### A. Dynamic Voice Activity Detection (VAD) & Barge-In
-Static silence thresholds fail in real-world contractor environments (e.g., background power tools, traffic noise, echo). We utilize neural VAD running on 20ms audio frames combined with energy-based spectral filtering:
+Static energy thresholds fail in real-world contractor environments where background noise (traffic, power tools, room echo) is common. We run neural VAD on 20ms audio frames combined with energy-based spectral filtering.
 
 \`\`\`typescript
 interface VADConfig {
@@ -74,42 +55,53 @@ interface VADConfig {
   minSilenceDurationMs: 320;
   prefixPaddingFrames: 3;
 }
+
+export function handleIncomingAudioFrame(frame: Buffer, vad: NeuralVAD) {
+  const isSpeech = vad.process(frame);
+
+  if (isSpeech && currentAgentState === "SPEAKING") {
+    // Immediate barge-in interrupt: kill outgoing audio buffer and abort LLM stream
+    audioOutputBuffer.clear();
+    abortController.abort();
+    transitionToState("LISTENING");
+  }
+}
 \`\`\`
 
-When the caller speaks while the agent is rendering audio (barge-in), the system immediately transmits an audio-interrupt packet to the SIP stream and aborts downstream LLM token generation, instantly resetting the state machine.
-
-### B. Streaming First-Chunk Synthesis
-Instead of waiting for the LLM to complete a paragraph, the response stream is parsed for sentence terminators (\`.\`, \`?\`, \`!\`, \`,\`). As soon as the first clause (typically 4–8 words) resolves, it is pushed immediately to the TTS synthesis engine.
-
-While the caller listens to the first 400ms of synthesized audio, the LLM generates the remainder of the response in parallel.
+When a caller interrupts while the agent is speaking (barge-in), the system immediately sends a silence frame to the SIP trunk, cancels downstream LLM token generation, and resets the conversational turn state in under 50 milliseconds.
 
 ---
 
-## 3. Tool Calling & Real-Time State Management
+## 2. Overlapping Token & Audio Synthesis
 
-A voice dispatcher cannot just chat; it must query technician availability, book appointments, and capture customer metadata.
+Instead of waiting for the LLM to complete its entire response, the output stream is continuously parsed for clause and sentence terminators (\`,\`, \`.\`, \`?\`, \`!\`). As soon as the first clause (typically 4 to 7 words) resolves, it is pushed directly to the TTS engine.
 
-Performing RESTful API calls inside a synchronous LLM turn introduces fatal delay. We separate tool execution into:
-- **Speculative Tool Calls**: Initiated on partial argument validation.
-- **Asynchronous Telemetry & Booking**: Emitted as background tasks while the conversational agent delivers voice confirmation.
+While the caller is listening to the first 400ms of synthesized speech, the LLM continues generating the remainder of the response in parallel, completely hiding generation latency.
+
+---
+
+## 3. Speculative Tool Execution
+
+A dispatch agent cannot simply chat; it must query calendars and book technician slots. Making blocking HTTP calls during an LLM turn adds 400ms to 800ms of latency.
+
+We handle this by triggering **speculative queries**: as soon as the caller states their location or urgency in the interim transcript, technician availability is pre-fetched in the background before the caller even finishes speaking.
 
 \`\`\`typescript
-// Speculative availability query during streaming transcription
-export async function handleIntentExtraction(partialTranscript: string) {
-  if (detectSchedulingIntent(partialTranscript)) {
-    // Pre-fetch technician calendar slots while caller is finishing address
-    prefetchAvailableSlots({ urgency: "emergency", region: extractZip(partialTranscript) });
+// Speculative availability query triggered during interim transcription
+export function onInterimTranscript(partialText: string) {
+  const zipMatch = extractZipCode(partialText);
+  if (zipMatch && !cachedAvailability[zipMatch]) {
+    prefetchTechnicianSlots(zipMatch);
   }
 }
 \`\`\`
 
 ---
 
-## 4. Production Trade-Offs: Speech-to-Speech vs Cascaded Pipelines
+## Production Lessons
 
-Frontier speech-to-speech models (native audio-in, audio-out) promise end-to-end latency under 500ms, but suffer from significant hallucination rates when executing structured tool calls and rigid business logic. 
-
-For commercial contractor dispatching where an incorrect booking costs real revenue, the **Cascaded Streaming Architecture (VAD + Fast STT + Structured LLM + Low-Latency TTS)** remains the superior enterprise choice for deterministic reliability and verifiable accuracy.`,
+1. **Cellular jitter is real**: Always buffer 40ms to 60ms of audio on the SIP gateway to absorb packet jitter without introducing robotic voice clipping.
+2. **Prioritize the first 6 words**: Callers evaluate voice responsiveness on the first few syllables. If the agent opens with a brief affirmative acknowledgement, the human brain perceives the interaction as instant.`,
   },
   {
     slug: "deterministic-multi-agent-systems-production",
@@ -122,65 +114,51 @@ For commercial contractor dispatching where an incorrect booking costs real reve
     },
     featured: true,
     publishedAt: new Date("2026-02-10T10:30:00.000Z"),
-    content: `The AI developer community spent the last two years enamored with autonomous, open-ended agent frameworks where multiple LLMs "chat" with each other in unconstrained loops. 
+    content: `Many AI agent architectures rely on open-ended prompt loops where multiple LLMs chat with each other to complete a task. In production, unconstrained agent loops frequently suffer from three major failure modes:
 
-In production, however, open-ended agent loops inevitably succumb to three catastrophic failure modes:
-1. **Looping Deadlocks**: Agents bounce ambiguous feedback back and forth until token budgets are exhausted.
-2. **Context Degradation**: As chat histories grow, critical constraints and tone guidelines are diluted.
-3. **Non-Deterministic State**: You cannot reliably audit, rollback, or resume a task when intermediate state is trapped inside conversational prose.
+1. **Looping deadlocks**: Agents bounce ambiguous feedback back and forth until the token budget is exhausted.
+2. **Context degradation**: As chat histories grow, core instructions and constraints get diluted.
+3. **Non-deterministic state**: You cannot audit, replay, or safely rollback an operation when state is trapped inside chat transcripts.
 
-When building the multi-agent editorial and technical content engine for **Minions.AI**, we abandoned chat loops and built a **Deterministic Finite State Machine (FSM)**.
+When building the multi-agent editorial pipeline for **Minions.AI**, we replaced conversational prompt loops with a **Deterministic Finite State Machine (FSM)**.
 
 ---
 
-## The Deterministic State Machine Model
+## The Deterministic State Machine Architecture
 
-Rather than allowing agents to decide what to do next arbitrarily, every state transition is governed by explicit code contracts, typed payloads, and deterministic guardrails.
+Rather than allowing models to decide arbitrary next steps, every stage of execution is governed by explicit TypeScript contracts and structured schemas:
 
-\`\`\`
-[ 01: Ingestion ] ---> (Scrape Industry Signals & Trends)
-         |
-         v
-[ 02: Research & Topic Harvester ] ---> (Extract Technical Hypotheses)
-         |
-         v
-[ 03: Drafting Agent ] ---> (Generate Markdown Content with Schema)
-         |
-         v
-[ 04: Critic & Verification Agent ]
-         |
-    +----+----+
-    |         |
- (Fail)     (Pass)
-    |         |
-    v         v
-[ Revise ]  [ 05: Cloudflare R2 Asset Staging & CMS Publish ]
-\`\`\`
+- **Stage 1: Ingestion**: Harvests trade contractor signals and common customer pain points.
+- **Stage 2: Research**: Extracts concrete technical hypotheses and structural outlines.
+- **Stage 3: Drafting**: Generates strict markdown content adhering to brand tone guidelines.
+- **Stage 4: Critic Validation**: Evaluates the draft against an independent verification rubric.
+- **Stage 5: Asset Staging**: Deploys approved assets to Cloudflare R2 and publishes to the CMS.
 
 ---
 
 ## 1. Typed State Contracts
 
-Every agent in the system is a pure function that accepts a strictly typed state snapshot and returns a deterministic state delta:
+Every agent in the pipeline is a pure function that takes a validated state snapshot and returns a deterministic state delta:
 
 \`\`\`typescript
 export interface EditorialState {
   id: string;
   topic: {
     keyword: string;
-    targetPersona: "Plumber" | "HVAC" | "Electrician";
-    painPoint: string;
+    trade: "Plumbing" | "HVAC" | "Electrical";
+    targetAudience: string;
   };
   draft: {
     title: string;
     markdownContent: string;
+    wordCount: number;
     version: number;
   } | null;
   criticFeedback: {
     score: number; // 0.0 to 1.0
-    passedVerification: boolean;
+    passed: boolean;
     technicalInaccuracies: string[];
-    toneFlags: string[];
+    bannedPhrasesFound: string[];
   } | null;
   status: "INGESTED" | "DRAFTING" | "CRITIQUE" | "APPROVED" | "PUBLISHED";
   retryCount: number;
@@ -189,43 +167,36 @@ export interface EditorialState {
 
 ---
 
-## 2. The Critic Agent as an Independent Verifier
+## 2. Decoupling the Critic from the Drafter
 
-The most common failure in single-agent content generation is self-conformation bias: an LLM that drafts an article will rarely catch its own logical fallacies in the same prompt context.
+A single model prompted to draft and self-critique suffers from self-confirmation bias. It will rarely catch its own logical oversights in the same context window.
 
-We enforce strict separation of concerns:
-- **The Drafter**: Prompted for creativity, tone calibration, and engineering depth.
-- **The Critic**: Injected with zero drafting instructions. It evaluates solely against a structured JSON schema:
-  - Are claims supported by verified engineering principles?
-  - Does the text contain banned marketing clichés ("in today's fast-paced world", "game-changer")?
-  - Are technical definitions and code snippets syntactically valid?
+We decouple the Critic entirely:
+- The Critic receives **zero drafting instructions**.
+- It is prompted purely as a strict evaluation function with \`temperature: 0.1\`.
+- It validates the draft against a schema, checking for banned marketing clichés, unsupported claims, and syntax validity.
 
 \`\`\`typescript
-export async function runCriticVerification(draft: string): Promise<CriticOutput> {
-  const response = await openai.chat.completions.create({
+export async function runCriticValidation(draft: string): Promise<CriticResult> {
+  const completion = await openai.chat.completions.create({
     model: "gpt-4o",
     response_format: { type: "json_object" },
     messages: [
-      { role: "system", content: CRITIC_SYSTEM_PROMPT },
-      { role: "user", content: \`Evaluate the following technical draft:\\n\\n\${draft}\` }
+      { role: "system", content: CRITIC_EVALUATION_PROMPT },
+      { role: "user", content: \`Evaluate the following technical draft:\\n\\n\${draft}\` },
     ],
-    temperature: 0.1, // Near-deterministic evaluation
+    temperature: 0.1,
   });
 
-  return JSON.parse(response.choices[0].message.content!) as CriticOutput;
+  return JSON.parse(completion.choices[0].message.content!) as CriticResult;
 }
 \`\`\`
 
 ---
 
-## 3. Unit-Cost Inference Telemetry
+## Core Takeaway
 
-Autonomous systems must be financially auditable. In our production pipeline, every token ingested, cached, and generated is tracked against the generated asset ID.
-
-By combining prompt caching with lightweight classification models on upstream steps and reserving frontier models strictly for drafting and critic validation, we reduced average generation cost to **$0.041 per complete technical asset**.
-
-### Key Takeaway
-Don't let agents manage their own workflow graph. Write the workflow in TypeScript; let the LLMs execute the isolated nodes.`,
+Don't let LLMs manage their own execution graph. Write the control flow in TypeScript; use models strictly as pure transformation functions at isolated nodes.`,
   },
   {
     slug: "engineering-precision-data-platforms-sft-rlhf",
@@ -238,104 +209,85 @@ Don't let agents manage their own workflow graph. Write the workflow in TypeScri
     },
     featured: true,
     publishedAt: new Date("2026-02-02T14:00:00.000Z"),
-    content: `As frontier foundation models saturate public web crawls, post-training data — specifically **Supervised Fine-Tuning (SFT)** and **Reinforcement Learning from Human Feedback (RLHF / DPO)** — demands highly qualified domain experts across software engineering, advanced mathematics, law, and medicine.
+    content: `As foundation models saturate raw internet text, high-value post-training data — specifically Supervised Fine-Tuning (SFT) and RLHF datasets — relies on verified domain specialists in software engineering, mathematics, law, and medicine.
 
-When **GenMorphics AI Solutions** needed a centralized web platform to manage their global workforce of domain annotators and subject-matter experts, our web engineering task was clear: design a secure, high-performance web dashboard featuring multi-tier role-based access control (RBAC), granular skill profiling, and seamless enterprise single sign-on.
-
----
-
-## 1. Multi-Tier Skill Categorization Matrix
-
-A generic workforce portal treats all workers identically. In high-precision LLM data curation, this creates organizational chaos.
-
-We architected a dynamic, multi-dimensional skill profiling engine in Next.js and Supabase:
-
-\`\`\`
-[ Domain Expert Account ]
-           |
-           +---> [ General Benchmark ] (Logic, Reasoning, Instruction Following)
-           +---> [ Coding & Architecture ] (TypeScript, C++, Rust, Systems Design)
-           +---> [ STEM Disciplines ] (Calculus, Linear Algebra, Organic Chemistry)
-           +---> [ TVET & Specialized Software ] (CAD, BEM, Data Analysis Tools)
-\`\`\`
-
-Annotators only view and access task queues matching their verified skill benchmarks, managed directly by GenMorphics administrators through the centralized dashboard.
+When **GenMorphics AI Solutions** needed a web platform to manage their global workforce of domain annotators and subject-matter experts, we engineered a scalable dashboard with granular skill categorization, role-based access control (RBAC), and enterprise authentication.
 
 ---
 
-## 2. Enterprise Single Sign-On & Identity Governance
+## 1. Multi-Dimensional Skill Categorization
 
-Enterprise AI teams require strict identity verification and seamless onboarding:
-- **Google Workspace & Microsoft Azure SSO**: Implemented OAuth 2.0 / OIDC flows allowing thousands of domain specialists to authenticate securely without password management friction.
-- **Role-Based Route Guards**: Middleware-enforced route protection ensuring strict boundaries between Annotators, Review Leads, Project Managers, and Platform Admins.
+Treating all workforce members as general annotators leads to poor dataset quality. We structured a multi-tiered skill profile matrix:
+
+- **Core Reasoning**: Logic, reading comprehension, and structured instruction following.
+- **Software Engineering**: Specific languages (TypeScript, C++, Rust, Python) and systems architecture.
+- **STEM Disciplines**: Calculus, Linear Algebra, Organic Chemistry, and Physics.
+- **Specialized Tooling**: CAD modeling, financial spreadsheet modeling, and legal analysis.
+
+Administrators assign projects based on verified skill badges, ensuring tasks are only routed to qualified annotators.
+
+---
+
+## 2. Authentication & Role-Based Route Protection
+
+The platform supports enterprise teams requiring strict identity governance:
+- **SSO Integration**: OAuth 2.0 / OIDC integrations with Google Workspace and Microsoft Azure Active Directory.
+- **Granular RBAC**: Clear separation between Annotators, Quality Reviewers, Project Managers, and Platform Administrators.
 
 \`\`\`typescript
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
-  const token = req.cookies.get("auth_token")?.value;
-  const userRole = extractRole(token);
+  const token = req.cookies.get("auth_session")?.value;
+  const userRole = decodeUserRole(token);
 
   if (req.nextUrl.pathname.startsWith("/admin") && userRole !== "ADMIN") {
-    return NextResponse.redirect(new URL("/user/overview", req.url));
+    return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 }
 \`\`\`
 
 ---
 
-## 3. Secure Multi-Modal Dataset Storage & Signed URLs
+## 3. Secure Asset Access with Short-Lived Signed URLs
 
-Domain workforce management requires handling proprietary code repositories, voice samples, and annotated image sets:
-- **Supabase Asset Storage**: Storage buckets configured with Row Level Security (RLS).
-- **Time-Limited Signed URLs**: Assets are served through short-lived HMAC-signed temporal URLs (TTL: 300 seconds), ensuring zero unauthorized sharing or asset scraping.
+Workforce management often involves reviewing sensitive audio, image, and code datasets. Assets are stored in private Supabase buckets with Row Level Security (RLS) and served through short-lived signed URLs (TTL: 300 seconds), preventing unauthorized hotlinking or scraping.
 
 ### Summary
-Building high-reliability web platforms for AI workforce management requires treating authorization, skill routing, and secure storage as foundational web architecture.`,
+Building high-reliability web platforms for AI workforce operations is about solid systems engineering: robust identity boundaries, verified skill routing, and secure data access.`,
   },
   {
     slug: "conversational-commerce-webhook-architecture",
     title: "Conversational Commerce at Scale: Designing Resilient Multi-Channel Messaging Systems",
     excerpt:
-      "How to handle multi-platform webhooks across WhatsApp, Facebook Messenger, Instagram, and Telegram with zero message drops, deduplication, and bilingual intent classification.",
+      "How to handle multi-platform webhooks across WhatsApp, Facebook Messenger, and Telegram with zero message drops, deduplication, and bilingual intent classification.",
     coverImage: {
       url: "/blog/conversational-commerce-webhooks.png",
       alt: "Conversational Commerce Webhook Architecture Cover",
     },
     featured: false,
     publishedAt: new Date("2026-01-28T11:15:00.000Z"),
-    content: `Social commerce in emerging markets operates in chat windows, not traditional e-commerce cart funnels. In Bangladesh, thousands of merchants transact daily over WhatsApp, Facebook Messenger, and Instagram DMs.
+    content: `In South Asian e-commerce, customer conversations happen inside chat apps rather than traditional checkout funnels. Thousands of online sellers interact with buyers directly through WhatsApp, Facebook Messenger, and Instagram DMs.
 
-When building **SellerVai**, our goal was to engineer a 24/7 conversational sales agent that could seamlessly handle high-velocity customer inquiries, process orders in natural Bengali and Banglish, and screen fraudulent Cash-on-Delivery (COD) orders without dropping incoming webhook events.
-
----
-
-## 1. The Multi-Platform Webhook Concurrency Challenge
-
-Social media platforms (Meta Graph API, Telegram Bot API) impose strict webhook delivery timeouts (typically 3 to 5 seconds). If your server fails to respond with \`200 OK\` within that window, the platform immediately retries, flooding your server with duplicate requests.
-
-\`\`\`
-[ WhatsApp / Meta Webhook ] ---> [ Edge Ingestion Gateway (Fast ACK 200 OK) ]
-                                              |
-                                              v  (Enqueued Task)
-                                     [ Redis / BullMQ Queue ]
-                                              |
-                                              v  (Worker Pool)
-                                  [ Idempotency & Deduplication ]
-                                              |
-                                              v
-                              [ Bilingual Intent & LLM Salesperson ]
-                                              |
-                                              v
-                               [ Direct Messaging API Response ]
-\`\`\`
+When architecting **SellerVai**, our goal was to build a 24/7 automated sales assistant capable of handling order inquiries, processing orders in Bengali and Banglish, and screening fake Cash-on-Delivery (COD) requests without dropping incoming webhook events during flash sale traffic spikes.
 
 ---
 
-## 2. Idempotency & Deduplication Strategy
+## 1. Webhook Concurrency & Rapid Acknowledgment
 
-We generate a composite idempotency hash for every incoming event:
+Social platforms (Meta Graph API, Telegram Bot API) require incoming webhooks to return an HTTP \`200 OK\` within 3 to 5 seconds. If processing takes longer, the platform assumes delivery failure and initiates retries, quickly triggering a retry storm.
+
+We decouple ingestion from processing:
+1. **Edge Ingestion Handler**: Validates the webhook signature and immediately responds with \`200 OK\` in under 15 milliseconds.
+2. **Asynchronous Queue**: The raw payload is pushed to a background Redis queue for execution.
+3. **Worker Processing**: Worker threads execute deduplication, intent classification, and order state updates.
+
+---
+
+## 2. Idempotency & Deduplication
+
+To prevent duplicate replies during network retries, every message is fingerprinted:
 
 \`\`\`typescript
 import crypto from "crypto";
@@ -343,37 +295,38 @@ import crypto from "crypto";
 export function generateMessageFingerprint(
   channel: "whatsapp" | "messenger" | "telegram",
   senderId: string,
-  messageId: string,
-  timestamp: string
+  messageId: string
 ): string {
   return crypto
     .createHash("sha256")
-    .update(\`\${channel}:\${senderId}:\${messageId}:\${timestamp}\`)
+    .update(\`\${channel}:\${senderId}:\${messageId}\`)
     .digest("hex");
+}
+
+export async function processIncomingEvent(event: WebhookEvent) {
+  const hash = generateMessageFingerprint(event.channel, event.senderId, event.messageId);
+  const isNew = await redis.set(hash, "1", "NX", "EX", 300); // 5-minute deduplication window
+
+  if (!isNew) {
+    return; // Duplicate event, skip processing
+  }
+
+  await executeConversationTurn(event);
 }
 \`\`\`
 
-Before processing any message, workers perform an atomic \`SET key value NX EX 300\` in Redis. If the key already exists, the event is immediately discarded.
-
 ---
 
-## 3. Bilingual Intent Classification & COD Verification
+## 3. Bilingual Intent Parsing & COD Verification
 
-Shoppers rarely type structured queries. A typical inquiry might read:
+Customer inquiries in social commerce are conversational and informal:
 > *"vai ei sneaker ta ki size 42 available ache? cash on delivery hobe?"*
 
-We employ a lightweight two-tier classifier:
-1. **Rule & Regex Parser**: Fast path for phone numbers, prices, and standard greetings (< 5ms).
-2. **Context-Aware LLM Agent**: Classifies intent (Size Inquiry, Price Negotiation, Address Confirmation, Delivery Status) with localized Bengali cultural nuance.
+We use a two-step parsing strategy:
+- **Regex & Keyword Engine**: Fast extraction of phone numbers, addresses, and size numbers in < 2ms.
+- **Context-Aware LLM**: Classifies customer intent (Stock Check, Sizing, Delivery Status, COD Confirmation) with natural localized nuance.
 
-### Algorithmic Fraud & Fake Order Screening
-To prevent COD losses for merchants, the system cross-references:
-- Customer phone number formatting & telecom operator validity.
-- Delivery address completeness (holding number, district, landmark).
-- Order velocity patterns to detect duplicate spam attempts.
-
-### Result
-Zero dropped webhook events during marketing flash sales, 24/7 instant customer reply times, and drastic reduction in fake COD deliveries.`,
+This architecture handles sudden traffic surges during holiday campaigns with zero message drops and consistent sub-second reply times.`,
   },
   {
     slug: "rendering-katex-formulas-nextjs-server-components",
@@ -386,45 +339,47 @@ Zero dropped webhook events during marketing flash sales, 24/7 instant customer 
     },
     featured: false,
     publishedAt: new Date("2026-01-20T16:45:00.000Z"),
-    content: `Rendering mathematical notation on the web has historically been a performance nightmare. Legacy solutions like MathJax require massive clientside JavaScript bundles, execute expensive DOM traversals after initial page load, and cause severe Cumulative Layout Shift (CLS) as plain text snaps into formatted formulas.
+    content: `Rendering mathematical formulas on the web has historically introduced significant performance penalties. Client-side math libraries parse LaTeX strings in the browser after the initial page load, causing visible layout shifts (CLS) and adding hundreds of kilobytes of JavaScript to the initial bundle.
 
-When architecting the EdTech platform for **MathPro Academy** — catering to thousands of JSC, SSC, and HSC students studying Advanced Mathematics and Calculus — sub-second page loads and crystal-clear mathematical proofs were non-negotiable.
-
----
-
-## 1. Why Client-Side Math Rendering Destroys Web Vitals
-
-When a user visits a mathematics course chapter containing 50+ formulas:
-1. The browser downloads the raw LaTeX strings (\`\\int_{a}^{b} f(x) dx\`).
-2. Heavy clientside JavaScript parses and replaces DOM nodes.
-3. The layout shifts dynamically, triggering layout reflows and degrading the **Interaction to Next Paint (INP)** score.
+When architecting the EdTech platform for **MathPro Academy** — serving secondary and higher secondary mathematics curricula — fast mobile load times and clean formula rendering were essential.
 
 ---
 
-## 2. The Solution: Server-Side KaTeX Pre-Compilation
+## 1. Client-Side Parsing vs. Server-Side Pre-Compilation
 
-By moving KaTeX compilation entirely into **Next.js React Server Components (RSC)**, the browser receives pure HTML and CSS with pre-calculated formula geometries:
+| Metric | Client-Side MathJax / KaTeX | Server-Side KaTeX (RSC) |
+| :--- | :--- | :--- |
+| **Client JS Bundle** | ~180KB – 350KB | **0KB** (Pure HTML + CSS) |
+| **Cumulative Layout Shift (CLS)** | 0.28 (Noticeable snap) | **0.00 (Zero layout jump)** |
+| **First Contentful Paint (FCP)** | 1.8s | **0.5s** |
+| **SEO Indexability** | Delayed DOM hydration | **Direct static HTML indexing** |
+
+---
+
+## 2. Implementing Server-Side Formula Pre-Rendering
+
+By performing KaTeX compilation inside **React Server Components (RSC)**, the browser receives static HTML with pre-calculated formula geometries:
 
 \`\`\`typescript
 import katex from "katex";
 import "katex/dist/katex.min.css";
 
-interface MathRendererProps {
-  math: string;
+interface MathProps {
+  equation: string;
   block?: boolean;
 }
 
-export function MathFormula({ math, block = false }: MathRendererProps) {
-  const html = katex.renderToString(math, {
+export function MathFormula({ equation, block = false }: MathProps) {
+  const html = katex.renderToString(equation, {
     displayMode: block,
     throwOnError: false,
-    output: "htmlAndMathml", // Accessible MathML + visual HTML fallback
+    output: "htmlAndMathml", // Emits visual HTML plus accessible MathML
     strict: false,
   });
 
   return (
     <span
-      className={block ? "my-4 block overflow-x-auto py-2 text-center" : "inline-block"}
+      className={block ? "my-4 block overflow-x-auto text-center py-2" : "inline-block"}
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );
@@ -433,14 +388,12 @@ export function MathFormula({ math, block = false }: MathRendererProps) {
 
 ---
 
-## 3. Benchmarks & Performance Impact
+## 3. Results on Low-End Mobile Networks
 
-By pre-rendering formulas on the server:
-- **Zero JavaScript Runtime Tax**: Students on low-end mobile devices download 0KB of math parsing libraries.
-- **Zero CLS**: Formula dimensions are known before the first paint.
-- **Instant Search Indexability**: Google and search crawlers index exact mathematical text and symbols directly from static HTML.
-
-When building educational software, treat typography and mathematical notation as first-class infrastructure.`,
+By shifting mathematical parsing from the client browser to the build/server step:
+- Mobile devices on 3G/4G connections download zero math parser code.
+- Layout geometry is known before the initial paint, eliminating formula pop-in.
+- Search engines index mathematical notation directly from raw HTML.`,
   },
   {
     slug: "defensive-webhook-engineering-payment-gateways",
@@ -453,40 +406,22 @@ When building educational software, treat typography and mathematical notation a
     },
     featured: false,
     publishedAt: new Date("2026-01-14T08:20:00.000Z"),
-    content: `In payment systems, the network is fundamentally unreliable. Gateways will drop callbacks, network timeouts will trigger retry storms, and malicious actors will attempt replay attacks against your endpoint.
+    content: `In financial transactions, network failures are guaranteed over time. Payment gateways drop callbacks, network timeouts cause retry bursts, and malicious actors may attempt replay attacks against your endpoint.
 
-If your payment callback handler isn't strictly idempotent and transactional, you will eventually grant courses, subscriptions, or balances twice.
+If your payment callback handler isn't strictly idempotent and transactional, you will eventually grant course enrollments or credits twice.
 
-While building automated bKash and Nagad checkout integrations for **MathPro Academy**, we implemented a zero-trust defensive webhook architecture.
-
----
-
-## 1. The Anatomy of a Payment Webhook Attack Vector
-
-\`\`\`
-[ Payment Gateway (bKash / Nagad) ]
-           |
-    (HTTP POST /api/webhooks/payment)
-           |
-           v
-[ API Route Handler ]
-  |-- Step 1: Verify HMAC Signature / IP Whitelist  (Prevent Forgery)
-  |-- Step 2: Acquire Distributed Lock on TransactionID (Prevent Race)
-  |-- Step 3: Check Existing Order Status in DB      (Prevent Double Fulfillment)
-  |-- Step 4: Execute Atomic Prisma Transaction      (Fulfill + Log)
-  |-- Step 5: Release Lock & Return 200 OK
-\`\`\`
+While building automated bKash and Nagad payment flows for **MathPro Academy**, we implemented a zero-trust payment webhook architecture.
 
 ---
 
-## 2. Cryptographic Signature Verification
+## 1. Webhook Signature Verification
 
-Never trust the incoming request payload without verifying the cryptographic signature header provided by the payment provider:
+Never trust an incoming payment callback payload without verifying its cryptographic signature header:
 
 \`\`\`typescript
 import crypto from "crypto";
 
-export function verifyWebhookSignature(
+export function verifyPaymentSignature(
   rawBody: string,
   signatureHeader: string,
   secretKey: string
@@ -496,6 +431,7 @@ export function verifyWebhookSignature(
     .update(rawBody)
     .digest("hex");
 
+  // Constant-time comparison to prevent side-channel timing attacks
   return crypto.timingSafeEqual(
     Buffer.from(computedHash, "utf-8"),
     Buffer.from(signatureHeader, "utf-8")
@@ -503,13 +439,11 @@ export function verifyWebhookSignature(
 }
 \`\`\`
 
-*Note the use of \`crypto.timingSafeEqual\` to prevent side-channel timing attacks.*
-
 ---
 
-## 3. Atomic Database Transactions with Prisma
+## 2. Atomic Database Transactions with Prisma
 
-When fulfilling an order upon payment confirmation, order status transition and course enrollment must succeed or fail together:
+When fulfilling an order upon payment confirmation, the order status transition and course enrollment must succeed or fail as a single unit:
 
 \`\`\`typescript
 export async function fulfillPaidOrder(trxId: string, orderId: string) {
@@ -543,7 +477,7 @@ export async function fulfillPaidOrder(trxId: string, orderId: string) {
 ---
 
 ## Summary
-Always assume your webhook endpoint will be called 5 times simultaneously for the same payment. Design for concurrency, lock on transaction IDs, and make operations idempotent.`,
+Always assume your webhook endpoint will receive multiple simultaneous calls for the same transaction. Use timing-safe HMAC checks, lock on transaction IDs, and ensure fulfillment operations are atomic.`,
   },
   {
     slug: "building-manifest-v3-ai-chrome-extensions",
@@ -556,15 +490,15 @@ Always assume your webhook endpoint will be called 5 times simultaneously for th
     },
     featured: false,
     publishedAt: new Date("2026-01-08T12:00:00.000Z"),
-    content: `With Google's transition to Chrome Extension Manifest V3, browser extension development underwent a major paradigm shift. Background pages were replaced with ephemeral service workers, code injection rules tightened, and persistent WebSocket connections required completely new architectural patterns.
+    content: `Google's transition to Chrome Extension Manifest V3 introduced major architectural constraints: persistent background pages were replaced with ephemeral service workers, code injection rules tightened, and storage boundaries became stricter.
 
-When building the **LinkedIn Brand Assistant** extension, our challenge was to inject a fluid, native-feeling AI writing companion into the LinkedIn feed without degrading browser scrolling performance or leaking client styles.
+When building the **LinkedIn Brand Assistant** extension, the goal was to inject a responsive AI companion into feed posts without causing style collisions or slowing down scrolling performance.
 
 ---
 
-## 1. Isolating Styles with Closed Shadow DOM
+## 1. Style Isolation with Closed Shadow DOM
 
-Injecting styles directly into a host application's DOM (like LinkedIn or Twitter) leads to catastrophic CSS collisions: host styles break your UI, and your Tailwind classes bleed into the host page.
+Injecting styles directly into a third-party host page (like LinkedIn) causes severe CSS collisions: the host site's CSS breaks your components, and your Tailwind classes can leak into the host page.
 
 We isolate the companion widget inside a **Shadow Root**:
 
@@ -573,20 +507,18 @@ export function mountBrandAssistant(targetElement: HTMLElement) {
   const container = document.createElement("div");
   container.id = "ln-brand-assistant-root";
 
-  // Create isolated Shadow DOM
   const shadowRoot = container.attachShadow({ mode: "open" });
   
-  // Inject scoped Tailwind stylesheet inside the shadow boundary
   const styleLink = document.createElement("link");
   styleLink.rel = "stylesheet";
   styleLink.href = chrome.runtime.getURL("styles/extension.css");
   shadowRoot.appendChild(styleLink);
 
-  const appMountPoint = document.createElement("div");
-  shadowRoot.appendChild(appMountPoint);
+  const mountPoint = document.createElement("div");
+  shadowRoot.appendChild(mountPoint);
   targetElement.appendChild(container);
 
-  return appMountPoint;
+  return mountPoint;
 }
 \`\`\`
 
@@ -594,29 +526,22 @@ export function mountBrandAssistant(targetElement: HTMLElement) {
 
 ## 2. Managing Ephemeral Service Workers
 
-Under Manifest V3, background service workers terminate after 30 seconds of inactivity. Storing application state or authentication tokens in memory variables causes silent failures.
+Under Manifest V3, background service workers terminate after short periods of inactivity. State must never rely on in-memory variables.
 
-All state transitions must persist to \`chrome.storage.local\` or \`chrome.storage.session\`:
+All authentication tokens and user preferences are persisted to \`chrome.storage.local\` and rehydrated as needed:
 
 \`\`\`typescript
-export async function getSecureApiKey(): Promise<string | null> {
-  const data = await chrome.storage.local.get(["openai_api_key"]);
-  return data.openai_api_key ?? null;
+export async function getStoredApiKey(): Promise<string | null> {
+  const data = await chrome.storage.local.get(["user_api_key"]);
+  return data.user_api_key ?? null;
 }
 \`\`\`
 
 ---
 
-## 3. Token-Efficient Prompt Engineering
+## 3. Token-Efficient Context Extraction
 
-Generating contextual comments directly on social feeds requires reading the post author, text, hashtags, and existing comments. Feeding full HTML markup to an LLM burns tokens and inflates response latency.
-
-We extract clean semantic markdown from the DOM before dispatching prompts:
-- Strip avatars, tracking attributes, and redundant SVG icons.
-- Truncate input to 400 key words.
-- Use low-temperature structured output to return 3 distinct tonal variants in under 600ms.
-
-Browser extensions with AI are only as good as their latency and DOM hygiene.`,
+Extracting context from complex web pages requires cleaning DOM nodes before sending them to an LLM. Rather than passing raw HTML, we strip tracking attributes, SVG icons, and nested navigation elements, sending only clean markdown text to minimize latency and token costs.`,
   },
   {
     slug: "offline-first-pwa-emergency-volunteer-networks",
@@ -629,49 +554,31 @@ Browser extensions with AI are only as good as their latency and DOM hygiene.`,
     },
     featured: false,
     publishedAt: new Date("2026-01-02T09:30:00.000Z"),
-    content: `During critical medical emergencies, finding compatible blood donors is a race against the clock. Hospital basements, emergency wards, and rural clinics frequently suffer from poor cellular reception or complete network dead zones.
+    content: `During critical medical emergencies, finding compatible blood donors is time-sensitive. Hospital basements, rural clinics, and emergency wards frequently suffer from weak mobile reception or complete network dead zones.
 
-When architecting the **Badhan Blood Donation platform for the Amar Ekushey Hall Unit, University of Dhaka**, an offline-first architecture was not a luxury feature — it was a life-critical engineering requirement.
-
----
-
-## 1. The Offline-First Paradigm: Cache First, Network Second
-
-Traditional web apps assume an active Internet connection and treat network failure as an error state. Offline-first architectures invert this assumption:
-1. Data is served directly from local storage (**IndexedDB**).
-2. The user can search, filter, and view records immediately.
-3. Network sync happens optimistically in the background.
-
-\`\`\`
-[ User Request: Search 'O+ Blood' ]
-                |
-                v
-       [ Service Worker ]
-         |            |
-  (Cache Hit)      (Background Fetch)
-         |            |
-         v            v
-  [ IndexedDB ]   [ Remote PostgreSQL API ]
-         |            |
-         +------+-----+
-                |
-                v
-     [ Immediate UI Render ]
-\`\`\`
+When developing the **Badhan Blood Donation platform for the Amar Ekushey Hall Unit, University of Dhaka**, offline resilience was a core requirement.
 
 ---
 
-## 2. Workbox Service Worker Strategy
+## 1. The Offline-First Strategy
 
-We configure Workbox to manage runtime caching and static asset pre-caching:
+Rather than treating network disconnection as an error state, the application operates locally first:
+1. All donor directories and hall member records are cached in local **IndexedDB**.
+2. Search and blood group filters execute locally in < 10ms.
+3. Background synchronization updates data once connectivity is restored.
+
+---
+
+## 2. Workbox Service Worker Implementation
+
+We configure Workbox to manage runtime caching:
 
 \`\`\`javascript
 import { precacheAndRoute } from "workbox-precaching";
 import { registerRoute } from "workbox-routing";
-import { StaleWhileRevalidate, CacheFirst } from "workbox-strategies";
+import { StaleWhileRevalidate } from "workbox-strategies";
 import { ExpirationPlugin } from "workbox-expiration";
 
-// Pre-cache core application shell
 precacheAndRoute(self.__WB_MANIFEST);
 
 // Cache donor records with Stale-While-Revalidate
@@ -691,14 +598,11 @@ registerRoute(
 
 ---
 
-## 3. Relational Indexing for Rapid Donor Queries
+## 3. Pre-Computing Eligibility Flags
 
-When querying hundreds of donor records on low-end mobile devices, calculating eligibility (e.g., *has it been > 90 days since the last donation?*) in clientside JavaScript must be instant.
+Calculating donor eligibility (whether at least 90 days have elapsed since the last donation) in real-time on low-end mobile devices can cause UI lag during fast typing.
 
-We index by \`bloodGroup\` and pre-compute the \`isEligible\` boolean flag on dataset ingestion.
-
-### Impact
-Volunteers can look up compatible donors inside hospital ICUs with zero loading spinners and zero connection errors.`,
+We pre-compute the \`isEligible\` boolean flag on dataset sync, allowing instantaneous filtering across all blood groups inside hospital wards without network latency.`,
   },
   {
     slug: "scaling-competitive-programming-lms-architectures",
@@ -711,42 +615,39 @@ Volunteers can look up compatible donors inside hospital ICUs with zero loading 
     },
     featured: false,
     publishedAt: new Date("2025-12-24T14:10:00.000Z"),
-    content: `Competitive programming is one of the most intellectually demanding disciplines in software engineering. When students prepare for ACM ICPC or technical giant interviews, motivation and structured daily practice are the two primary predictors of success.
+    content: `Structured practice and daily consistency are the core drivers of progress in competitive programming. When students prepare for algorithmic contests, unguided problem sets often lead to high dropout rates.
 
-While developing the **Codervai CP Platform**, we engineered a gamified learning platform with module-by-module video streaming, temporal problem unlocking, and real-time student leaderboard rankings for thousands of concurrent students.
+While building the **Codervai CP Platform**, we engineered a structured learning platform with temporal module unlocking, video code walkthroughs, and atomic student streak tracking.
 
 ---
 
-## 1. Dynamic Scheduled Batch Unlocking
+## 1. Dynamic Scheduled Module Progression
 
-Allowing students to skip directly to advanced Dynamic Programming without mastering foundational data structures leads to high drop-off rates. 
-
-We implemented an automated cron-driven batch progression engine:
+To ensure students master fundamentals before attempting advanced dynamic programming or graph algorithms, modules unlock progressively based on cohort schedule:
 
 \`\`\`typescript
-export async function calculateUnlockedModules(
-  studentEnrollmentDate: Date,
-  batchScheduleDays: number[]
-): Promise<number[]> {
-  const now = new Date();
+export function getUnlockedModuleIndices(
+  enrollmentDate: Date,
+  scheduleDays: number[]
+): number[] {
   const elapsedDays = Math.floor(
-    (now.getTime() - studentEnrollmentDate.getTime()) / (1000 * 60 * 60 * 24)
+    (Date.now() - enrollmentDate.getTime()) / (1000 * 60 * 60 * 24)
   );
 
-  return batchScheduleDays
-    .map((releaseDay, index) => (elapsedDays >= releaseDay ? index + 1 : null))
-    .filter((mod): mod is number => mod !== null);
+  return scheduleDays
+    .map((day, idx) => (elapsedDays >= day ? idx : null))
+    .filter((idx): idx is number => idx !== null);
 }
 \`\`\`
 
 ---
 
-## 2. Atomic Streak & Progress Concurrency
+## 2. Atomic Streak & Activity Concurrency
 
-When thousands of students complete problem sets around midnight, calculating learning streaks requires atomic database operations to prevent race conditions:
+When thousands of students complete problem sets near midnight, streak tracking requires atomic database updates to prevent race conditions:
 
 \`\`\`typescript
-export async function recordStudentActivity(userId: string) {
+export async function incrementStudentStreak(userId: string) {
   const today = new Date().toISOString().split("T")[0];
 
   return await prisma.$executeRaw\`
@@ -766,11 +667,9 @@ export async function recordStudentActivity(userId: string) {
 
 ---
 
-## 3. Video Streaming Infrastructure
+## 3. Video Code Walkthrough Delivery
 
-Code editorials require high legibility for small syntax characters on dark IDE themes. Generic video compression softens text and makes code unreadable. We configured custom HLS multi-bitrate profiles prioritizing crisp 1080p text rendering even on bandwidth-constrained connections.
-
-Structured architecture builds consistent habits.`,
+Code editorials require sharp legibility for syntax characters on dark IDE backgrounds. Standard aggressive video compression blurs code text. We configured customized HLS video encoding profiles prioritizing crisp 1080p text rendering even on bandwidth-constrained connections.`,
   },
   {
     slug: "cryptographic-credential-verification-institutional-web",
@@ -783,48 +682,45 @@ Structured architecture builds consistent habits.`,
     },
     featured: false,
     publishedAt: new Date("2025-12-18T10:00:00.000Z"),
-    content: `Academic institutions and policy think tanks operate in an environment where authority, permanence, and verifiable truth are foundational. When executive education graduates receive digital certifications, employers require immediate, tamper-proof verification without contacting registrars.
+    content: `Academic institutions and research centers require high standards of authority, permanence, and verifiable records. When executive trainees complete programs, employers require instant, tamper-proof credential verification.
 
-When architecting the institutional portal for **CPR BDDU (Center for Policy Research on Business and Development, University of Dhaka)**, we designed a server-side rendered research catalog paired with a public cryptographic credential verification engine.
+When architecting the institutional portal for **CPR BDDU (Center for Policy Research on Business and Development, University of Dhaka)**, we designed a server-rendered publication archive paired with a public cryptographic credential verification engine.
 
 ---
 
-## 1. Cryptographic Certificate Hash Verification
+## 1. Cryptographic Certificate Verification
 
-Instead of storing opaque IDs, each certificate issuance is hashed with a verifiable cryptographic checksum:
+Rather than relying on guessable sequential IDs, each certificate issuance is hashed with a verifiable HMAC checksum:
 
 \`\`\`typescript
 import crypto from "crypto";
 
-export function generateCertificateHash(
+export function generateCertificateVerificationHash(
   studentName: string,
   cohortName: string,
-  issueDate: string,
-  certificateNumber: string,
-  privateSecret: string
+  certificateNo: string,
+  secretKey: string
 ): string {
-  const rawString = \`\${certificateNumber}:\${studentName}:\${cohortName}:\${issueDate}\`;
+  const payload = \`\${certificateNo}:\${studentName}:\${cohortName}\`;
   return crypto
-    .createHmac("sha256", privateSecret)
-    .update(rawString)
+    .createHmac("sha256", secretKey)
+    .update(payload)
     .digest("hex")
     .substring(0, 16)
     .toUpperCase();
 }
 \`\`\`
 
-When an employer scans the QR code on a diploma, the verification engine queries the database, verifies the hash integrity, and renders the authenticated recipient details in sub-100ms.
+When an employer scans the QR code on a physical diploma, the portal queries the verification endpoint, validates the hash integrity, and renders the authentic recipient details in under 100 milliseconds.
 
 ---
 
-## 2. Accessible Research Document Catalog
+## 2. Accessible Research Document Repository
 
-Policy papers and academic publications must be universally accessible (WCAG 2.1 AA compliant) and search-indexed:
-- Server-rendered metadata for Google Scholar indexing.
-- Embedded accessible PDF previewers with keyboard-navigable zoom and search.
-- Responsive institutional typography respecting university heritage branding.
-
-Institutional software should convey trust, stability, and enduring craftsmanship.`,
+Policy publications and executive working papers must meet WCAG 2.1 AA accessibility standards:
+- Server-rendered metadata structured for academic search engines.
+- Accessible PDF viewing with keyboard navigation and search.
+- Clean institutional typography respecting university branding.`,
   },
   {
     slug: "nextjs-16-turbopack-deep-dive",
@@ -837,42 +733,33 @@ Institutional software should convey trust, stability, and enduring craftsmanshi
     },
     featured: false,
     publishedAt: new Date("2025-12-10T15:30:00.000Z"),
-    content: `Next.js 16 and Turbopack have redefined frontend performance standards. The compilation pipeline is faster, Server Components boundaries are cleaner, and static site generation (SSG) produces leaner HTML payloads.
-
-However, extracting maximum performance from modern Next.js requires understanding how compiler optimizations, caching layers, and media delivery interact.
+    content: `Next.js 16 and Turbopack deliver significant improvements to frontend compilation speed and build reliability. However, extracting maximum performance requires understanding how React Server Components, image pipelines, and caching layers interact.
 
 ---
 
 ## 1. The Server vs Client Component Boundary
 
-A common anti-pattern in modern React applications is marking high-level parent components with \`"use client"\`, inadvertently pulling large dependency trees into the browser bundle.
+A common anti-pattern is adding \`"use client"\` at high parent levels, inadvertently shipping unnecessary JavaScript dependencies to the client.
 
-\`\`\`
-[ Server Component (Page / Layout) ] ---> (Fetches Prisma Data on Server)
-             |
-             +---> [ Pure Server Child ] ---> (Static HTML, 0kB JS)
-             |
-             +---> [ Thin Client Island ("use client") ] ---> (Only Interactive Controls)
-\`\`\`
-
-By keeping database queries, markdown parsers, and typography formatting strictly inside Server Components, your browser bundle remains lean and fast.
+- **Server Components (Page / Layout)**: Execute database queries with Prisma, parse Markdown, and render static HTML with zero client JavaScript overhead.
+- **Client Components (Islands)**: Reserved exclusively for interactive elements like modals, search filters, and animated navigation drawers.
 
 ---
 
-## 2. Lossless Screenshot & UI Image Optimization
+## 2. High-Fidelity UI Screenshot Optimization
 
-When building portfolios and technical showcases, default image optimization downscales images and applies lossy compression that blurs code text and user interfaces on high-DPI Retina screens.
+When showcasing web applications in a portfolio, default image compression can blur fine typography and code lines on high-DPI Retina screens.
 
-By pairing modern WebP formats with explicit \`unoptimized\` flags on high-fidelity dashboard assets and setting generous responsive \`sizes\`, you guarantee razor-sharp screenshots with instant loading times.
+By using modern WebP formats with explicit \`unoptimized\` flags on detailed dashboard screenshots and configuring accurate responsive \`sizes\`, interfaces stay crisp with instant load times.
 
 ---
 
-## 3. Automated JSON-LD and SEO Structured Data
+## 3. Automated Structured Data (JSON-LD)
 
-Every technical article and project case study should automatically emit Google-compliant JSON-LD schema:
+Every article automatically generates schema-compliant structured data for search visibility:
 
 \`\`\`typescript
-export function generateArticleJsonLd(post: { title: string; excerpt: string; publishedAt?: Date }) {
+export function generateArticleJsonLd(post: { title: string; excerpt: string; slug: string; publishedAt?: Date }) {
   return {
     "@context": "https://schema.org",
     "@type": "TechArticle",
@@ -882,13 +769,11 @@ export function generateArticleJsonLd(post: { title: string; excerpt: string; pu
     author: {
       "@type": "Person",
       name: "Parvej Shah",
-      jobTitle: "Full-Stack Web Developer & AI Systems Engineer",
+      jobTitle: "Full-Stack Web Developer & Platform Engineer",
     },
   };
 }
-\`\`\`
-
-Fast compile times, zero hydration mismatch, and perfect Core Web Vitals are the hallmarks of modern web engineering.`,
+\`\`\``,
   },
   {
     slug: "craft-of-high-velocity-software-delivery",
@@ -901,38 +786,36 @@ Fast compile times, zero hydration mismatch, and perfect Core Web Vitals are the
     },
     featured: false,
     publishedAt: new Date("2025-12-01T11:00:00.000Z"),
-    content: `Velocity in software engineering is frequently misunderstood. Junior developers often assume that moving fast means jumping on every new framework, adopting bleeding-edge distributed databases, and deploying microservices for a 5-user prototype.
+    content: `Velocity in software engineering is frequently misunderstood. Moving fast does not mean adopting every emerging framework or deploying microservices for early-stage products.
 
-In reality, high-velocity engineering is a byproduct of **drastically reducing cognitive overhead**.
-
----
-
-## 1. The Superpower of Boring Technology
-
-When Dan McKinley wrote *Choose Boring Technology*, he introduced the concept of "innovation tokens." Every company only has a few tokens to spend before complexity crushes them.
-
-- **PostgreSQL**: Handles relational queries, JSON documents, full-text search, and atomic transactions. No need for three different databases.
-- **TypeScript**: Catches type errors at write time, eliminating an entire category of runtime bugs.
-- **Next.js & Tailwind CSS**: Eliminates CSS specificity wars and unifies frontend routing with backend APIs.
+Real velocity is a byproduct of **drastically minimizing cognitive overhead**.
 
 ---
 
-## 2. Feedback Loops: The True Speed Multiplier
+## 1. The Value of Boring Technology
 
-The single biggest tax on developer velocity is the time elapsed between writing a line of code and verifying its behavior.
+Every team has limited operational bandwidth:
 
-- Local dev servers must start in < 2 seconds.
-- Test suites must execute in < 10 seconds.
-- CI/CD pipelines must build and deploy in < 3 minutes.
+- **PostgreSQL**: Robust support for relational queries, JSON documents, full-text search, and atomic transactions.
+- **TypeScript**: Catches type errors at compile time, eliminating runtime surprises.
+- **Next.js & Tailwind CSS**: Unifies backend API routing with frontend presentation, removing styling specificity conflicts.
 
-If your feedback loop is 15 minutes, you ship twice a day. If your feedback loop is 30 seconds, you ship twenty times a day.
+---
+
+## 2. Tight Feedback Loops
+
+The biggest bottleneck in development speed is the elapsed time between writing code and validating behavior.
+
+- Local dev servers should start in < 2 seconds.
+- Test suites should complete in < 10 seconds.
+- Deployment pipelines should build in < 3 minutes.
+
+When feedback loops are short, developers iterate with confidence.
 
 ---
 
 ## 3. Knowing What Not to Build
 
-Every feature you write is code you must maintain, migrate, test, and debug at 2 AM. The most effective engineers are not those who write the most code, but those who solve user problems with the least amount of moving parts.
-
-Ship simple, verified, high-craft software. That is what wins.`,
+Every line of code written is code that must be maintained, tested, and supported. The most effective engineers solve business problems with the fewest possible moving parts.`,
   },
 ];
