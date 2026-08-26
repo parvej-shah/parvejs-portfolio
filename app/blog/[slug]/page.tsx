@@ -115,6 +115,11 @@ export default async function BlogDetailPage({ params }: PageProps) {
                 <CalendarDays className="size-4 text-brand/70" />
                 {formatDate(post.publishedAt)}
               </span>
+              {post.updatedAt && post.updatedAt.getTime() > (post.publishedAt?.getTime() || 0) + 86400000 ? (
+                <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                  · Last updated: {formatDate(post.updatedAt)}
+                </span>
+              ) : null}
               <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
                 <Clock className="size-4 text-brand/70" />
                 {stats.text}

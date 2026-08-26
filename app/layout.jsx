@@ -111,6 +111,37 @@ export default async function RootLayout({ children }) {
     },
   };
 
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "What services does Parvej Shah offer?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Parvej Shah offers full-stack web development services, specializing in React, Next.js, Node.js, and MongoDB. He builds scalable, high-performance web products.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "What is Parvej Shah's tech stack?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Parvej Shah's core tech stack includes React, Next.js, Node.js, Express, MongoDB, JavaScript/TypeScript, and Tailwind CSS.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Is Parvej Shah available for freelance work?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes, Parvej Shah is based in Dhaka, Bangladesh, and is available for freelance projects worldwide.",
+        },
+      }
+    ],
+  };
+
   return (
     <html
       lang="en"
@@ -130,6 +161,10 @@ export default async function RootLayout({ children }) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
       </head>
       <body>

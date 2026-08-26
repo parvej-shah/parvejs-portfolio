@@ -128,6 +128,10 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                     Featured
                   </span>
                 ) : null}
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-ink-2/70 px-3 py-1 text-xs font-medium text-muted-foreground">
+                  <CalendarClock className="size-3" />
+                  Last updated: {new Date(project.updatedAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                </span>
               </div>
               <h1 className="mt-4 text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
                 {project.title}
