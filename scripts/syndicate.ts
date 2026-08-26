@@ -83,35 +83,46 @@ ${post.content}
 *Parvej Shah is a Lead Full-Stack Web Developer & Platform Architect based in Dhaka, Bangladesh. Explore full architecture case studies and production code at [parvejshah.com](${SITE_URL}).*
 `;
 
-      const publishRes = await fetch("https://dev.to/api/articles", {
-        method: "POST",
-        headers: {
-          "api-key": config.devToApiKey,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          article: {
-            title: post.title,
-            published: true,
-            body_markdown: markdownBody,
-            tags,
-            canonical_url: `${SITE_URL}/blog/${post.slug}`,
-            main_image: coverImage,
-            description: post.excerpt,
-          },
-        }),
-      });
+      let published = false;
+      let attempts = 0;
 
-      if (publishRes.ok) {
-        const created = await publishRes.json();
-        console.log(`     🎉 Published! URL: ${created.url}`);
-      } else {
-        const err = await publishRes.text();
-        console.error(`     ❌ Failed to publish: ${publishRes.status} ${err}`);
+      while (!published && attempts < 3) {
+        attempts++;
+        const publishRes = await fetch("https://dev.to/api/articles", {
+          method: "POST",
+          headers: {
+            "api-key": config.devToApiKey,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            article: {
+              title: post.title,
+              published: true,
+              body_markdown: markdownBody,
+              tags,
+              canonical_url: `${SITE_URL}/blog/${post.slug}`,
+              main_image: coverImage,
+              description: post.excerpt,
+            },
+          }),
+        });
+
+        if (publishRes.ok) {
+          const created = await publishRes.json();
+          console.log(`     🎉 Published! URL: ${created.url}`);
+          published = true;
+        } else if (publishRes.status === 429) {
+          console.log(`     ⏳ Rate limit hit. Waiting 32 seconds before retry...`);
+          await new Promise((r) => setTimeout(r, 32000));
+        } else {
+          const err = await publishRes.text();
+          console.error(`     ❌ Failed to publish: ${publishRes.status} ${err}`);
+          break;
+        }
       }
 
-      // Small delay to respect rate limits
-      await new Promise((r) => setTimeout(r, 1500));
+      // 5-second interval between publishes
+      await new Promise((r) => setTimeout(r, 5000));
     }
   } catch (err) {
     console.error("❌ [DEV.to] Error during syndication:", err);

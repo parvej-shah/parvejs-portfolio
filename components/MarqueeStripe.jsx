@@ -22,7 +22,7 @@ export default function MarqueeStripe({ items = DEFAULT_ITEMS }) {
   return (
     <div
       aria-hidden
-      className="relative overflow-hidden border-y border-line bg-ink py-4"
+      className="relative overflow-hidden bg-ink py-4"
     >
       {/* left fade */}
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-ink to-transparent sm:w-24" />
