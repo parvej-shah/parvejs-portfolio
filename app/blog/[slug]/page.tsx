@@ -46,12 +46,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title: post.title,
       description: post.excerpt,
+      url: `/blog/${post.slug}`,
       images: post.coverImage
-        ? [{ url: post.coverImage.url, alt: post.coverImage.alt || post.title }]
-        : undefined,
+        ? [{ url: post.coverImage.url, width: 1600, height: 900, alt: post.coverImage.alt || post.title }]
+        : [{ url: "/og.jpg", width: 1200, height: 630, alt: post.title }],
       type: "article",
       publishedTime: post.publishedAt?.toISOString(),
       modifiedTime: post.updatedAt.toISOString(),
+      authors: ["Parvej Shah"],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+      images: post.coverImage ? [post.coverImage.url] : ["/og.jpg"],
+      creator: "@parvejshah",
     },
   };
 }
