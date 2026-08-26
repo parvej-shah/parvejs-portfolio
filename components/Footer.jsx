@@ -105,7 +105,7 @@ export default async function Footer() {
           className="graffiti w-full whitespace-nowrap px-3 text-center text-[12vw] leading-[0.85] tracking-tight opacity-70 sm:text-[14vw] lg:text-[11.5vw]"
           style={{ transform: "none" }}
         >
-          Work Together
+          Parvej Shah
         </div>
       </div>
     </footer>

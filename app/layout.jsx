@@ -196,6 +196,12 @@ export default async function RootLayout({ children }) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="Parvej Shah — Engineering & Architecture Blog"
+          href="/rss.xml"
+        />
       </head>
       <body>
         <RevealProvider />

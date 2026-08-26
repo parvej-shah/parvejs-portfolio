@@ -1,0 +1,34 @@
+name: Auto-Syndicate Blog Posts
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'prisma/posts-data.ts'
+      - 'scripts/syndicate.ts'
+  workflow_dispatch:
+
+jobs:
+  syndicate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Cross-Platform Syndication
+        env:
+          NEXT_PUBLIC_SITE_URL: "https://parvejshah.com"
+          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}
+          HASHNODE_TOKEN: ${{ secrets.HASHNODE_TOKEN }}
+          HASHNODE_PUBLICATION_ID: ${{ secrets.HASHNODE_PUBLICATION_ID }}
+        run: npx tsx scripts/syndicate.ts
