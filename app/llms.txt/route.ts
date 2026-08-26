@@ -1,6 +1,9 @@
 import { getPublishedProjects, getPublishedPosts, getSection } from "@/lib/data/public";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-static";
+export const revalidate = 86400;
+
 export async function GET() {
   const [seoSection, projects, posts] = await Promise.all([
     getSection("seo"),
