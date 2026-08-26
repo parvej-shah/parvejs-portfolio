@@ -25,7 +25,7 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-const defaultSiteUrl = "https://parvejshah.vercel.app";
+const defaultSiteUrl = "https://parvejshah.com";
 
 const caseStudySections = [
   { key: "problem", label: "Problem", step: "01", icon: CircleHelp },

@@ -8,7 +8,7 @@ export async function GET() {
     getPublishedPosts(),
   ]);
 
-  const siteUrl = seoSection?.siteUrl || "https://parvejshah.vercel.app";
+  const siteUrl = seoSection?.siteUrl || "https://parvejshah.com";
   const title = seoSection?.title || "Parvej Shah — Portfolio";
   const description = seoSection?.description || "Full-stack developer building fast, scalable web products with React, Next.js, Node.js and MongoDB.";
 

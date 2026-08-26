@@ -16,7 +16,7 @@ const defaultSeo = {
   description:
     "Full-stack developer building fast, scalable web products with React, Next.js, Node.js and MongoDB. Based in Dhaka — available for freelance projects worldwide.",
   ogImage: "/og.jpg",
-  siteUrl: "https://parvejshah.vercel.app",
+  siteUrl: "https://parvejshah.com",
 };
 
 export async function generateMetadata() {
@@ -73,12 +73,42 @@ export default async function RootLayout({ children }) {
       "React",
       "Next.js",
       "Node.js",
-      "Express",
-      "MongoDB",
+      "TypeScript",
       "JavaScript",
+      "Express.js",
+      "PostgreSQL",
+      "MongoDB",
+      "Prisma ORM",
       "Tailwind CSS",
+      "RESTful API Development",
+      "GraphQL",
+      "AI & LLM Integration",
+      "Voice AI Pipelines",
+      "Multi-Agent Systems",
+      "WebSockets",
+      "Microservices Architecture",
+      "Server-Side Rendering (SSR)",
+      "React Server Components",
+      "Cloudflare R2",
+      "Vercel Deployment",
+      "Docker",
+      "Redis",
+      "Generative Engine Optimization (GEO)",
+      "Technical Search Engine Optimization (SEO)"
     ],
-    sameAs: ["https://github.com/parvej-shah", "https://www.linkedin.com/in/parvej-shah"],
+    sameAs: [
+      "https://github.com/parvej-shah",
+      "https://www.linkedin.com/in/parvej-shah",
+      "https://dev.to/parvejshah",
+      "https://hashnode.com/@parvej-shah",
+      "https://parvejshah.hashnode.dev",
+      "https://medium.com/@parvejshah",
+      "https://peerlist.io/parvejshah",
+      "https://www.producthunt.com/@parvejshah",
+      "https://dribbble.com/parvej-shah-labib",
+      "https://www.behance.net/parvejshahlabib",
+      "https://about.me/parvejshah"
+    ],
   };
 
   const websiteJsonLd = {

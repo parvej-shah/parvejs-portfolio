@@ -14,7 +14,7 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-const defaultSiteUrl = "https://parvejshah.vercel.app";
+const defaultSiteUrl = "https://parvejshah.com";
 
 function formatDate(date: Date | null | undefined) {
   if (!date) return "Recently published";

@@ -1,6 +1,6 @@
 import { getPublishedPosts, getPublishedProjects, getSection } from "@/lib/data/public";
 
-const defaultSiteUrl = "https://parvejshah.vercel.app";
+const defaultSiteUrl = "https://parvejshah.com";
 
 export default async function sitemap() {
   const [seo, projects, posts] = await Promise.all([
