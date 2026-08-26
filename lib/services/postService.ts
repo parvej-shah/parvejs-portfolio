@@ -1,5 +1,6 @@
 import { revalidateTag } from "next/cache";
 import * as postRepo from "@/lib/data/postRepo";
+import { triggerPostSyndication } from "@/lib/services/syndicationService";
 import type { CreatePost, UpdatePost } from "@/lib/types";
 
 export class PostNotFoundError extends Error {
@@ -46,6 +47,12 @@ export async function createPost(data: CreatePost) {
     publishedAt: data.status === "PUBLISHED" ? new Date() : (data.publishedAt ?? null),
   });
   revalidateTag("posts", "max");
+
+  if (post.status === "PUBLISHED") {
+    // Non-blocking auto-syndication
+    triggerPostSyndication(post).catch(() => {});
+  }
+
   return post;
 }
 
@@ -64,6 +71,12 @@ export async function updatePost(id: string, data: UpdatePost) {
     publishedAt: isNewlyPublished ? new Date() : data.publishedAt,
   });
   revalidateTag("posts", "max");
+
+  if (data.status === "PUBLISHED" || isNewlyPublished) {
+    // Non-blocking auto-syndication
+    triggerPostSyndication(post).catch(() => {});
+  }
+
   return post;
 }
 

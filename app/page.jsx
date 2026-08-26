@@ -1,4 +1,5 @@
 import HeroSection from "../components/Banner";
+import MarqueeStripe from "../components/MarqueeStripe";
 import Services from "../components/Services";
 import Stats from "../components/Stats";
 import Process from "../components/Process";
@@ -49,6 +50,7 @@ export default async function Home() {
   return (
     <main>
       <HeroSection section={heroSection ?? undefined} socialLinks={socialSection?.links} />
+      <MarqueeStripe />
       <Services section={servicesSection ?? undefined} />
       <Stats section={statsSection ?? undefined} />
       <Process section={processSection ?? undefined} />
