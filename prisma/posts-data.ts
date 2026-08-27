@@ -60,11 +60,11 @@ When a voice agent needs to know *"Is a technician available tomorrow at 2:00 PM
 
 Total pause for the caller: **850ms of dead air**.
 
-### The Solution: Write-Through Slot Pre-Warming in n8n & Redis
+### The Solution: Write-Through Pre-Warming in n8n & EspoCRM
 
-Instead of querying Google Calendar and EspoCRM synchronously on every voice turn, we configured n8n with an **In-Memory / Redis Free-Busy Cache**:
+Instead of querying Google Calendar and EspoCRM synchronously on every voice turn, we configured n8n with an **n8n Static State / Calendar Cache**:
 * A background n8n cron workflow runs every 2 minutes, queries Google Calendar for the next 5 business days, and pre-computes available 2-hour appointment slots in Redis (\`SET slots:hvac:2026-08-28\`).
-* When Retell AI triggers the \`check_and_book_slot\` webhook during a live call, n8n reads from Redis in **18ms** and returns immediately.
+* When Retell AI triggers the \`check_and_book_slot\` webhook during a live call, n8n reads from the pre-warmed state in **18ms** and returns immediately.
 
 \`\`\`javascript
 // n8n Custom Code Node: Fast Cache Evaluator & Slot Matcher
@@ -72,8 +72,8 @@ const dateRequested = items[0].json.body.date || new Date().toISOString().split(
 const serviceType = items[0].json.body.serviceType || 'general';
 const cacheKey = 'slots:' + serviceType + ':' + dateRequested;
 
-// 1. Fetch pre-computed slots directly from Redis (sub-5ms)
-const cachedSlotsRaw = await this.helpers.getRedisClient().get(cacheKey);
+// 1. Fetch pre-computed slots directly from n8n state cache (sub-5ms)
+const cachedSlotsRaw = await this.helpers.getWorkflowStaticData('global').get(cacheKey);
 
 if (cachedSlotsRaw) {
   const availableSlots = JSON.parse(cachedSlotsRaw);
@@ -111,7 +111,7 @@ The voice agent fires a single asynchronous webhook to n8n upon call completion.
 * **Node 1:** Inserts/Updates Contact and Lead in **EspoCRM**.
 * **Node 2:** Creates the appointment event in **Google Calendar**.
 * **Node 3:** Sends an automated SMS confirmation to the customer's phone.
-* **Node 4:** Invalidates the booked slot in the Redis cache.
+* **Node 4:** Invalidates the booked slot in the n8n state cache.
 
 | Metric | Sequential (Naive) | Fast-Convergence (Optimized) | Improvement |
 | :--- | :--- | :--- | :--- |
@@ -433,13 +433,13 @@ export async function POST(req: Request) {
 }
 \`\`\`
 
-The queue (BullMQ backed by Redis) holds the message until a worker picks it up. The webhook handler has already returned 200 OK to Meta and is completely done. The actual work — intent classification, inventory lookup, response generation — happens in worker processes with no timeout pressure.
+A FastAPI background task or in-memory debouncer holds the message context. The webhook handler has already returned 200 OK to Meta and is completely done. The actual work — intent classification, inventory lookup, response generation — happens in worker processes with no timeout pressure.
 
 ## The Deduplication Layer
 
 Workers can't blindly process everything in the queue. If Meta retried a message three times before getting its 200 OK, there are three copies of that message in the queue.
 
-Every message gets fingerprinted before processing. The fingerprint is derived from the channel, the sender ID, and the platform's native message ID. The fingerprint goes into Redis with a 5-minute TTL using a SET NX operation — set only if not exists. If the key already exists, that message has been processed recently and the worker skips it.
+Every message gets fingerprinted before processing. The fingerprint is derived from the channel, the sender ID, and the platform's native message ID. The fingerprint goes into our FastAPI in-process debouncer map with a TTL. If the key already exists, that message has been processed recently and the worker skips it.
 
 \`\`\`typescript
 function buildMessageFingerprint(
@@ -595,7 +595,7 @@ For a statically generated course platform like MathPro Academy, this cost is pa
     slug: "defensive-webhook-engineering-payment-gateways",
     title: "Payment Webhook Mistakes You Only Make Once",
     excerpt:
-      "Double enrollments, missed payments, and replay attacks: the ways payment webhook handlers go wrong in production are specific and preventable. This is what we built for MathPro Academy's bKash and Nagad integrations.",
+      "Double enrollments, missed payments, and replay attacks: the ways payment webhook handlers go wrong in production are specific and preventable. This is what we built for MathPro Academy's SSLCommerz integrations.",
     coverImage: {
       url: "/blog/defensive-webhook-engineering.png",
       alt: "Defensive Webhook Engineering Cover",
@@ -606,7 +606,7 @@ For a statically generated course platform like MathPro Academy, this cost is pa
 
 These are the bugs that live inside payment webhook handlers.
 
-For **MathPro Academy**, students purchase course enrollments through bKash and Nagad — Bangladesh's two dominant mobile financial services. Both platforms use webhook-based payment confirmation: after a successful transaction, their servers POST a confirmation payload to your registered endpoint. Your job is to receive that POST, verify it's legitimate, fulfill the order, and respond with a success status.
+For **MathPro Academy**, students purchase course enrollments through SSLCommerz — Bangladesh's two dominant mobile financial services. Both platforms use webhook-based payment confirmation: after a successful transaction, their servers POST a confirmation payload to your registered endpoint. Your job is to receive that POST, verify it's legitimate, fulfill the order, and respond with a success status.
 
 The failure modes are more numerous and more subtle than they appear.
 
@@ -620,7 +620,7 @@ If your handler's first act is to write the enrollment to the database without c
 
 ## The Three Properties Every Payment Handler Needs
 
-**Signature verification.** Before touching the database or any application logic, verify that the incoming request actually came from the payment gateway. Both bKash and Nagad include an HMAC signature header that can be validated against your shared secret key.
+**Signature verification.** Before touching the database or any application logic, verify that the incoming request actually came from the payment gateway. SSLCommerz provides a validation endpoint (val_id) that you actively query from your server rather than trusting the webhook payload blindly.
 
 \`\`\`typescript
 function verifyPaymentSignature(
@@ -1040,10 +1040,10 @@ We encode video content in HLS with multiple quality tiers, but the top-tier enc
 The encoding configuration is a single FFmpeg preset that content creators run locally before uploading. The infrastructure side handles HLS segmentation and CDN distribution automatically. The hard part was getting the quality parameters right, which required testing the encoding against several monitors, devices, and network conditions to find settings that were legible under all conditions.`,
   },
   {
-    slug: "cryptographic-credential-verification-institutional-web",
+    slug: "high-speed-edge-verification-institutional-credentials",
     title: "How We Made Academic Certificates Verifiable Without a Blockchain",
     excerpt:
-      "CPRBD at the University of Dhaka needed a way for employers to verify that a professional certificate was legitimate. The solution turned out to be simpler than you'd think: HMAC hashes, a verification endpoint, and QR codes.",
+      "CPRBD at the University of Dhaka needed a way for employers to verify that a professional certificate was legitimate. The solution turned out to be simpler than you'd think: Next.js edge-cached database lookups, a strict validation endpoint, and unique QR codes.",
     coverImage: {
       url: "/blog/cryptographic-credential-verification.png",
       alt: "Cryptographic Credential Verification Cover",
