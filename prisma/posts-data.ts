@@ -972,105 +972,50 @@ The encoding configuration is a single FFmpeg preset that content creators run l
   },
   {
     slug: "high-speed-edge-verification-institutional-credentials",
-    title: "How We Made Academic Certificates Verifiable Without a Blockchain",
+    title: "How We Made Academic Certificates Verifiable Without a Blockchain (or HMAC)",
     excerpt:
-      "CPRBD at the University of Dhaka needed a way for employers to verify that a professional certificate was legitimate. The solution turned out to be simpler than you'd think: Next.js edge-cached database lookups, a strict validation endpoint, and unique QR codes.",
+      "CPRBD at the University of Dhaka needed employers and embassies to verify that a professional certificate was real. The actual solution was less exotic than the platform's own docs once claimed: a structured certificate ID, a plain database lookup, and rate limiting.",
     coverImage: {
       url: "/blog/cryptographic-credential-verification.png",
       alt: "Cryptographic Credential Verification Cover",
     },
     featured: false,
     publishedAt: new Date("2025-12-18T10:00:00.000Z"),
-    content: `When the **Center for Policy Research on Business and Development (CPRBD)** at the University of Dhaka approached us about building their institutional web portal, one requirement stood out immediately: certificate verification.
+    content: `When the **Center for Policy Research on Business and Development (CPRBD)** at the University of Dhaka approached us about their institutional web portal, certificate verification stood out immediately. CPRBD runs executive education cohorts for mid-career government officials and business professionals, who receive physical certificates used as credentials for government postings and senior roles — and nothing on the physical certificate had ever been independently verifiable.
 
-CPRBD runs executive education programs and professional certification cohorts for mid-career government officials and business professionals. Participants receive physical certificates signed by faculty from the University of Dhaka's Department of International Business. These certificates are used as credentials when applying for government positions, international postings, and senior roles.
+## Why a Structured ID Beats a Cryptographic Scheme
 
-The problem: nothing on the physical certificate was verifiable. An employer looking at a CPRBD Executive Certification had no way to confirm it was authentic. The certificate could have been genuine, fraudulently obtained, or simply printed on a good color printer.
+Every certificate gets an ID of the form \`CPRBD-2025-EXEC-B1-001\` — year, program code, batch code, and a per-batch serial minted atomically when a certificate is issued. That ID is what's printed on the certificate and encoded in its QR code.
 
-## Why HMAC Hashes Are Enough
+Verification is a direct database lookup: given the ID, look up the enrollment record and return whether it exists and is still valid (not archived, not un-issued). No cryptographic signature, no HMAC, no blockchain. The reason this is enough: CPRBD controls both the issuing authority and the verification endpoint. The trust anchor is CPRBD's own server, not a distributed ledger or a shared secret — an attacker can't mint a valid-looking ID because the serials are sequential and tied to real enrollment rows, not derived from a formula they could reverse-engineer.
 
-The core requirement for certificate verification is this: given a certificate ID printed on the physical certificate, an employer should be able to query a public endpoint and receive confirmation that a specific person completed a specific program.
+What *does* protect the endpoint is more mundane than cryptography: it's rate-limited to 20 requests per minute per IP, and responses are explicitly marked \`no-store\` so nothing caches a stale "valid" or "not found" result.
 
-Blockchain solutions add tamper-evidence and decentralization. Both are useful properties in some contexts. For institutional certificate verification — where CPRBD controls the issuing authority and the verification endpoint — neither is necessary. The trust anchor is CPRBD's public-facing website, not a distributed ledger.
+## Payment-Gated, Not Module-Gated (Yet)
 
-A simple HMAC hash is tamper-evident: it is computationally infeasible to produce a valid verification code without knowing the secret key, which only CPRBD's server holds.
+Certificates are only issued in bulk to students whose tuition is marked complete — the endpoint filters candidates down to \`paymentStatus === "complete"\` before minting anything, and reports back how many were skipped as unpaid. Course-module completion is tracked and shown to admins as a reference count, but it isn't currently enforced before issuance — that's a gap in the platform we're aware of, not a feature we're claiming.
 
-\`\`\`typescript
-function generateCertificateVerificationCode(
-  certificateNumber: string,
-  recipientName: string,
-  programName: string,
-  secretKey: string
-): string {
-  const payload = [certificateNumber, recipientName, programName]
-    .join(":")
-    .toLowerCase()
-    .trim();
+## Tuition That Matches How Executive Programs Actually Get Paid
 
-  return crypto
-    .createHmac("sha256", secretKey)
-    .update(payload)
-    .digest("hex")
-    .substring(0, 16)
-    .toUpperCase();
-}
-\`\`\`
+Executive cohorts don't pay tuition in one lump sum. The platform tracks payments as a sequence of installments against SSLCommerz, each with its own status — pending, complete, failed, refunded — and computes the remaining balance as batch fee minus the sum of completed installments. A student's material access and certificate eligibility both key off that same installment ledger, so there's one source of truth for "has this person paid," not a synced copy of it.
 
-Each certificate is issued with a verification code generated from its unique attributes: the certificate number, the recipient's name exactly as it appears on the certificate, and the program name. The code is printed on the certificate and embedded in a QR code that links directly to the verification page.
+## Materials Are Private Because They're Never Public
 
-## The Verification Endpoint
+The same "one ledger, two gates" idea shows up again in how class materials are shared. Uploaded files live in a \`data/\` directory outside \`public/\`, so there's no static URL Next.js could accidentally serve — the only path to a file's bytes is an authenticated download route. That route re-runs the same check used for material access generally: enrolled, application approved, at least one completed installment. No signed URLs, no expiring tokens — just "don't put it somewhere the framework will serve for free, and check on every request instead."
 
-When an employer scans the QR code or enters the verification code manually, the endpoint performs the inverse: retrieve the certificate record by certificate number, recompute the verification code using the stored attributes, and compare to the submitted code.
+Each program can also extend its application form with its own questions — beyond the fixed profile fields (contact details, qualifications, nationality, and so on) every applicant fills in once, a program admin can add a text question, a file upload, a date picker, whatever that specific cohort's intake needs — without a code change or a deploy.
 
-\`\`\`typescript
-async function verifyCertificate(
-  certificateNumber: string,
-  submittedCode: string
-): Promise<VerificationResult> {
-  const certificate = await db.certificate.findUnique({
-    where: { certificateNumber },
-    include: { recipient: true, program: true },
-  });
+## A CMS Built for People Who Don't Want to Touch Code
 
-  if (!certificate) {
-    return { valid: false, reason: "Certificate number not found" };
-  }
+The less visible, more used part of the platform: CPRBD staff maintain their own program pages. Each program's public page is assembled from nine section types — hero, a "why this program" block, stats, testimonials, FAQ, a course outline pulled live from the actual module list, and a few others — that staff can reorder, toggle on or off, and edit inline. Updating a program's pricing blurb or adding a new FAQ entry used to mean a code change; now it's a form.
 
-  const expectedCode = generateCertificateVerificationCode(
-    certificate.certificateNumber,
-    certificate.recipient.name,
-    certificate.program.name,
-    process.env.CERTIFICATE_SECRET_KEY!
-  );
+The same philosophy extends to communication and content: coordinators post batch-scoped announcements that automatically email every enrolled student in that cohort, and a separate news/media module lets CPRBD publish institutional press posts independent of both the CMS and the academic research repository — which itself replaced a static list of published papers buried in a Word document on the university website with structured, searchable entries and attached PDFs.
 
-  const valid = crypto.timingSafeEqual(
-    Buffer.from(expectedCode, "utf-8"),
-    Buffer.from(submittedCode.toUpperCase().trim(), "utf-8")
-  );
+## What We Learned
 
-  if (!valid) {
-    return { valid: false, reason: "Verification code does not match" };
-  }
+The interesting engineering here wasn't cryptographic — it was matching the platform's guarantees to what actually needed guaranteeing. A structured, sequential ID plus a rate-limited lookup is enough when you control the whole trust chain; reaching for HMAC or a blockchain would have added complexity without adding real security here. The harder, more valuable work was elsewhere: an installment ledger that's the single source of truth for two different gates (materials and certificates), and enough non-technical surface area — CMS, announcements, news — that CPRBD can run the platform day-to-day without opening a ticket.
 
-  return {
-    valid: true,
-    recipient: certificate.recipient.name,
-    program: certificate.program.name,
-    completionDate: certificate.completedAt,
-    grade: certificate.grade,
-  };
-}
-\`\`\`
-
-The endpoint responds in under 100 milliseconds and requires no authentication from the verifying party. It's intentionally public — anyone with a certificate number and verification code can confirm its authenticity. Only CPRBD can issue valid codes.
-
-## The Administrative Side
-
-The less visible but equally important part of the platform is the administrative interface for cohort and certificate management. Program coordinators need to define cohorts, enroll participants, track attendance and completion, and issue certificates when participants meet the requirements.
-
-We built the admin interface with a focus on bulk operations — importing participant lists from spreadsheets, issuing certificates to an entire cohort in a single action, and generating batch QR code PDFs for physical printing. The alternative — managing 60 participants in a form-based interface one at a time — was the previous workflow, and it took days.
-
-The research publication repository was a separate section: structured metadata with attached PDF assets, full-text search, and a clean reading interface. University of Dhaka's Department of International Business has a significant body of published research, and the previous approach was a static list in a Word document on the university website. The structured repository made research discoverable and made CPRBD's intellectual output visible to policy practitioners and government stakeholders who otherwise wouldn't find it.`,
+None of that came from a tidy requirements document. The people who understood how CPRBD actually ran a cohort were busy university staff, available in short bursts, not for a single upfront discovery phase — so the real user stories got built the same way the platform's admin surfaces did: incrementally, from repeated short conversations rather than one clean spec.`,
   },
   {
     slug: "nextjs-16-turbopack-deep-dive",

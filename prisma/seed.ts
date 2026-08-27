@@ -265,7 +265,7 @@ Streak tracking runs correctly under concurrent midnight submissions without any
       slug: "cprbd-du",
       title: "CPR BDDU (University of Dhaka)",
       summary:
-        "Institutional credentialing and executive education platform for the Center for Policy Research on Business and Development at University of Dhaka. Solves manual Canva certificate generation, multi-installment tuition reconciliation via SSLCommerz, and provides instant public verification via Edge-cached QR validation for corporate HR and embassies.",
+        "Institutional credentialing and executive education platform for the Center for Policy Research on Business and Development at University of Dhaka. Replaces manual Canva certificate generation with a template-driven engine, reconciles multi-installment tuition through SSLCommerz, and lets non-technical staff run program pages, cohort announcements, and a policy research repository without a developer.",
       status: "PUBLISHED" as const,
       featured: true,
       client: "Department of International Business, University of Dhaka",
@@ -274,36 +274,27 @@ Streak tracking runs correctly under concurrent midnight submissions without any
       techStack: [
         "Next.js (App Router)",
         "TypeScript",
-        "PostgreSQL (Prisma ORM)",
+        "PostgreSQL (Prisma ORM — 23-model schema across 38 migrations)",
         "SSLCommerz Multi-Installment Gateway",
-        "TipTap Course Curriculum Editor",
-        "Dynamic Visual Coordinate Certificate Engine",
-        "Edge-Cached Database Lookups (<35ms)",
+        "pdf-lib (visual-coordinate certificate rendering)",
         "Docker & Docker Compose",
         "Tailwind CSS",
       ],
       keyFeatures: [
-        "Dynamic Visual Coordinate Certificate Designer: allows admins to visually position recipient text, font sizes, QR codes, and course module lists on high-res backgrounds",
-        "SSLCommerz Multi-Installment Tuition Gateway: manages structured 2-to-3 installment payment schedules for executive trainees with automated receipts",
-        "Academic Prerequisite Issuance Gate: enforces that 100% of tuition installments and course modules are completed before certificate minting is unlocked",
-        "Instant Public Verification (<35ms): employers and embassies scan QR codes linking to /verify/[certificateId] with edge-cached Database validations",
-        "TipTap-powered academic curriculum and class material distribution repository for executive cohorts",
-        "Full Docker and Docker Compose production deployment containerizing Next.js and PostgreSQL",
+        "Dynamic visual-coordinate certificate designer: pdf-lib renders certificates server-side from an admin-configured template of X/Y positioned text segments and QR placement",
+        "SSLCommerz multi-installment tuition gateway with per-installment status tracking and automated balance reconciliation",
+        "Payment-gated bulk certificate issuance: only enrollments with a completed application payment status are issued; unpaid students are skipped and reported back to the admin",
+        "Structured, sequential certificate IDs (CPRBD-YYYY-PROGRAMCODE-BATCHCODE-NNN) verified via a rate-limited public database lookup — no HMAC or blockchain",
+        "Block-based CMS: nine reusable section types that CPRBD staff reorder, toggle, and edit directly without a developer",
+        "Batch-scoped announcements with automatic email fanout to enrolled students",
+        "Private-by-construction class materials: stored outside public/, served only through an authenticated download route gated on enrollment, application approval, and a completed installment",
+        "Dynamic per-program application forms layered on a fixed set of required profile fields",
+        "Separate institutional news module and policy research repository (structured metadata + PDFs), plus a unified student dashboard gated behind email verification",
       ],
-      problem: `CPRBD issues professional credentials to government officials and business executives. The previous workflow suffered from four critical failure points:
-1. Staff spent days manually copy-pasting names into Canva/Photoshop to export individual certificates.
-2. Static paper certificates were vulnerable to forgery, with no way for corporate HR or embassies to verify authenticity.
-3. High-ticket tuition (25,000–50,000 BDT) paid in installments across manual bank slips led to students receiving certificates before settling fees.
-4. Staff lacked an automated way to verify module completion before issuing credentials.`,
-      approach: `We engineered an end-to-end institutional platform:
-- Administrators visually configure template coordinates (X/Y coordinates, QR sizing, module grid placement) directly in the web UI.
-- Tuition is handled through a structured SSLCommerz multi-installment gateway, tracking each installment's status.
-- The issuance engine programmatically verifies that all installments and TipTap module requirements are satisfied before minting unique, securely validated certificate serials.
-- Public QR codes allow instant, unauthenticated verification by employers in under 35ms.`,
-      solution: `The platform provides University of Dhaka with a modern institutional portal. Administrative overhead for graduating a 150-student cohort dropped from 4 days to a single automated batch run. HR departments and embassies verify credentials instantly with zero administrative intervention.`,
-      results: `Certificate generation time per cohort reduced from 4 days to under 60 seconds. 100% elimination of unverified or unpaid certificate issuance.
-
-Public verification lookups resolve in under 35 milliseconds via Next.js edge caching.`,
+      problem: `CPRBD issues professional credentials to government officials and business executives through cohort-based executive education programs. Before this platform: certificates were built one-by-one in Canva/Photoshop by copying names into a template; nothing on the physical certificate was independently verifiable by an employer or embassy; tuition was paid in installments reconciled manually against bank slips; and every routine update to a program's public page (FAQ, pricing, testimonials) required a developer. Requirements themselves were hard to pin down — the people who actually knew how the institution ran a cohort (program coordinators, department staff) were busy university administrators, not always available for structured discovery sessions, so the user stories underlying this platform were built up through repeated, shorter interviews rather than one clean requirements phase.`,
+      approach: `We built a single institutional platform spanning tuition, credentialing, and public-facing content. Tuition runs through a structured SSLCommerz installment gateway that tracks each payment against the batch fee. Certificates are generated from an admin-configured visual template — coordinates for name, course, and QR placement — rendered server-side as a PDF, and issued in bulk once a student's payment status is complete. Each issued certificate gets a structured, sequential ID that resolves at a public, rate-limited verification URL. Separately, program pages, cohort announcements, and institutional news are all editable by CPRBD staff through purpose-built admin screens, not code changes.`,
+      solution: `CPRBD operates the platform end-to-end: coordinators manage cohorts and tuition, the certificate engine replaces manual design work, employers and embassies verify credentials via a public URL, and non-technical staff maintain program pages, cohort communication, and the research/news sections without engineering involvement.`,
+      results: `Certificate generation moved from a manual, per-student Canva workflow to a templated, bulk, payment-gated issuance flow. Every issued certificate is publicly and instantly verifiable by ID. Program-page updates, cohort announcements, and institutional news no longer require a developer in the loop.`,
       liveUrl: "https://cprbddu.org",
       gallery: [
         { url: "/projects/cprbd-home.png", alt: "Center for Policy Research on Business and Development Portal" },
