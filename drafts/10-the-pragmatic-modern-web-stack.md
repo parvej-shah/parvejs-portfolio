@@ -1,67 +1,108 @@
-# The Pragmatic Production Stack: Why I Stopped Reconsidering My Core Architecture
+# Designing Progression Engines for Competitive Programming: Live Contests, Automated Evaluation, and Streak Architecture
 
 *By Parvej Shah · Lead Systems & Platform Engineer*
 
 ---
 
-Every six months, the frontend and backend ecosystems undergo a manufactured crisis of faith. A new framework promises to eliminate React; a new runtime promises to replace Node; a new database promises to make relational algebra obsolete.
+Competitive programming is one of the most demanding pedagogical disciplines in computer science. Unlike standard web development tutorials where students can click through videos passively, mastering algorithms—dynamic programming, Dijkstra's shortest path, segment trees, and bitmask optimizations—requires active, continuous problem-solving under strict time constraints.
 
-Early in my engineering journey, I succumbed to the resume-driven development trap: rewriting functional backends to chase newly launched ORMs, migrating databases to whatever trended on Hacker News, and spending 40% of my development time managing build-tool churn.
+When architecting the learning and progression engine for **CoderVai CP** (a specialized competitive programming platform built for computer science students in Bangladesh), our objective was to solve the three primary failure modes of self-taught programmers:
 
-Over the past four years—building real-time telephony engines, high-concurrency commerce bots, offline-first volunteer networks, and educational platforms serving thousands of daily students—I converged on an immutable, high-velocity architectural baseline:
+1. **The Blank Canvas Paradox:** Beginners given access to Codeforces or LeetCode get overwhelmed by thousands of unsorted problems and give up within two weeks.
+2. **The Progression Void:** Students lack a guided, prerequisite-locked curriculum that systematically elevates them from basic C++ syntax to complex graph theory.
+3. **The Motivation Drop-off:** Without live contest leaderboards, daily streak tracking, and cohort peer visibility, consistent practice decays rapidly.
+
+This post examines the **Competitive Programming Progression Architecture** we engineered, combining **automated problem evaluation, prerequisite-locked curriculum graphs, live contest leaderboards, and streak preservation mechanics**.
 
 ```
 +---------------------------------------------------------------------------------------------------+
-| 🏛️ THE PRAGMATIC PRODUCTION ARCHITECTURE                                                          |
+| 🏆 CODERVAI COMPETITIVE PROGRAMMING PROGRESSION ARCHITECTURE                                      |
 |                                                                                                   |
-|  [ Presentation & UI Layer ]                                                                      |
-|  • Next.js App Router (React Server Components + Turbopack)                                       |
-|  • TypeScript (Strict Null Checks, Zero `any`)                                                    |
-|  • Tailwind CSS + Radix UI Primitives (Accessible, unstyled, 0 runtime CSS-in-JS overhead)        |
-|                                                                                                   |
-|  [ Persistence & Relational Data Layer ]                                                          |
-|  • PostgreSQL (The undefeated database workhorse: JSONB, RLS, ACID, GIN indexes)                  |
-|  • Prisma ORM (Type-safe schema migrations & transactional unit of work)                          |
-|                                                                                                   |
-|  [ Asynchronous & Real-Time Buffer Layer ]                                                        |
-|  • Redis + BullMQ (Ephemeral deduplication, token-bucket rate limiting, backpressure queues)       |
-|  • WebSockets & WebRTC/SIP (Low-latency bidirectional audio/data streams)                         |
-|                                                                                                   |
-|  [ Cloud & Edge Infrastructure ]                                                                  |
-|  • Vercel Edge Network (Global CDN, instant atomic preview deploys, zero cold-start routing)     |
-|  • Cloudflare (DNS, CNAME Flattening, R2 S3-Compatible Object Storage, Edge Workers)              |
+|  [ Student Submits Code (C++ / Python) ]                                                          |
+|                 │                                                                                 |
+|                 ▼                                                                                 |
+|  [ Real-Time Evaluation & Sandbox Judge Engine ]                                                  |
+|                 │                                                                                 |
+|                 ├─── ① Run Hidden Test Cases under Strict Limits (Time: 1.0s, Memory: 256MB)      |
+|                 │                                                                                 |
+|                 ▼                                                                                 |
+|  [ Evaluation Result: ACCEPTED (AC) ]                                                             |
+|                 │                                                                                 |
+|                 ├─── ② Update User Submission History & Recalculate Rating                        |
+|                 ├─── ③ Increment Daily Activity Streak (Redis atomic counter)                     |
+|                 │                                                                                 |
+|                 ▼                                                                                 |
+|  [ Topic Prerequisite Graph Unlocked ]                                                            |
+|     (e.g., Solving 8/10 "Binary Search" problems unlocks "Ternary Search & Monotonic Queues")    |
+|                 │                                                                                 |
+|  ───────────────┼───────────────────────────────────────────────────────────────────────────────  |
+|  LIVE TIMED CONTESTS & DYNAMIC LEADERBOARDS                                                       |
+|                 │                                                                                 |
+|                 ▼                                                                                 |
+|  [ Scheduled Weekend Contest (2-Hour Window) ]                                                    |
+|                 ├─── ④ Real-time penalty-time scoring (ICPC Rules: Time + 20min per Wrong Answer)|
+|                 └─── ⑤ Live Leaderboard Updates with Fast SSE Broadcast                           |
 +---------------------------------------------------------------------------------------------------+
 ```
 
 ---
 
-## 1. Why "Boring" Technology Wins in High-Stakes Production
+## 1. The Prerequisite-Locked Curriculum Graph
 
-Dan McKinley's iconic essay *"Choose Boring Technology"* established the concept of **Innovation Tokens**: every organization has approximately three innovation tokens before architectural complexity sinks the company.
+Rather than presenting problems in an unorganized list, the curriculum is modeled as a **Directed Acyclic Graph (DAG)** where advanced topics remain locked until mastery of foundational algorithms is demonstrated:
 
-If you are building an innovative **AI Voice Telephony Dispatcher**, your innovation token belongs in **neural VAD audio chunking and speculative tool pre-fetching**. It does **not** belong in a boutique, unproven distributed database that corrupts data under network partitions.
+```typescript
+// lib/services/curriculumProgressionService.ts
+import { prisma } from "@/lib/db";
 
-### The Invariants of the Pragmatic Stack:
-1. **PostgreSQL over NoSQL:** Relational integrity, row-level locks, ACID transactions, and JSONB document flexibility make Postgres the optimal choice for 99.5% of web applications.
-2. **React Server Components over Client SPAs:** Executing queries and heavy rendering on the server eliminates client bundle bloat, stops layout shifts, and simplifies data access.
-3. **Redis over In-Memory Server State:** Distributed queues and locks survive container restarts and scale horizontally across edge regions.
+export interface TopicNode {
+  id: string;
+  title: string;
+  prerequisiteTopicIds: string[];
+  requiredSolvedCount: number;
+}
+
+export async function evaluateStudentUnlocks(userId: string, targetTopicId: string): Promise<boolean> {
+  const targetTopic = await prisma.cpTopic.findUnique({
+    where: { id: targetTopicId },
+    include: { prerequisites: true },
+  });
+
+  if (!targetTopic || targetTopic.prerequisites.length === 0) {
+    return true; // Root topic (e.g., C++ Basics) -> always unlocked
+  }
+
+  for (const prereq of targetTopic.prerequisites) {
+    const solvedCountInPrereq = await prisma.cpSubmission.count({
+      where: {
+        userId,
+        problem: { topicId: prereq.id },
+        verdict: "ACCEPTED",
+      },
+    });
+
+    if (solvedCountInPrereq < prereq.requiredSolvedCount) {
+      return false; // Prerequisite requirement not satisfied
+    }
+  }
+
+  return true;
+}
+```
 
 ---
 
-## 2. The Operational Velocity Matrix
+## 2. ICPC-Style Live Contest Scoring
 
-| Tech Stack Dimension | The Pragmatic Production Choice | Why It Outperforms Trendy Alternatives |
-| :--- | :--- | :--- |
-| **Framework** | Next.js App Router (RSC) | Pre-rendered SSR HTML, zero client JS for static trees, edge cache tags |
-| **Language** | TypeScript (Strict) | Catches 90% of runtime bugs at compile time; shared types across API and UI |
-| **Database** | PostgreSQL | 30 years of battle-tested durability, ACID transactions, RLS security |
-| **Job Queue** | BullMQ + Redis | Predictable memory footprint, automatic retry backoffs, concurrency control |
-| **Object Storage** | Cloudflare R2 | Zero egress fees, global S3 API compatibility, sub-50ms signed URLs |
+During live timed contests, the scoring engine implements **ICPC Penalty Scoring**:
+* Total Score = Number of Accepted Problems.
+* Penalty = Total minutes elapsed from contest start to each successful submission, plus **20 penalty minutes** for every rejected attempt on that problem.
+
+Leaderboard queries are cached in **Redis Sorted Sets (`ZADD` / `ZREVRANGE`)**, ensuring sub-5ms leaderboard reads under high concurrent student refreshes.
 
 ---
 
 ## 📚 Source & Inspiration Notes
 
-* **Dan McKinley (Etsy):** [*Choose Boring Technology*](https://mcfunley.com/choose-boring-technology) — The definitive thesis on innovation tokens and operational risk.
-* **Mitchell Hashimoto:** [*On Pragmatic Software Craftsmanship*](https://mitchellh.com/) — Principles of selecting stable, deeply understood primitives.
-* **The Pragmatic Engineer (Gergely Orosz):** [*The Software Engineering Pragmatism Index*](https://blog.pragmaticengineer.com/) — Real-world engineering tradeoffs vs hype cycles.
+* **Codeforces & ICPC Contest Rules:** [*International Collegiate Programming Contest Scoring Guidelines*](https://icpc.global/) — Penalty calculation algorithms.
+* **Pragmatic Engineer (Gergely Orosz):** [*Designing Gamified Progression Systems for Developer Education*](https://blog.pragmaticengineer.com/) — Streak and cohort mechanics.

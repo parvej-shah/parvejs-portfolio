@@ -1,114 +1,147 @@
-# Engineering High-Trust Workforce Data Platforms: Multi-Tier RBAC, Short-Lived Signed Tokens, and Postgres RLS
+# Building Enterprise Workforce Platforms for AI: NDA Compliance, Azure AD SSO, Consensus QA, and Automated Payroll
 
 *By Parvej Shah · Lead Systems & Platform Engineer*
 
 ---
 
-The bottleneck in training frontier AI models is no longer raw compute—it is high-quality, verified human reasoning data.
+The bottleneck in training frontier AI models is no longer raw compute—it is high-precision, verified human reasoning data.
 
-When building the core platform for **GenMorphics AI** (an enterprise workforce management dashboard coordinating domain specialists across chemistry, legal, mathematics, and code for LLM SFT and RLHF pipelines), the security and concurrency constraints were severe:
-* **Intellectual Property Protection:** Unannotated enterprise customer datasets could not be leaked or bulk-downloaded by general annotators.
-* **Role Separation:** Annotators, domain validators, and project managers required strictly partitioned permission boundaries.
-* **Data Integrity:** Annotations needed consensus verification algorithms before being marked as eligible for model fine-tuning.
+When building the platform for **GenMorphics AI** (an enterprise workforce management system coordinating specialized domain experts across chemistry, legal, medicine, mathematics, and software engineering for LLM Supervised Fine-Tuning [SFT] and Reinforcement Learning from Human Feedback [RLHF]), the engineering challenges spanned the **entire operational lifecycle**:
 
-This post examines how we built a zero-trust enterprise workforce platform using **Next.js 15 App Router, Supabase PostgreSQL Row-Level Security (RLS), and ephemeral pre-signed Cloudflare R2 tokens**.
+1. **Recruitment & Certified Domain Onboarding:** Specialists must be tested and certified in specific domain tracks before being permitted to touch customer prompts.
+2. **Strict Legal & NDA Enforcement:** Proprietary enterprise datasets cannot be viewed until the specialist has signed an immutable electronic Non-Disclosure Agreement (NDA).
+3. **Enterprise Identity & Multi-Tier RBAC:** Seamless enterprise authentication via **Microsoft Azure AD (Entra ID)** and Google OAuth with strict role boundaries (Annotator vs. Validator vs. Org Admin).
+4. **Consensus Quality Assurance:** Multi-specialist annotation with automated disagreement flags for senior validators to ensure high-accuracy training data.
+5. **Automated Time Tracking & Payroll Engine:** Calculating compensation based on task complexity, verification passes, and hourly tracking for hundreds of global contractors.
+
+This post breaks down the **Full-Lifecycle Workforce Platform Architecture** we engineered with **Next.js App Router, TypeScript, Prisma with PostgreSQL, NextAuth.js enterprise SSO, and Cloudflare R2**.
 
 ```
 +---------------------------------------------------------------------------------------------------+
-| 🔒 ZERO-TRUST WORKFORCE DATA PLATFORM ARCHITECTURE                                               |
+| 👥 GENMORPHICS AI FULL-LIFECYCLE WORKFORCE PIPELINE                                               |
 |                                                                                                   |
-|  [ Domain Specialist / Annotator Browser ]                                                        |
+|  [ Domain Expert (e.g. Biochemist / Lawyer) ]                                                     |
 |                 │                                                                                 |
-|                 ├─── ① JWT Auth Session (Role: `DOMAIN_ANNOTATOR`, Track: `QUANT_FINANCE`)        |
-|                 │                                                                                 |
-|                 ▼                                                                                 |
-|  [ Next.js 15 App Router API Layer ]                                                              |
-|                 │                                                                                 |
-|                 ├─── ② Enforce Multi-Tier RBAC Middleware                                         |
+|                 ├─── ① Onboarding & Domain Competence Certification Exam                          |
 |                 │                                                                                 |
 |                 ▼                                                                                 |
-|  [ PostgreSQL with Row-Level Security (RLS) ]                                                     |
+|  [ Electronic NDA & Compliance Gate ]                                                             |
 |                 │                                                                                 |
-|                 ├─── ③ RLS Policy: Evaluates `auth.jwt() -> role` & `assigned_batch_id`            |
-|                 │    (Annotator can ONLY read rows specifically locked to their active queue)     |
+|                 ├─── ② Digital Signature Recorded with Timestamp & IP Hash                        |
+|                 │    (System hard-locks all dataset access until NDA is verified)                 |
 |                 │                                                                                 |
 |                 ▼                                                                                 |
-|  [ Ephemeral Signed Asset Engine ]                                                                |
+|  [ Enterprise SSO: NextAuth.js + Microsoft Azure AD (Entra ID) ]                                  |
 |                 │                                                                                 |
-|                 └─── ④ Mint 15-Minute Short-Lived HMAC Presigned URL (Cloudflare R2)              |
-|                      (Raw dataset files are NEVER exposed via permanent public URLs)              |
+|                 ├─── ③ Issues Session JWT with Role (`ANNOTATOR`) & Domain Track (`LEGAL_CORPUS`) |
+|                 │                                                                                 |
+|  ───────────────┼───────────────────────────────────────────────────────────────────────────────  |
+|  TASK DISPATCH & CONSENSUS QA                                                                     |
+|                 │                                                                                 |
+|                 ▼                                                                                 |
+|  [ SFT / RLHF Task Dispatcher ]                                                                   |
+|                 │                                                                                 |
+|                 ├─── ④ Annotator labels multi-turn reasoning steps with time tracking             |
+|                 ├─── ⑤ Senior Validator audits accuracy against ground-truth rubric               |
+|                 │                                                                                 |
+|                 ▼                                                                                 |
+|  [ Verified Dataset Batch Export (JSONL Format) ] ──► Delivered to Enterprise Client               |
+|                 │                                                                                 |
+|  ───────────────┼───────────────────────────────────────────────────────────────────────────────  |
+|  AUTOMATED COMPENSATION & PAYROLL DISTRIBUTION                                                    |
+|                 │                                                                                 |
+|                 └─── ⑥ Computes verified hours & task bounty ──► Generates Automated Payroll DTO |
 +---------------------------------------------------------------------------------------------------+
 ```
 
 ---
 
-## 1. Zero-Leakage via Database Row-Level Security (RLS)
+## 1. Enterprise SSO with NextAuth.js & Azure AD
 
-Application-level `WHERE` clauses are notoriously fragile: a developer forgetting `AND user_id = current_user` in a single API endpoint leaks customer data. 
-
-We moved all authorization checks directly into the database engine via **PostgreSQL Row-Level Security**:
-
-```sql
--- Enforce strict dataset isolation at the database kernel level
-ALTER TABLE dataset_tasks ENABLE ROW LEVEL SECURITY;
-
--- Policy: Annotators can only view tasks explicitly assigned to them in their certified domain
-CREATE POLICY annotator_task_isolation
-ON dataset_tasks
-FOR SELECT
-TO authenticated
-USING (
-  (auth.jwt() ->> 'role' = 'ANNOTATOR' AND assigned_to_user_id = auth.uid()) OR
-  (auth.jwt() ->> 'role' = 'VALIDATOR' AND domain_track = (auth.jwt() ->> 'domain_track')) OR
-  (auth.jwt() ->> 'role' = 'ORG_ADMIN')
-);
-```
-
-Even if an attacker intercepts an internal API route, the PostgreSQL engine refuses to return unassigned task rows.
-
----
-
-## 2. Ephemeral Asset Tokens via Cloudflare R2
-
-Dataset attachments (PDF research papers, code repositories, audio transcripts) are stored in private Cloudflare R2 buckets with **zero public bucket access**.
-
-When an annotator claims a task, the server generates an **HMAC pre-signed URL valid for exactly 15 minutes**:
+Enterprise AI customers frequently mandate that annotators authenticate through corporate identity providers. We configured **NextAuth.js with Microsoft Azure AD (Entra ID) and Google OAuth**:
 
 ```typescript
-// Server-Side Presigned Token Generator
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+// app/api/auth/[...nextauth]/route.ts
+import NextAuth, { NextAuthOptions } from "next-auth";
+import AzureADProvider from "next-auth/providers/azure-ad";
+import GoogleProvider from "next-auth/providers/google";
+import { prisma } from "@/lib/db";
 
-const r2Client = new S3Client({
-  region: "auto",
-  endpoint: process.env.R2_ENDPOINT!,
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+export const authOptions: NextAuthOptions = {
+  providers: [
+    AzureADProvider({
+      clientId: process.env.AZURE_AD_CLIENT_ID!,
+      clientSecret: process.env.AZURE_AD_CLIENT_SECRET!,
+      tenantId: process.env.AZURE_AD_TENANT_ID || "common",
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+  ],
+  callbacks: {
+    async session({ session, token }) {
+      if (session.user && token.sub) {
+        const user = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { role: true, domainTrack: true, ndaSignedAt: true },
+        });
+
+        session.user.id = token.sub;
+        session.user.role = user?.role || "ANNOTATOR";
+        session.user.domainTrack = user?.domainTrack || "UNSPECIFIED";
+        session.user.hasSignedNda = !!user?.ndaSignedAt;
+      }
+      return session;
+    },
   },
-});
+};
 
-export async function generateSecureAssetAccess(
-  datasetKey: string,
-  userRoleId: string
-): Promise<string> {
-  if (userRoleId === "SUSPENDED") {
-    throw new Error("Unauthorized asset request.");
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };
+```
+
+---
+
+## 2. The NDA Compliance Middleware Gate
+
+Before any annotator can view task queues or download proprietary research papers from Cloudflare R2, Next.js Server Components enforce an **NDA Verification Gate**:
+
+```typescript
+// app/tasks/layout.tsx
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
+
+export default async function TaskLayout({ children }: { children: React.ReactNode }) {
+  const session = await getServerSession(authOptions);
+
+  if (!session || !session.user) {
+    redirect("/auth/signin");
   }
 
-  const command = new GetObjectCommand({
-    Bucket: process.env.R2_BUCKET!,
-    Key: datasetKey,
-  });
+  // Hard Compliance Invariant: Redirect to NDA signing if not signed
+  if (!session.user.hasSignedNda) {
+    redirect("/compliance/nda-signing");
+  }
 
-  // Short-lived URL expires automatically in 900 seconds (15 minutes)
-  return await getSignedUrl(r2Client, command, { expiresIn: 900 });
+  return <section className="max-w-7xl mx-auto p-6">{children}</section>;
 }
 ```
 
 ---
 
+## 3. Automated Quality Scoring & Payroll Generation
+
+When tasks are completed, the system calculates payroll compensation by joining time logs with quality approval rates:
+
+$$\text{Specialist Payout} = (\text{Verified Tasks} \times \text{Task Bounty}) + (\text{Hourly Tracking} \times \text{Hourly Rate}) \times \text{Quality Multiplier}$$
+
+If an annotator maintains a **>95% validator consensus score**, the system automatically applies quality bonuses and exports the payroll batch for financial distribution.
+
+---
+
 ## 📚 Source & Inspiration Notes
 
-* **Stripe Security Engineering:** [*Building Secure Multi-Tenant Data Stores with PostgreSQL RLS*](https://stripe.com/blog/) — Core defense-in-depth authorization patterns.
-* **Linear Method:** [*Workspaces, Roles, and Fine-Grained Permission Trees*](https://linear.app/method) — Role separation and batch queueing workflows.
+* **NextAuth.js Enterprise Documentation:** [*Azure AD & Multi-Tenant OAuth Providers*](https://next-auth.js.org/) — Enterprise authentication architecture.
+* **Linear Method:** [*Workspaces, Roles, and Permission Hierarchies*](https://linear.app/method) — RBAC design for high-velocity teams.

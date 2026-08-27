@@ -1,197 +1,180 @@
-# Defensive Payment Webhook Engineering: Idempotency, Timing-Safe Signatures, and Atomic Fulfillment
+# Defensive Payment Engineering: Handling Aggregator IPN Webhooks, SSLCommerz Idempotency, and Multi-Installment Fulfillment
 
 *By Parvej Shah · Lead Systems & Platform Engineer*
 
 ---
 
-There is a distinct category of software defect that never surfaces in local development, evades unit test suites with mock HTTP handlers, and only detonates in production when real capital is transacting across unreliable networks.
+There is a distinct category of software defect that never surfaces in local development, evades mock unit test suites, and only detonates in production when real capital transacts across flaky mobile networks.
 
-These are the bugs that live inside **Payment Webhook Consumers**.
+These are the bugs that live inside **Payment Gateway Instant Payment Notification (IPN) Webhook Handlers**.
 
-When engineering the enrollment and billing engine for **MathPro Academy**, students purchase high-stakes academic courses through Bangladesh's two primary mobile financial services: **bKash** and **Nagad**. Both gateways operate on asynchronous server-to-server webhook confirmation: upon customer payment completion, the gateway's edge dispatchers POST a signed JSON confirmation payload to our endpoint.
+When engineering the billing infrastructure for **MathPro Academy** (4,000+ students) and **CPRBD DU** (executive academic training programs), students pay for courses and certifications through Bangladesh's primary payment aggregator: **SSLCommerz** (which routes bKash, Nagad, Rocket, Upay, Visa, and Mastercard).
 
-Our server's responsibility is deceptively simple: receive the request, verify legitimacy, fulfill the course access, and return `200 OK`.
+Unlike simple credit card checkouts, payment aggregators in emerging markets operate on a multi-stage asynchronous callback architecture:
+1. Customer initiates payment on the merchant portal and completes the transaction on the gateway interface.
+2. The gateway server issues a server-to-server HTTP POST **Instant Payment Notification (IPN)** to our webhook listener.
+3. The gateway redirects the customer's browser to our `/payment/success` landing page.
 
-In practice, the distributed reality of financial networks turns this simple contract into a minefield of race conditions, duplicate deliveries, and timing vulnerabilities.
+In theory, this lifecycle is clean. In reality, the distributed nature of cellular networks creates race conditions: the customer's browser redirect often lands **before** the server IPN arrives, or the server IPN arrives **four times in 2 seconds** due to gateway retry storms.
+
+This deep dive documents the defensive engineering patterns we deployed to ensure **100% idempotent fulfillment, atomic multi-installment reconciliation, and zero duplicate enrollments**.
 
 ```
 +---------------------------------------------------------------------------------------------------+
-| 🌐 THE DISTRIBUTED WEBHOOK DELIVERY TIMELINE                                                      |
+| 💳 ASYNCHRONOUS IPN WEBHOOK & ORDER RECONCILIATION TOPOLOGY                                       |
 |                                                                                                   |
-|  [ Payment Gateway (bKash/Nagad) ]                     [ MathPro Backend (Prisma / Postgres) ]   |
-|                 │                                                         │                       |
-|                 │─── ① POST Webhook Delivery (TxID: TR9812A) ────────────>│                       |
-|                 │                                                         │                       |
-|                 │                                                  [ 1. Timing-Safe HMAC Check ]  |
-|                 │                                                  [ 2. BEGIN ACID Transaction ]  |
-|                 │                                                  [ 3. Row-Level Lock Order ]    |
-|                 │                                                  [ 4. Grant Course Access ]     |
-|                 │                                                  [ 5. Set Status: COMPLETED ]   |
-|                 │                                                  [ 6. COMMIT Transaction ]      |
-|                 │                                                         │                       |
-|                 │<── ② 200 OK Response (Delivered in 42ms) ───────────────│                       |
-|                 │                                                         │                       |
-|  (Network Glitch: 200 OK dropped in transit)                              │                       |
-|                 │                                                         │                       |
-|                 │─── ③ Gateway Retries POST (TxID: TR9812A) ─────────────>│                       |
-|                 │                                                         │                       |
-|                 │                                                  [ Intercept: TxID Processed ]  |
-|                 │                                                  [ Return Cached 200 OK ]       |
-|                 │                                                  [ ZERO Duplicate Enrollment ]  |
-|                 │                                                         │                       |
-|                 │<── ④ 200 OK (Clean Idempotent Replay) ──────────────────│                       |
+|  [ Customer Browser ]         [ Payment Gateway (SSLCommerz) ]      [ Next.js / PostgreSQL Backend ] |
+|         │                                    │                                    │               |
+|         │── ① Initiates Payment ────────────>│                                    │               |
+|         │   (Selects Installment 1: 5,000 BDT)│                                   │               |
+|         │                                    │                                    │               |
+|         │   [ Completes bKash/Card Pin ]     │                                    │               |
+|         │                                    │                                    │               |
+|         │<── ② Browser Redirect Landing ────│                                    │               |
+|         │    (Redirect to /payment/success)  │                                    │               |
+|         │                                    │                                    │               |
+|         │────────────────────────────────────────────────────────────────────────>│               |
+|         │    (Browser hits Success Page: Status still PENDING in DB)              │               |
+|         │                                    │                                    │               |
+|         │                                    │── ③ Server IPN Webhook (POST) ────>│               |
+|         │                                    │   (Contains `val_id` & `tran_id`)  │               |
+|         │                                    │                                    │               |
+|         │                                    │<── ④ Gateway Verification Query ───│               |
+|         │                                    │   (GET /validator/api/merchantTransIDValidation)   |
+|         │                                    │                                    │               |
+|         │                                    │── ⑤ Gateway Confirms VALIDATED ───>│               |
+|         │                                    │                                    │               |
+|         │                                    │                             [ BEGIN TX ]           |
+|         │                                    │                             [ Lock Payment Row ]   |
+|         │                                    │                             [ Mark COMPLETED ]     |
+|         │                                    │                             [ Grant Module Access ]|
+|         │                                    │                             [ Send Email Receipt ] |
+|         │                                    │                             [ COMMIT TX ]          |
+|         │                                    │                                    │               |
+|         │                                    │<── ⑥ Return 200 OK to IPN ─────────│               |
 +---------------------------------------------------------------------------------------------------+
 ```
 
 ---
 
-## 1. Axiom: Webhooks Are Delivered *At Least Once*, Never *Exactly Once*
+## 1. The Gateway Race Condition: The Redirect-vs-IPN Deadlock
 
-A naive webhook handler assumes every POST represents a unique event. This assumption is guaranteed to fail in production.
+The fundamental bug that breaks naive payment implementations is assuming the IPN webhook always arrives before the user's browser redirects to the success page.
 
-If your backend experiences a brief database connection pool spike and takes 4,500ms to respond, the gateway's HTTP client times out at 3,000ms, marks the delivery as failed, and schedules an immediate retry. If your server is executing a zero-downtime rolling deployment when the request lands, a container recycling might return a `502 Bad Gateway`. The gateway retries.
+### The Failure Mode:
+1. Student pays 5,000 BDT for MathPro Academy.
+2. The payment gateway redirects the student's mobile browser back to `https://mathpro.academy/payment/success?tran_id=TX9812` in **300ms**.
+3. The gateway's backend IPN webhook queue is under regional traffic load, and its HTTP POST takes **2,500ms** to arrive.
+4. The student's browser queries the database: `order.status` is still `PENDING`.
+5. The student sees an error screen: *"Payment Pending or Failed"*, panics, and calls customer support—even though the money was successfully deducted.
 
-Now the exact same payment confirmation is delivered twice within 400 milliseconds.
+### The Solution: Active Server-Side Validation Query
 
-If your consumer executes `tx.enrollment.create()` without rigorous, atomic idempotency checks:
-1. The student is enrolled twice.
-2. Analytics dashboards double-count the revenue.
-3. Inventory quotas and limited-seat cohorts are corrupted.
-
----
-
-## 2. Principle 1: Constant-Time Signature Verification
-
-Before parsing JSON bodies or querying databases, the consumer must verify cryptographic authenticity. Attackers continuously probe webhook endpoints with forged payloads attempting to spoof successful transactions.
-
-Gateways sign payloads using an **HMAC-SHA256** hash generated with a shared secret key. However, standard string equality (`hashA === hashB`) is vulnerable to **side-channel timing attacks**:
+Instead of passively waiting for the IPN webhook, the `/payment/success` route and the IPN webhook handler share an **Active Verification Service**:
 
 ```typescript
-// ❌ VULNERABLE: Standard string comparison leaks timing information
-if (incomingSignature === calculatedHash) {
-  // A standard string comparison short-circuits at the first non-matching byte.
-  // An attacker measuring sub-microsecond response times can infer the signature character by character.
+// lib/services/paymentVerificationService.ts
+import { prisma } from "@/lib/db";
+import axios from "axios";
+
+interface SSLCommerzValidationResponse {
+  status: "VALID" | "VALIDATED" | "FAILED" | "CANCELLED";
+  tran_id: string;
+  val_id: string;
+  amount: string;
+  currency: string;
+  card_type: string;
 }
-```
 
-We enforce **Timing-Safe Constant-Time Comparison** using Node.js's native `crypto.timingSafeEqual`:
+export async function verifyAndFulfillPayment(
+  validationId: string,
+  transactionId: string
+) {
+  // 1. Actively query SSLCommerz validation API to confirm authenticity
+  const validatorUrl = `${process.env.SSLC_BASE_URL}/validator/api/merchantTransIDValidationAPI.php`;
+  const response = await axios.get<SSLCommerzValidationResponse>(validatorUrl, {
+    params: {
+      val_id: validationId,
+      store_id: process.env.SSLC_STORE_ID,
+      store_passwd: process.env.SSLC_STORE_PASSWORD,
+      format: "json",
+    },
+  });
 
-```typescript
-import crypto from "node:crypto";
+  const verification = response.data;
 
-export function verifyGatewaySignature(
-  rawPayloadBody: string,
-  incomingSignatureHex: string,
-  sharedSecretKey: string
-): boolean {
-  if (!incomingSignatureHex || !rawPayloadBody) return false;
-
-  const expectedSignatureHex = crypto
-    .createHmac("sha256", sharedSecretKey)
-    .update(rawPayloadBody, "utf8")
-    .digest("hex");
-
-  const expectedBuffer = Buffer.from(expectedSignatureHex, "hex");
-  const incomingBuffer = Buffer.from(incomingSignatureHex, "hex");
-
-  // Prevent length-disclosure crashes
-  if (expectedBuffer.length !== incomingBuffer.length) {
-    return false;
+  if (verification.status !== "VALID" && verification.status !== "VALIDATED") {
+    throw new Error(`Payment gateway verification failed: ${verification.status}`);
   }
 
-  // Constant-time comparison: executes in exact same clock cycles regardless of byte mismatches
-  return crypto.timingSafeEqual(expectedBuffer, incomingBuffer);
-}
-```
+  // 2. Atomic Database Transaction with Row-Level Idempotency
+  return await prisma.$transaction(async (tx) => {
+    const payment = await tx.paymentInstallment.findUnique({
+      where: { transactionId },
+      include: { application: true },
+    });
 
----
+    if (!payment) throw new Error(`Transaction ${transactionId} not found.`);
 
-## 3. Principle 2: Distributed Idempotency via Database Transactions
-
-Every legitimate payment event contains a globally unique gateway Transaction Identifier (`trxID` or `paymentId`). We leverage this identifier as an immutable **Natural Idempotency Key**.
-
-Under concurrent retries, two identical webhook requests can arrive within milliseconds of each other. Both pass signature verification. If both execute separate `SELECT` queries before writing, both will observe the order as `PENDING` (a classic Read-Modify-Write race condition).
-
-To prevent this, the verification, status mutation, and enrollment creation must execute within a single **ACID Transaction with Row-Level Locking**:
-
-```typescript
-import { prisma } from "@/lib/db";
-
-interface WebhookFulfillmentResult {
-  status: "PROCESSED" | "ALREADY_COMPLETED" | "FAILED";
-  orderId: string;
-}
-
-export async function processPaymentWebhook(
-  gatewayTxId: string,
-  orderId: string,
-  paidAmount: number
-): Promise<WebhookFulfillmentResult> {
-  return await prisma.$transaction(
-    async (tx) => {
-      // 1. Lock the order row for UPDATE to prevent concurrent race conditions
-      const order = await tx.order.findUnique({
-        where: { id: orderId },
-      });
-
-      if (!order) {
-        throw new Error(`Order ${orderId} not found in database.`);
-      }
-
-      // 2. Idempotent guard: If already completed, return immediately
-      if (order.status === "COMPLETED") {
-        return { status: "ALREADY_COMPLETED", orderId };
-      }
-
-      // 3. Amount integrity check (prevent payload truncation attacks)
-      if (order.totalAmount !== paidAmount) {
-        throw new Error(`Payment amount mismatch: expected ${order.totalAmount}, got ${paidAmount}`);
-      }
-
-      // 4. Atomic multi-table state mutation
-      await tx.order.update({
-        where: { id: orderId },
-        data: {
-          status: "COMPLETED",
-          gatewayTransactionId: gatewayTxId,
-          completedAt: new Date(),
-        },
-      });
-
-      await tx.courseEnrollment.create({
-        data: {
-          userId: order.userId,
-          courseId: order.courseId,
-          enrolledAt: new Date(),
-          accessGranted: true,
-        },
-      });
-
-      return { status: "PROCESSED", orderId };
-    },
-    {
-      isolationLevel: "Serializable", // Enforce strict transaction isolation
-      timeout: 5000,
+    // Idempotent Guard: If already marked complete by a prior IPN, exit immediately
+    if (payment.paymentStatus === "complete") {
+      return { success: true, alreadyProcessed: true };
     }
-  );
+
+    // Verify amount integrity to prevent payload tampering
+    if (Number(payment.amount) !== Number(verification.amount)) {
+      throw new Error(`Amount mismatch: expected ${payment.amount}, received ${verification.amount}`);
+    }
+
+    // 3. Mark payment complete & store gateway validation proof
+    await tx.paymentInstallment.update({
+      where: { transactionId },
+      data: {
+        paymentStatus: "complete",
+        validationId,
+        gatewayStatus: verification.status,
+        paidAt: new Date(),
+      },
+    });
+
+    // 4. Update parent Application & Grant Course Module Access
+    await tx.application.update({
+      where: { id: payment.applicationId },
+      data: { paymentStatus: "complete", status: "approved" },
+    });
+
+    // 5. Ensure Enrollment Record Exists
+    await tx.enrollment.upsert({
+      where: { applicationId: payment.applicationId },
+      update: { status: "preparing" },
+      create: {
+        userId: payment.application.studentId,
+        applicationId: payment.applicationId,
+        batchId: payment.application.batchId,
+        courseName: "Academic Mathematics Certification",
+        status: "preparing",
+      },
+    });
+
+    return { success: true, alreadyProcessed: false };
+  });
 }
 ```
 
 ---
 
-## 4. Response Protocol: When to Return 200 vs 500
+## 2. Multi-Installment Tuition Architecture
 
-A critical architectural mistake is returning `200 OK` before database fulfillment commits. If your handler returns `200 OK` early and the database subsequently crashes on enrollment insert, the gateway marks the event as completed. It will never retry. The customer has paid, and no access was granted.
+For high-ticket professional programs at **CPRBD DU**, tuition fees of 25,000–50,000 BDT cannot be charged in a single transaction.
 
-**The Golden Rule of Webhook HTTP Status Codes:**
-* **`200 OK`:** Return **ONLY** after the database transaction has successfully committed to disk. If the transaction was already completed on a prior retry, return `200 OK` immediately.
-* **`400 Bad Request`:** Return when the cryptographic signature fails or the payload is unparseable JSON. (Signals the gateway that retrying will never succeed).
-* **`500 Internal Server Error`:** Return on transient database connection errors or timeouts. This explicitly signals the payment gateway's exponential backoff engine to retry delivery later.
+We designed a **Batch Installment Plan Engine**:
+* A student's enrollment application is split into structured installment schedules (e.g., *Installment 1: 10,000 BDT upon acceptance*, *Installment 2: 15,000 BDT before Module 4*).
+* Each installment carries an immutable `transactionId` and tracks its own `PaymentStatus` (`pending`, `complete`, `failed`).
+* **Certificate Issuance Gate:** The certificate generator mathematically inspects all required installments for a batch; if any installment remains `pending`, certificate generation is hard-locked.
 
 ---
 
 ## 📚 Source & Inspiration Notes
 
-* **Stripe Engineering:** [*Designing robust and predictable APIs with idempotency*](https://stripe.com/blog/idempotency) — The canonical architectural treatise on idempotency keys and state convergence under network partitions.
-* **bKash & Nagad Developer Documentation:** [*Merchant Payment Webhook API V2 Specifications*](https://developer.bkash.com/) — Timing-safe HMAC verification and callback protocols.
-* **Martin Fowler:** [*Patterns of Enterprise Application Architecture (Unit of Work & Pessimistic Offline Lock)*](https://martinfowler.com/) — Transactional atomicity in distributed billing systems.
+* **Stripe Engineering Blog:** [*Designing robust and predictable APIs with idempotency*](https://stripe.com/blog/idempotency) — Theoretical model for distributed locks and active status queries.
+* **SSLCommerz API V4 Documentation:** [*Merchant Transaction Validation and IPN Specification*](https://developer.sslcommerz.com/) — Dual-channel validation architecture.
