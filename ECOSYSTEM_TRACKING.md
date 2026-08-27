@@ -48,8 +48,11 @@
 | **Google Search Console** | `sc-domain:parvejshah.com` | [GSC Dashboard](https://search.google.com/search-console) | Domain Property Verified<br>Sitemap: `https://parvejshah.com/sitemap.xml` |
 | **Typo Gmail (Bridge)** | `parvejshalabib007@gmail.com` | [Gmail](https://mail.google.com) | Created as recovery bridge for initial Cloudflare domain registration typo |
 | **GitHub** | `@parvej-shah` | [https://github.com/parvej-shah](https://github.com/parvej-shah) | Main code repository: `parvejs-portfolio`<br>Profile README: `parvej-shah/parvej-shah` |
-| **DEV.to** | `@parvejshah` | [https://dev.to/parvejshah](https://dev.to/parvejshah) | API Key configured: `KMc1FxYpHEA4GRRCDdA9arD9` |
-| **Hashnode** | `@parvej-shah` | [https://parvejshah.hashnode.dev](https://parvejshah.hashnode.dev) | Publication ready for RSS / GraphQL sync |
+| **DEV.to** | `@parvejshah` | [https://dev.to/parvejshah](https://dev.to/parvejshah) | API Key configured: `KMc1FxYpHEA4GRRCDdA9arD9`<br>Bio: `Software Engineer & AI Systems Developer \| University of Dhaka · CoderVai · Bangladesh` |
+| **Hashnode** | `@parvej-shah` | [https://hashnode.com/@parvejshah](https://hashnode.com/@parvejshah) / [parvejshah.hashnode.dev](https://parvejshah.hashnode.dev) | Bio: `Software Engineer & AI Systems Developer \| University of Dhaka · CoderVai`<br>Location: `Dhaka, Bangladesh`<br>Website: `https://parvejshah.com` |
+| **Peerlist** | `@parvejshah` | [https://peerlist.io/parvejshah](https://peerlist.io/parvejshah) | Bio: `Software Engineer & AI Systems Developer \| University of Dhaka · CoderVai`<br>Location: `Dhaka, BD`<br>Website: `https://parvejshah.com` |
+| **Medium** | `@parvejshah` | [https://parvejshah.medium.com](https://parvejshah.medium.com) | Bio: `Software Engineer & AI Systems Developer. University of Dhaka · CoderVai. Building AI voice pipelines, real-time infra & Next.js systems. parvejshah.com` |
+| **Product Hunt** | `@parvejshah` | [https://www.producthunt.com/@parvejshah](https://www.producthunt.com/@parvejshah) | Headline: `Software Engineer & AI Systems Developer`<br>About: `Building production AI voice pipelines, high-concurrency webhook infrastructure, and full-stack platforms...`<br>Website: `https://parvejshah.com`<br>LinkedIn: `https://www.linkedin.com/in/parvej-shah` |
 | **LinkedIn** | `parvej-shah` | [https://www.linkedin.com/in/parvej-shah](https://www.linkedin.com/in/parvej-shah) | Linked in JSON-LD `sameAs` graph |
 
 ---
