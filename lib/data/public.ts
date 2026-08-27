@@ -112,22 +112,19 @@ export const getProjectBySlug = cache(async (slug: string) => {
 });
 
 export async function getPublishedPosts() {
-  const posts = await getPublishedPostsCached();
+  const posts = await prisma.post.findMany({
+    where: { status: "PUBLISHED", publishedAt: { lte: new Date() } },
+    orderBy: [{ featured: "desc" }, { publishedAt: "desc" }, { createdAt: "desc" }],
+    select: publishedPostSelect,
+  });
   return posts.map(revivePostDates);
 }
 
-const getPostBySlugCached = unstable_cache(
-  async (slug: string) =>
-    prisma.post.findFirst({
-      where: { slug, status: "PUBLISHED", publishedAt: { lte: new Date() } },
-      select: publishedPostSelect,
-    }),
-  ["published-post-by-slug"],
-  { tags: ["posts"] }
-);
-
 export const getPostBySlug = cache(async (slug: string) => {
-  const post = await getPostBySlugCached(slug);
+  const post = await prisma.post.findFirst({
+    where: { slug, status: "PUBLISHED", publishedAt: { lte: new Date() } },
+    select: publishedPostSelect,
+  });
   return post ? revivePostDates(post) : null;
 });
 

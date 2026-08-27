@@ -7,6 +7,8 @@ import MarkdownExcerpt from "@/components/MarkdownExcerpt";
 import { getPublishedPosts } from "@/lib/data/public";
 import { getReadingStats } from "@/lib/markdown";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Blog | Parvej Shah",
   description:
