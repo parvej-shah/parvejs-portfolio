@@ -170,40 +170,40 @@ Token spend per conversation dropped by 70.8%, while lead-to-order conversion ra
       slug: "mathpro-academy",
       title: "MathPro Academy",
       summary:
-        "Online mathematics coaching platform for JSC, SSC, and HSC students across Bangladesh. Features server-side KaTeX formula rendering in React Server Components (0 CLS, 0kB JS), TipTap LaTeX curriculum authoring, and idempotent SSLCommerz / MFS payment fulfillment for 4,000+ students.",
+        "Full-stack coaching platform for 4,000+ JSC, SSC, and HSC students across Bangladesh. Course delivery, a Lexical-based curriculum editor with inline LaTeX, SSLCommerz/MFS checkout with coupons and bundles, and an admin backend spanning analytics, fine-grained course access control, live classes, and LLM-assisted quiz import.",
       status: "PUBLISHED" as const,
       featured: true,
       client: "MathPro Academic & Admission Care / Abdul Aziz",
       role: "Full-Stack Developer & Platform Architect",
       timeline: "2025 – 2026",
       techStack: [
-        "Next.js (App Router, Turbopack)",
+        "Next.js (App Router)",
         "TypeScript",
-        "React Server Components (RSC)",
-        "KaTeX SSR (HTML + MathML)",
-        "TipTap Rich-Text Editor",
+        "Lexical Rich-Text Editor",
+        "KaTeX (client-side, runtime LaTeX detection)",
         "SSLCommerz Payment Gateway (bKash/Nagad)",
-        "PostgreSQL (Prisma ORM)",
+        "PostgreSQL (raw SQL, no ORM)",
+        "Express.js",
         "Tailwind CSS",
       ],
       keyFeatures: [
-        "Server-side KaTeX formula rendering via RSC: zero client JS math bundle, 0.00 Cumulative Layout Shift, and native MathML accessibility",
-        "TipTap rich-text editor with custom LaTeX math extension for instructors to author complex algebraic formulas effortlessly",
-        "Dual-channel SSLCommerz payment validation: active server query (val_id) prevents browser redirect vs IPN race conditions",
-        "Atomic Prisma transaction fulfillment: order completion and course module enrollment succeed or fail as a single unit",
-        "Structured curriculum tracks for JSC General Math, SSC General & Higher Math (Bangla & English Version), and HSC Higher Math",
-        "Mobile-first responsive architecture tuned for mid-range Android smartphones over 4G networks",
+        "Runtime LaTeX rendering that auto-detects legacy plain-text vs. new Lexical HTML records, then walks the mounted DOM to render $...$/$$...$$ spans with KaTeX — necessary because course content is actively edited, not fixed at build time",
+        "Server-verified SSLCommerz checkout: every IPN re-queries SSLCommerz's own validation API by transaction ID rather than trusting the webhook payload, cross-checks the paid amount, and inspects SSLCommerz's own fraud risk score",
+        "Idempotent, audited fulfillment: every webhook attempt is logged to a payment_audit_log table; re-delivered IPNs are caught via SSLCommerz's own VALID/VALIDATED status, and duplicate enrollment attempts are treated as a non-error",
+        "Course-level access control for shareholders: managerial users can be scoped to specific courses only, so a partner instructor manages their own course without seeing the rest of the platform",
+        "Coupons, multi-course bundles, and standalone book purchases in one checkout path, with server-side pricing and shipping fulfillment tracking",
+        "Atomic PostgreSQL UPSERT-with-CASE streak tracking that increments, resets, or holds a student's daily streak in one round trip",
+        "LLM-assisted quiz import: admins convert a teacher's raw questions into the platform's JSON import schema via a documented LLM prompt",
+        "Analytics V2 covering revenue, user, course, learning, and payment analytics, plus live class scheduling and role-based permissions fetched from the backend",
       ],
-      problem: `Displaying mathematical notation on web platforms is notoriously slow. Client-side math libraries (MathJax/KaTeX) cause visible layout shifts (CLS) where students see raw LaTeX code before formulas snap into place, downloading 180KB+ of client JavaScript.
+      problem: `Displaying LaTeX-heavy math content on the web is genuinely awkward: a client-side math library flashes raw LaTeX source before it renders, and the platform's own content history compounds it — years of plain-text course records exist alongside newer, richly-formatted Lexical HTML, so there's no single format to render ahead of time.
 
-Additionally, flaky mobile payment connections caused webhook race conditions where students paid via bKash/Nagad but received pending error screens due to delayed gateway callbacks.`,
-      approach: `We eliminated client math overhead by running KaTeX compilation entirely on the server within React Server Components at request/build time. Formulas are emitted as pre-rendered HTML with embedded MathML.
+Separately, mobile financial service payments in Bangladesh (bKash, Nagad via SSLCommerz) are notoriously flaky: webhook retries and out-of-order delivery meant a naive "trust the webhook, write the enrollment" handler would eventually double-enroll a student or enroll one who never actually paid.`,
+      approach: `For content, an earlier build-time rendering attempt didn't survive contact with a database holding two generations of content format — the fix was a runtime renderer that first normalizes legacy plain text and new Lexical HTML into one sanitized shape, then walks the DOM after mount to find and render LaTeX spans with KaTeX.
 
-For payments, we implemented an active server-side verification query against SSLCommerz's validation endpoint combined with idempotent Prisma transactions, ensuring immediate enrollment confirmation regardless of whether the browser redirect or IPN webhook lands first.`,
-      solution: `MathPro Academy provides 4,000+ secondary and higher-secondary students with an instant, distraction-free learning experience. Instructors write curriculum using a custom TipTap editor with LaTeX shortcuts, and students enjoy instantaneous formula rendering with zero layout pop-in.`,
-      results: `Zero Cumulative Layout Shift (CLS 0.00) across all formula-heavy lecture pages, saving 180KB+ client JS per page load.
-
-Payment fulfillment achieved 100% idempotency across thousands of bKash, Nagad, and card transactions with zero duplicate enrollments or lost payments.`,
+For payments, instead of trusting the webhook payload, every IPN triggers an active server-to-server query back to SSLCommerz's own validation API, cross-checked against the amount recorded at checkout and SSLCommerz's own risk score, with every attempt logged to an audit table for reconciliation.`,
+      solution: `Students get formula rendering that degrades gracefully across a decade of content history instead of requiring a one-time content migration. Payments are enrolled exactly once per real transaction, with a paper trail for every webhook delivery whether it succeeded or not. On the admin side, coordinators and partner instructors operate within a permission system scoped to the courses they actually own, plus tooling built for people running cohorts day to day, not just engineers.`,
+      results: `4,000+ students across JSC, SSC, and HSC tracks use the platform. Payment fulfillment has produced zero duplicate enrollments in production — caught by SSLCommerz's own validation-status check plus a duplicate-safe enrollment write, not a custom signature scheme SSLCommerz doesn't require.`,
       liveUrl: "https://www.mathpro.academy",
       gallery: [
         { url: "/projects/mathpro-home.png", alt: "MathPro Academy Mathematics Coaching & Founder Overview" },

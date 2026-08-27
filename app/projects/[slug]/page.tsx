@@ -58,12 +58,12 @@ const projectKeywordsMap: Record<string, string[]> = {
   ],
   "mathpro-academy": [
     "EdTech coaching platform",
-    "Server-side KaTeX",
-    "React Server Components math",
-    "0 CLS MathML",
+    "client-side KaTeX rendering",
+    "Lexical rich-text editor",
     "SSLCommerz payment gateway",
     "bKash Nagad tuition",
-    "TipTap math curriculum",
+    "course access control",
+    "quiz import LLM",
   ],
   "badhan-blood-network": [
     "Badhan blood donation network",

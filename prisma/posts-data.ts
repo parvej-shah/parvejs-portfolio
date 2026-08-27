@@ -425,212 +425,104 @@ The architecture didn't require any changes for this scenario because it was des
   },
   {
     slug: "rendering-katex-formulas-nextjs-server-components",
-    title: "Rendering Math Formulas Without Making Students Wait",
+    title: "Rendering Math Formulas When Your Content Has Two Different Pasts",
     excerpt:
-      "Client-side math rendering causes layout shifts and JavaScript bloat. For MathPro Academy's mobile-first student base, we moved formula compilation to the server entirely. Here's what that looks like in practice.",
+      "MathPro Academy's course database holds years of plain-text content next to newly authored Lexical HTML. An earlier attempt at server-rendered LaTeX didn't survive that mix — here's the runtime renderer that replaced it, and why client-side was the right call, not a compromise.",
     coverImage: {
       url: "/blog/katex-math-server-components.png",
       alt: "Rendering KaTeX Formulas at Scale Cover",
     },
     featured: false,
     publishedAt: new Date("2026-01-20T16:45:00.000Z"),
-    content: `**MathPro Academy** teaches JSC, SSC, and HSC mathematics to secondary and higher secondary students across Bangladesh. The platform's value proposition is clear and narrow: make complex mathematics accessible and understandable.
+    content: `**MathPro Academy** teaches JSC, SSC, and HSC mathematics to secondary students across Bangladesh. Formula rendering — quadratic formulas, trigonometric identities, the full range of secondary-school algebra — is not a cosmetic detail here; it's most of what the product actually shows a student.
 
-When the instructor works through a quadratic formula or a trigonometric identity, the rendering of that formula matters. A math notation that appears as a blurry, partially-loaded visual element — or worse, as raw LaTeX strings like \frac{-b \pm \sqrt{b^2-4ac}}{2a} before the renderer kicks in — undermines the credibility of the content and distracts from the explanation.
+## What Build-Time Rendering Assumes
 
-This is a rendering problem. And it's a problem that most EdTech platforms solve badly.
+Pre-rendering LaTeX to HTML at build time (or on the server per-request, ahead of sending anything to the browser) works cleanly when content is fixed and known in advance. MathPro's content isn't: instructors edit course material continuously through the admin panel, and — because the platform migrated its editor from plain text to Lexical in December 2025 — the database holds a permanent mix of both formats side by side, not a one-time migration that finished and left a single clean shape behind.
 
-## How Most Sites Render Math (and Why It's Slow)
+An earlier version of this rendering path leaned toward doing more of that work ahead of time. It didn't hold up against that mix: a renderer that assumes one content shape breaks the moment it meets the other.
 
-The standard approach is to ship a math rendering library — KaTeX or MathJax — as a JavaScript bundle to the browser. The browser downloads the HTML, renders the raw LaTeX strings as placeholder text, downloads and parses the math library, then processes every formula on the page.
+## What Actually Ships
 
-The result is a visible layout shift. Students see the raw formula text, then watch it suddenly transform into rendered notation. This causes Cumulative Layout Shift (CLS), which affects Core Web Vitals scores and SEO performance.
+The real renderer, \`SafeHtmlRenderer\`, runs entirely client-side and does two jobs in sequence:
 
-For MathPro Academy's student base, most of whom access the platform on mid-range Android devices over 4G connections, the bundle size matters too. KaTeX ships at roughly 180KB compressed. This is overhead that every student pays for every page load.
-
-| Approach | Client JS Bundle | CLS Score | First Paint |
-| :--- | :--- | :--- | :--- |
-| Client-side KaTeX | ~180KB | 0.28 (noticeable snap) | ~1.8s |
-| Client-side MathJax | ~340KB | 0.35 (severe snap) | ~2.4s |
-| Server-side KaTeX (RSC) | **0KB** | **0.00** | **~0.5s** |
-
-The server-side approach ships formulas as pre-rendered HTML with embedded geometry. The browser has nothing to compute and nothing to reflow.
-
-## Implementation with React Server Components
-
-React Server Components execute on the server at request time or at build time for static pages. A Server Component can call katex.renderToString() directly — a synchronous, CPU-local operation — and the output is HTML that ships to the browser pre-rendered.
+1. **Format detection.** It checks whether a record contains HTML tags. If not, it's legacy plain text — escaped and wrapped for consistent display. If it does, it's Lexical-authored HTML, sanitized through a fixed allowlist of tags and attributes before it ever touches the DOM.
+2. **LaTeX rendering.** After the sanitized content mounts, a \`useEffect\` walks the container's text nodes looking for \`$...$\` (inline) and \`$$...$$\` (block) spans, and replaces each one with KaTeX-rendered markup — the same delimiter-matching logic the admin editor's own LaTeX plugin uses, so what an instructor sees while writing matches what a student sees while reading.
 
 \`\`\`typescript
-// This component never runs in the browser.
-// There is no "use client" directive.
-import katex from "katex";
-
-interface MathFormulaProps {
-  equation: string;
-  block?: boolean;
-}
-
-export function MathFormula({ equation, block = false }: MathFormulaProps) {
-  const html = katex.renderToString(equation, {
-    displayMode: block,
-    throwOnError: false,
-    // Outputs both visual HTML and accessible MathML in the same element
-    output: "htmlAndMathml",
-    strict: false,
-  });
-
-  return (
-    <span
-      className={block ? "my-6 block overflow-x-auto py-2 text-center" : "inline-block align-middle"}
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
-  );
-}
+// Runs after mount, not on the server — the content it walks
+// isn't known until the sanitized HTML is actually in the DOM.
+useEffect(() => {
+  if (processedContent?.type !== "html") return;
+  renderLatexInElement(containerRef.current);
+}, [processedContent]);
 \`\`\`
 
-The output: "htmlAndMathml" option causes KaTeX to emit both the visual HTML representation and an embedded MathML element which screen readers and accessibility tools can interpret. This handles accessibility without any additional work.
+This is a real trade-off, not a free win: KaTeX ships to the browser, and rendering happens after mount rather than being baked into the HTML response. What it buys back is correctness across every record in the database, old and new, without a migration project or a format the renderer has to assume in advance.
 
-## Integrating with Markdown Content
+## The Sanitization Boundary Matters More Than the Renderer
 
-Course content at MathPro Academy is authored in Markdown with inline LaTeX. The content pipeline processes Markdown through remark, with a custom plugin that intercepts LaTeX-delimited spans and replaces them with pre-rendered KaTeX HTML during the build step.
+The more interesting design decision isn't the KaTeX call — it's what happens before it. New content is run through a fixed allowlist of tags and attributes (\`DOMPurify\`) before \`dangerouslySetInnerHTML\` ever sees it. KaTeX's own markup is deliberately *not* pushed through that same sanitizer — its output relies on precise inline styles, MathML, and SVG that would need a much larger, riskier allowlist to preserve faithfully. Instead, KaTeX renders into the DOM directly, after the surrounding content has already been sanitized. Getting that boundary right — sanitize the untrusted parts, trust the library you control — is the part of this that would have been easy to get wrong.
 
-\`\`\`typescript
-import { visit } from "unist-util-visit";
-import katex from "katex";
-import type { Plugin } from "unified";
+## What We'd Tell the Next Team Doing This
 
-export const remarkKatex: Plugin = () => (tree) => {
-  visit(tree, "inlineCode", (node: any) => {
-    if (node.value.startsWith("math:")) {
-      const latex = node.value.slice(5);
-      node.type = "html";
-      node.value = katex.renderToString(latex, {
-        displayMode: false,
-        throwOnError: false,
-        output: "htmlAndMathml",
-      });
-    }
-  });
-};
-\`\`\`
-
-The formula HTML is embedded directly in the static page output. There is no JavaScript involved in rendering it, no hydration step, and no layout shift.
-
-## One Trade-off Worth Noting
-
-Server-side rendering requires that katex runs as a Node.js dependency rather than a browser dependency. This means it's part of the server bundle — which is the whole point — but it does mean the server takes a small CPU hit rendering formulas for each unique page at build time.
-
-For a statically generated course platform like MathPro Academy, this cost is paid once at build time, not once per request. A one-time CPU cost at build, permanent zero-cost rendering for every student visit afterward. The tradeoff is extremely favorable.`,
+If your content has one shape and it's fixed at build time, server-side pre-rendering is the better call — no argument. But "server-side" isn't automatically the more sophisticated choice. When the actual constraint is "the data has two generations mixed together and keeps changing," a runtime renderer that normalizes format first and renders second is the simpler, more honest design — even though it costs a client-side bundle and a post-mount pass that a cleaner dataset wouldn't need.`,
   },
   {
     slug: "defensive-webhook-engineering-payment-gateways",
-    title: "Payment Webhook Mistakes You Only Make Once",
+    title: "What SSLCommerz Actually Gives You for Webhook Security (It's Not a Signature)",
     excerpt:
-      "Double enrollments, missed payments, and replay attacks: the ways payment webhook handlers go wrong in production are specific and preventable. This is what we built for MathPro Academy's SSLCommerz integrations.",
+      "Payment webhook handlers fail in ways you only discover in production. For MathPro Academy's SSLCommerz integration, the fix wasn't HMAC signature verification — SSLCommerz doesn't sign its IPN payloads that way. It was an active server-to-server validation query, an amount cross-check, and a fraud score the gateway hands you for free.",
     coverImage: {
       url: "/blog/defensive-webhook-engineering.png",
       alt: "Defensive Webhook Engineering Cover",
     },
     featured: false,
     publishedAt: new Date("2026-01-14T08:20:00.000Z"),
-    content: `There's a class of bug that only appears in production, under real network conditions, with real money. You can't reproduce it in development. You can't catch it in a staging environment with predictable network responses. The first time you encounter it, it's already caused a problem — either a student received course access they didn't pay for, or a student paid and didn't receive access.
+    content: `There's a class of bug that only appears in production, under real network conditions, with real money. A webhook gets delivered twice. A deploy is mid-rollout when the POST arrives and the gateway retries. The first time you see it, a student has either paid without getting access, or has two enrollments for a course they bought once.
 
-These are the bugs that live inside payment webhook handlers.
+For **MathPro Academy**, students pay through SSLCommerz — the gateway that fronts bKash, Nagad, and card payments in Bangladesh. Its confirmation model is a webhook POST (the IPN), and the mistake most integrations make is trusting that POST's body as-is.
 
-For **MathPro Academy**, students purchase course enrollments through SSLCommerz — Bangladesh's two dominant mobile financial services. Both platforms use webhook-based payment confirmation: after a successful transaction, their servers POST a confirmation payload to your registered endpoint. Your job is to receive that POST, verify it's legitimate, fulfill the order, and respond with a success status.
+## SSLCommerz Doesn't Sign the Payload — So Don't Verify a Signature That Isn't There
 
-The failure modes are more numerous and more subtle than they appear.
+Some payment gateways attach an HMAC signature to their webhook payload, and the correct move there is a timing-safe comparison against your own computed hash. SSLCommerz's IPN doesn't work that way. What it gives you instead is a validation API: given the transaction ID from the webhook, you query SSLCommerz's own server directly and it tells you, authoritatively, whether that transaction is real and in what state.
 
-## The Network Doesn't Behave Itself
+\`\`\`javascript
+// Simplified from the real handler: never trust the IPN body directly —
+// query SSLCommerz's own validation API for the transaction's true state.
+const validationUrl =
+  \`\${baseUrl}/validator/api/merchantTransIDvalidationAPI.php\` +
+  \`?tran_id=\${encodeURIComponent(tranId)}\` +
+  \`&store_id=\${storeId}&store_passwd=\${storePassword}&v=1&format=json\`;
 
-The fundamental assumption that breaks naive webhook handlers is that the POST will be delivered exactly once. It won't be.
+const result = await fetchJson(validationUrl);
+const transaction = result.element?.[0];
 
-If your server takes too long to respond, bKash or Nagad marks the delivery as failed and retries. If your server has a deployment in progress when the POST arrives, it might receive a 503. The payment gateway retries. Now the same payment confirmation has been delivered twice.
-
-If your handler's first act is to write the enrollment to the database without checking whether it was already written — you've enrolled the student twice. The student has two active enrollments for the same course, your finance reconciliation is off by one transaction, and your per-course analytics are measuring a ghost.
-
-## The Three Properties Every Payment Handler Needs
-
-**Signature verification.** Before touching the database or any application logic, verify that the incoming request actually came from the payment gateway. SSLCommerz provides a validation endpoint (val_id) that you actively query from your server rather than trusting the webhook payload blindly.
-
-\`\`\`typescript
-function verifyPaymentSignature(
-  rawBody: string,
-  signatureHeader: string,
-  secretKey: string
-): boolean {
-  const expectedHash = crypto
-    .createHmac("sha256", secretKey)
-    .update(rawBody)
-    .digest("hex");
-
-  // Timing-safe comparison prevents side-channel timing attacks
-  // where an attacker can infer characters of your secret by measuring
-  // how long the comparison takes
-  return crypto.timingSafeEqual(
-    Buffer.from(expectedHash, "utf-8"),
-    Buffer.from(signatureHeader, "utf-8")
-  );
+if (transaction?.status !== "VALID" && transaction?.status !== "VALIDATED") {
+  // Reject — the gateway itself doesn't vouch for this transaction.
+  return;
 }
 \`\`\`
 
-The timing-safe comparison is worth calling out explicitly. A naive string comparison short-circuits at the first mismatched character — slightly faster for strings that differ early. An attacker with precise timing measurements can use this to infer the hash value one character at a time. crypto.timingSafeEqual always takes the same amount of time regardless of where the strings diverge.
+The trust anchor isn't a shared secret compared byte-for-byte; it's a live round trip to a server SSLCommerz controls. That's a different shape of guarantee than HMAC, but not a weaker one for this use case — an attacker can't spoof a \`VALIDATED\` response from SSLCommerz's own infrastructure.
 
-**Idempotency.** Every transaction has a unique transaction ID assigned by the payment gateway. Use it as a natural idempotency key. Before processing any fulfillment, check whether that transaction ID has already been processed.
+## The Amount Has to Match What You Actually Charged
 
-\`\`\`typescript
-async function fulfillCourseOrder(
-  transactionId: string,
-  orderId: string
-): Promise<{ status: "SUCCESS" | "ALREADY_PROCESSED" }> {
-  return await prisma.$transaction(async (tx) => {
-    const order = await tx.order.findFirst({
-      where: { id: orderId },
-    });
+The validation response includes the amount SSLCommerz actually processed. The handler compares that against the price recorded at checkout time — not the price in the IPN body, which a forged or replayed request could carry stale or altered. A mismatch fails the transaction outright, logged for manual reconciliation rather than silently fulfilled.
 
-    if (!order) throw new Error(\`Order \${orderId} not found\`);
+## Fraud Scoring You Don't Have to Build
 
-    if (order.status === "COMPLETED") {
-      return { status: "ALREADY_PROCESSED" };
-    }
+SSLCommerz's validation response also includes a \`risk_level\` field — its own assessment of whether a transaction looks fraudulent. The handler checks it and flags risky transactions rather than treating every \`VALID\` status as equally trustworthy. This is fraud detection MathPro didn't have to build from scratch; it's already sitting in a field on a response the handler was querying anyway.
 
-    await tx.order.update({
-      where: { id: orderId },
-      data: {
-        status: "COMPLETED",
-        transactionId,
-        completedAt: new Date(),
-      },
-    });
+## Idempotency Without a Row Lock
 
-    await tx.enrollment.create({
-      data: {
-        userId: order.userId,
-        courseId: order.courseId,
-        enrolledAt: new Date(),
-      },
-    });
+The validation response itself distinguishes \`VALID\` (first time seen) from \`VALIDATED\` (already processed) — so a re-delivered IPN is caught by asking SSLCommerz "have I already told you this succeeded?" rather than by locking a row in MathPro's own database. On the enrollment write itself, a duplicate is handled as an expected, logged outcome — not a failure — since a retried webhook that's already been fulfilled shouldn't error the second time it arrives.
 
-    return { status: "SUCCESS" };
-  });
-}
-\`\`\`
+Every attempt — successful, rejected, or errored — is written to a payment audit log with the raw IPN payload, so a support ticket about "I paid but didn't get access" has a full trail to check rather than a guess.
 
-**Atomicity.** The order status update and the enrollment creation need to succeed or fail together. If the order update succeeds but the enrollment creation fails — database connectivity, constraint violation, application crash — you now have a paid order with no course access. The student is frustrated, your support queue gets a ticket, and you have to handle a manual correction.
+## What We Learned
 
-Prisma's $transaction wraps both operations in a single database transaction. If anything in the callback throws, the entire transaction rolls back.
-
-## Idempotency Under Concurrent Retries
-
-There's a subtle race condition worth thinking through. Imagine the payment gateway delivers the webhook twice in very quick succession — close enough that both requests arrive before either has fully processed. Both requests pass signature verification. Both check the order status and find it as PENDING. Both proceed to the fulfillment logic.
-
-The $transaction call handles this. Prisma issues a SELECT FOR UPDATE under the hood when you access the row inside a transaction, which acquires a row-level lock. The second concurrent request will wait at the findFirst call until the first transaction commits. By the time the second transaction proceeds, the order status has already been set to COMPLETED, and the early return fires.
-
-## Responding to the Payment Gateway
-
-Return a success status only after successful processing. If your handler returns success before confirming the enrollment, and then your enrollment write fails, the payment gateway considers its job done. There's no retry. The student paid and got nothing.
-
-Return a server error code if your handler can't process the request. This signals the gateway to retry. Your idempotency logic ensures the retry is safe.`,
+The instinct to reach for HMAC and \`crypto.timingSafeEqual\` is a reasonable one — it's the right tool for gateways that actually sign their payloads. But defensive webhook engineering isn't about applying the strongest-sounding cryptographic primitive available; it's about matching the guarantee you build to the guarantee the gateway actually offers. SSLCommerz offers a query-back validation API and a risk score, not a signature — and building around what's actually there turned out to need less custom cryptography, not more.`,
   },
   {
     slug: "building-manifest-v3-ai-chrome-extensions",
