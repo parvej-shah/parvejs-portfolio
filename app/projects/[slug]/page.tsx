@@ -34,6 +34,63 @@ const caseStudySections = [
   { key: "results", label: "Results", step: "04", icon: Trophy },
 ] as const;
 
+const projectKeywordsMap: Record<string, string[]> = {
+  "minions-ai": [
+    "Voice AI telephony",
+    "Retell AI",
+    "n8n automation",
+    "Gemini 2.0 Flash",
+    "EspoCRM",
+    "Google Calendar integration",
+    "WebRTC SIP pipeline",
+    "trade contractor dispatch bot",
+    "AI voice latency",
+  ],
+  "genmorphics-ai": [
+    "AI data annotation platform",
+    "RLHF SFT workforce management",
+    "Azure AD Entra ID SSO",
+    "PostgreSQL Row Level Security",
+    "NextAuth.js",
+    "Cloudflare R2",
+    "enterprise AI dashboard",
+  ],
+  "mathpro-academy": [
+    "EdTech coaching platform",
+    "Server-side KaTeX",
+    "React Server Components math",
+    "0 CLS MathML",
+    "SSLCommerz payment gateway",
+    "bKash Nagad tuition",
+    "TipTap math curriculum",
+  ],
+  "badhan-blood-network": [
+    "Badhan blood donation network",
+    "Amar Ekushey Hall University of Dhaka",
+    "emergency blood transfusion",
+    "donor eligibility cooldown",
+    "Telegram bot emergency alert",
+    "IndexedDB PWA",
+  ],
+  "sellervai": [
+    "SellerVai",
+    "conversational commerce bot",
+    "FastAPI LangGraph",
+    "PGVector FastEmbed",
+    "Gemini Vision product search",
+    "Meta Graph API WhatsApp Messenger",
+    "message debouncing",
+  ],
+  "cprbd-du": [
+    "CPRBD DU",
+    "University of Dhaka certificate verification",
+    "tamper proof QR credential",
+    "HMAC-SHA256 verification",
+    "SSLCommerz multi-installment",
+    "visual certificate designer",
+  ],
+};
+
 export async function generateStaticParams() {
   const projects = await getPublishedProjects();
   return projects.map((project) => ({ slug: project.slug }));
@@ -47,24 +104,47 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: "Project Not Found | Parvej Shah" };
   }
 
+  const keywords = projectKeywordsMap[slug] || [
+    "software engineering",
+    "full-stack project",
+    "Next.js",
+    "TypeScript",
+    "Parvej Shah",
+    "University of Dhaka",
+  ];
+
+  const absoluteImageUrl = project.gallery[0]
+    ? project.gallery[0].url.startsWith("http")
+      ? project.gallery[0].url
+      : `${defaultSiteUrl}${project.gallery[0].url}`
+    : `${defaultSiteUrl}/og.jpg`;
+
   return {
-    title: `${project.title} | Projects | Parvej Shah`,
+    title: `${project.title} — Case Study | Parvej Shah`,
     description: project.summary,
+    keywords,
     alternates: { canonical: `/projects/${project.slug}` },
     openGraph: {
       type: "article",
-      title: project.title,
+      title: `${project.title} — Case Study | Parvej Shah`,
       description: project.summary,
-      images: project.gallery[0]
-        ? [{ url: project.gallery[0].url, alt: project.gallery[0].alt || project.title }]
-        : undefined,
+      url: `/projects/${project.slug}`,
+      images: [
+        {
+          url: absoluteImageUrl,
+          alt: project.gallery[0]?.alt || project.title,
+        },
+      ],
       modifiedTime: project.updatedAt.toISOString(),
+      section: "Software Engineering Case Studies",
+      tags: keywords,
     },
     twitter: {
       card: "summary_large_image",
-      title: project.title,
+      title: `${project.title} — Case Study | Parvej Shah`,
       description: project.summary,
-      images: project.gallery[0] ? [project.gallery[0].url] : undefined,
+      images: [absoluteImageUrl],
+      creator: "@parvejshah",
     },
   };
 }
@@ -89,16 +169,79 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   const seo = await getSection("seo");
   const siteUrl = seo?.siteUrl || defaultSiteUrl;
 
+  const keywords = projectKeywordsMap[slug] || [
+    "software engineering",
+    "full-stack development",
+    "Next.js",
+    "TypeScript",
+  ];
+
+  const absoluteImageUrl = project.gallery[0]
+    ? project.gallery[0].url.startsWith("http")
+      ? project.gallery[0].url
+      : `${siteUrl}${project.gallery[0].url}`
+    : `${siteUrl}/og.jpg`;
+
   const projectJsonLd = {
     "@context": "https://schema.org",
-    "@type": "CreativeWork",
+    "@type": "SoftwareApplication",
     name: project.title,
     description: project.summary,
-    image: project.gallery[0] ? project.gallery[0].url : undefined,
+    applicationCategory: "DeveloperApplication",
+    operatingSystem: "Web",
+    keywords: keywords.join(", "),
+    image: absoluteImageUrl,
     dateCreated: project.createdAt.toISOString(),
     dateModified: project.updatedAt.toISOString(),
-    creator: { "@type": "Person", name: "Parvej Shah" },
+    author: {
+      "@type": "Person",
+      name: "Parvej Shah",
+      jobTitle: "Software Engineer & AI Systems Developer",
+      url: siteUrl,
+      alumniOf: {
+        "@type": "CollegeOrUniversity",
+        name: "University of Dhaka",
+      },
+      worksFor: {
+        "@type": "Organization",
+        name: "CoderVai",
+      },
+      sameAs: [
+        "https://github.com/parvej-shah",
+        "https://www.linkedin.com/in/parvej-shah",
+        "https://dev.to/parvejshah",
+        "https://hashnode.com/@parvejshah",
+        "https://medium.com/@parvejshah",
+        "https://peerlist.io/parvejshah",
+        "https://producthunt.com/@parvejshah",
+      ],
+    },
     url: `${siteUrl}/projects/${project.slug}`,
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Projects",
+        item: `${siteUrl}/projects`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: project.title,
+        item: `${siteUrl}/projects/${project.slug}`,
+      },
+    ],
   };
 
   return (
@@ -106,6 +249,10 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(projectJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <section className="relative overflow-hidden border-b border-line py-16 lg:py-24">
         {/* Ambient brand glow to fill the negative space behind the header */}

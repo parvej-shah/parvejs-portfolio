@@ -26,6 +26,129 @@ function formatDate(date: Date | null | undefined) {
   }).format(date);
 }
 
+const postKeywordsMap: Record<string, string[]> = {
+  "architecting-sub-18s-voice-ai-pipelines": [
+    "voice AI latency",
+    "Retell AI",
+    "n8n workflow caching",
+    "Gemini 2.0 Flash",
+    "EspoCRM telephony integration",
+    "Google Calendar free busy cache",
+    "WebRTC SIP voice pipeline",
+    "telephony cost optimization",
+    "neural VAD",
+    "conversational turn reduction",
+    "streaming STT TTS",
+    "telephony dispatch bot",
+  ],
+  "deterministic-multi-agent-systems-production": [
+    "multi agent orchestration",
+    "deterministic state machine",
+    "TypeScript FSM",
+    "LLM loop oscillation",
+    "context poisoning",
+    "structured outputs Zod",
+    "AI content engine",
+    "agentic workflows",
+    "Minions.AI architecture",
+  ],
+  "defensive-webhook-engineering-payment-gateways": [
+    "bKash payment gateway",
+    "Nagad webhook",
+    "SSLCommerz IPN",
+    "payment idempotency",
+    "timing-safe HMAC",
+    "crypto.timingSafeEqual",
+    "ACID database transaction",
+    "multi-installment tuition",
+    "Prisma PostgreSQL payment",
+  ],
+  "offline-first-pwa-emergency-volunteer-networks": [
+    "offline first PWA",
+    "IndexedDB cursor index",
+    "Badhan blood network",
+    "emergency blood donation system",
+    "University of Dhaka Amar Ekushey Hall",
+    "90-day cooldown filter",
+    "Telegram bot webhook",
+    "sub-10ms local search",
+  ],
+  "rendering-katex-formulas-nextjs-server-components": [
+    "Server-side KaTeX",
+    "React Server Components math",
+    "0 CLS formula rendering",
+    "MathML accessibility",
+    "TipTap LaTeX extension",
+    "MathPro Academy",
+    "Next.js 15 math rendering",
+    "Cumulative Layout Shift",
+  ],
+  "conversational-commerce-webhook-architecture": [
+    "SellerVai",
+    "conversational commerce bot",
+    "FastAPI LangGraph",
+    "PGVector FastEmbed",
+    "Gemini Vision product search",
+    "message debouncer",
+    "Banglish NLP",
+    "Meta Graph API Messenger WhatsApp",
+  ],
+  "cryptographic-credential-verification-institutional-web": [
+    "CPRBD DU",
+    "academic credential verification",
+    "University of Dhaka certificate",
+    "tamper proof QR code",
+    "HMAC-SHA256 signature",
+    "visual coordinate certificate designer",
+    "SSLCommerz multi-installment",
+    "blockchain alternative",
+  ],
+  "building-manifest-v3-ai-chrome-extensions": [
+    "Chrome Extension Manifest V3",
+    "Shadow DOM isolation",
+    "CSS stylesheet bleed",
+    "service worker keep alive",
+    "long-lived port messaging",
+    "LinkedIn AI assistant",
+    "content script React 19",
+  ],
+  "engineering-precision-data-platforms-sft-rlhf": [
+    "GenMorphics AI",
+    "workforce management AI data",
+    "RLHF SFT annotation",
+    "Azure AD Entra ID SSO",
+    "electronic NDA compliance",
+    "PostgreSQL Row Level Security",
+    "Cloudflare R2 presigned URL",
+    "consensus QA",
+  ],
+  "scaling-competitive-programming-lms-architectures": [
+    "CoderVai CP",
+    "competitive programming LMS",
+    "ICPC contest scoring",
+    "Redis streak counter",
+    "DAG prerequisite curriculum",
+    "University of Dhaka BSSE",
+    "automated code judge",
+  ],
+  "nextjs-16-turbopack-deep-dive": [
+    "Next.js 16 Turbopack",
+    "React Server Components migration",
+    "React 19 actions",
+    "unstable_cache tag revalidation",
+    "streaming SSR",
+    "web performance",
+  ],
+  "craft-of-high-velocity-software-delivery": [
+    "modern web stack",
+    "PostgreSQL Prisma Redis",
+    "Next.js App Router",
+    "boring technology",
+    "developer velocity",
+    "high throughput architecture",
+  ],
+};
+
 export async function generateStaticParams() {
   const posts = await getPublishedPosts();
   return posts.map((post) => ({ slug: post.slug }));
@@ -39,27 +162,50 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: "Post Not Found | Parvej Shah" };
   }
 
+  const keywords = postKeywordsMap[slug] || [
+    "software engineering",
+    "AI systems developer",
+    "Next.js",
+    "TypeScript",
+    "Parvej Shah",
+    "University of Dhaka",
+  ];
+
+  const absoluteImageUrl = post.coverImage
+    ? post.coverImage.url.startsWith("http")
+      ? post.coverImage.url
+      : `${defaultSiteUrl}${post.coverImage.url}`
+    : `${defaultSiteUrl}/og.jpg`;
+
   return {
-    title: `${post.title} | Blog | Parvej Shah`,
+    title: `${post.title} | Parvej Shah`,
     description: post.excerpt,
+    keywords,
     alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
       title: post.title,
       description: post.excerpt,
       url: `/blog/${post.slug}`,
-      images: post.coverImage
-        ? [{ url: post.coverImage.url, width: 1600, height: 900, alt: post.coverImage.alt || post.title }]
-        : [{ url: "/og.jpg", width: 1200, height: 630, alt: post.title }],
+      images: [
+        {
+          url: absoluteImageUrl,
+          width: 1600,
+          height: 900,
+          alt: post.coverImage?.alt || post.title,
+        },
+      ],
       type: "article",
       publishedTime: post.publishedAt?.toISOString(),
       modifiedTime: post.updatedAt.toISOString(),
-      authors: ["Parvej Shah"],
+      section: "Software Engineering",
+      tags: keywords,
+      authors: ["https://parvejshah.com"],
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description: post.excerpt,
-      images: post.coverImage ? [post.coverImage.url] : ["/og.jpg"],
+      images: [absoluteImageUrl],
       creator: "@parvejshah",
     },
   };
@@ -75,17 +221,88 @@ export default async function BlogDetailPage({ params }: PageProps) {
   const seo = await getSection("seo");
   const siteUrl = seo?.siteUrl || defaultSiteUrl;
 
+  const keywords = postKeywordsMap[slug] || [
+    "software engineering",
+    "AI systems",
+    "Next.js",
+    "TypeScript",
+  ];
+
+  const absoluteImageUrl = post.coverImage
+    ? post.coverImage.url.startsWith("http")
+      ? post.coverImage.url
+      : `${siteUrl}${post.coverImage.url}`
+    : `${siteUrl}/og.jpg`;
+
   const articleJsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: post.title,
     description: post.excerpt,
-    image: post.coverImage ? [post.coverImage.url] : undefined,
+    keywords: keywords.join(", "),
+    articleSection: "Software Engineering",
+    inLanguage: "en-US",
+    wordCount: stats.words,
+    image: [absoluteImageUrl],
     datePublished: post.publishedAt?.toISOString(),
     dateModified: post.updatedAt.toISOString(),
-    author: { "@type": "Person", name: "Parvej Shah" },
-    publisher: { "@type": "Person", name: "Parvej Shah" },
-    mainEntityOfPage: { "@type": "WebPage", "@id": `${siteUrl}/blog/${post.slug}` },
+    author: {
+      "@type": "Person",
+      name: "Parvej Shah",
+      jobTitle: "Software Engineer & AI Systems Developer",
+      url: siteUrl,
+      alumniOf: {
+        "@type": "CollegeOrUniversity",
+        name: "University of Dhaka",
+      },
+      worksFor: {
+        "@type": "Organization",
+        name: "CoderVai",
+      },
+      sameAs: [
+        "https://github.com/parvej-shah",
+        "https://www.linkedin.com/in/parvej-shah",
+        "https://dev.to/parvejshah",
+        "https://hashnode.com/@parvejshah",
+        "https://medium.com/@parvejshah",
+        "https://peerlist.io/parvejshah",
+        "https://producthunt.com/@parvejshah",
+      ],
+    },
+    publisher: {
+      "@type": "Person",
+      name: "Parvej Shah",
+      url: siteUrl,
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `${siteUrl}/blog/${post.slug}`,
+    },
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Blog",
+        item: `${siteUrl}/blog`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: post.title,
+        item: `${siteUrl}/blog/${post.slug}`,
+      },
+    ],
   };
 
   return (
@@ -93,6 +310,10 @@ export default async function BlogDetailPage({ params }: PageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
       {/* Editorial hero: ambient brand glow behind the title, with a byline row.

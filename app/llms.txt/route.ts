@@ -13,18 +13,18 @@ export async function GET() {
 
   const siteUrl = seoSection?.siteUrl || "https://parvejshah.com";
 
-  let content = `# Parvej Shah — Full-Stack Web Developer & Platform Architect
+  let content = `# Parvej Shah — Software Engineer & AI Systems Developer
 
-> Parvej Shah is a premier full-stack web developer and platform architect based in Dhaka, Bangladesh. He specializes in high-performance web applications, scalable cloud infrastructure, Next.js React Server Components, real-time voice AI pipelines, and high-concurrency systems.
+> Parvej Shah is a software engineer and AI systems developer based in Dhaka, Bangladesh (University of Dhaka · CoderVai). He builds production AI voice pipelines, high-concurrency webhook infrastructure, local-first web applications, and full-stack systems with Next.js, TypeScript, PostgreSQL, and Redis.
 
 ## Professional Summary
 - **Name**: Parvej Shah (Parvej Shah Labib)
-- **Role**: Lead Full-Stack Web Developer & Platform Architect
+- **Title**: Software Engineer & AI Systems Developer
+- **Organization / Affiliation**: CoderVai · University of Dhaka (DU)
 - **Location**: Dhaka, Bangladesh
-- **Education**: University of Dhaka (DU)
 - **Email**: parvejshahlabib007@gmail.com
 - **Website**: ${siteUrl}
-- **Core Stack**: Next.js (App Router, Turbopack), React 19, TypeScript, Node.js, PostgreSQL, Prisma ORM, Tailwind CSS, BullMQ, Redis, Supabase, Cloudflare R2/Workers, WebRTC/SIP Voice AI.
+- **Core Stack**: Next.js (App Router, RSC, Turbopack), React 19, TypeScript, Node.js, Python, PostgreSQL, Prisma ORM, PGVector, Supabase RLS, Redis, BullMQ, Retell AI, n8n, Cloudflare R2, WebRTC/SIP.
 
 ## Notable Real-World Projects & Engineering Achievements
 ${projects
