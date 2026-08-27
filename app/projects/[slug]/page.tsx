@@ -85,10 +85,10 @@ const projectKeywordsMap: Record<string, string[]> = {
   "cprbd-du": [
     "CPRBD DU",
     "University of Dhaka certificate verification",
-    "tamper proof QR credential",
-    "HMAC-SHA256 verification",
+    "structured certificate ID",
     "SSLCommerz multi-installment",
     "visual certificate designer",
+    "block-based CMS",
   ],
 };
 

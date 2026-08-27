@@ -96,12 +96,11 @@ const postKeywordsMap: Record<string, string[]> = {
     "Banglish NLP",
     "Meta Graph API Messenger WhatsApp",
   ],
-  "cryptographic-credential-verification-institutional-web": [
+  "high-speed-edge-verification-institutional-credentials": [
     "CPRBD DU",
     "academic credential verification",
     "University of Dhaka certificate",
-    "tamper proof QR code",
-    "HMAC-SHA256 signature",
+    "structured certificate ID",
     "visual coordinate certificate designer",
     "SSLCommerz multi-installment",
     "blockchain alternative",
