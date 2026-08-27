@@ -36,3 +36,54 @@ export function updatePost(id: string, data: UpdatePost) {
 export function deletePost(id: string) {
   return prisma.post.delete({ where: { id } });
 }
+
+export async function upsertPostWithCover(data: {
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  status: "DRAFT" | "SCHEDULED" | "PUBLISHED";
+  publishedAt?: Date | null;
+  coverImageUrl?: string | null;
+}) {
+  let coverImageId: string | undefined = undefined;
+
+  if (data.coverImageUrl) {
+    const assetKey = `blog-${data.slug}-cover`;
+    const asset = await prisma.asset.upsert({
+      where: { key: assetKey },
+      update: {
+        url: data.coverImageUrl,
+        alt: data.title,
+      },
+      create: {
+        key: assetKey,
+        url: data.coverImageUrl,
+        alt: data.title,
+      },
+    });
+    coverImageId = asset.id;
+  }
+
+  return prisma.post.upsert({
+    where: { slug: data.slug },
+    update: {
+      title: data.title,
+      excerpt: data.excerpt,
+      content: data.content,
+      status: data.status,
+      publishedAt: data.publishedAt,
+      ...(coverImageId !== undefined ? { coverImageId } : {}),
+    },
+    create: {
+      slug: data.slug,
+      title: data.title,
+      excerpt: data.excerpt,
+      content: data.content,
+      status: data.status,
+      publishedAt: data.publishedAt,
+      ...(coverImageId !== undefined ? { coverImageId } : {}),
+    },
+  });
+}
+

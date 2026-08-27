@@ -86,3 +86,27 @@ export async function deletePost(id: string) {
   revalidateTag("posts", "max");
   return post;
 }
+
+export async function upsertPostFromWebhook(data: {
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  status: "DRAFT" | "SCHEDULED" | "PUBLISHED";
+  publishedAt?: Date | null;
+  coverImageUrl?: string | null;
+}) {
+  const post = await postRepo.upsertPostWithCover(data);
+  try {
+    revalidateTag("posts", "max");
+  } catch {}
+
+  if (post.status === "PUBLISHED") {
+    // Non-blocking auto-syndication
+    triggerPostSyndication(post).catch(() => {});
+  }
+
+  return post;
+}
+
+
