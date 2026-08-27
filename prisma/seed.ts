@@ -79,7 +79,7 @@ The deterministic editorial FSM achieved a 99.2% automated completion rate acros
       slug: "genmorphics-ai",
       title: "GenMorphics AI",
       summary:
-        "Full-lifecycle enterprise workforce management platform for GenMorphics AI Solutions. Coordinates domain specialists across LLM SFT & RLHF data pipelines with digital NDA compliance, Microsoft Azure AD SSO, consensus QA validation, and automated payroll.",
+        "Full-lifecycle enterprise workforce management platform for GenMorphics AI Solutions. A single system of record replacing spreadsheets — covering domain-expert onboarding, skill-based task routing, a custom-built NDA lifecycle engine, database-driven access control, and automated payroll for a global contractor base.",
       status: "PUBLISHED" as const,
       featured: true,
       client: "GenMorphics AI Solutions",
@@ -89,30 +89,26 @@ The deterministic editorial FSM achieved a 99.2% automated completion rate acros
         "Next.js (App Router, Turbopack)",
         "TypeScript",
         "NextAuth.js (Azure AD & Google SSO)",
-        "PostgreSQL (Prisma ORM)",
-        "Supabase Row Level Security (RLS)",
-        "Cloudflare R2 (Presigned URLs)",
-        "Tailwind CSS",
+        "PostgreSQL (Prisma ORM — 28-model schema)",
+        "Supabase Storage",
+        "TipTap Rich-Text Editor",
+        "Radix UI / shadcn",
         "React Query",
       ],
       keyFeatures: [
-        "Full-lifecycle workforce management: recruitment, skill certification, digital NDA enforcement, task dispatch, consensus QA, and payroll",
-        "Mandatory electronic NDA compliance gate: system hard-locks task queues and proprietary customer datasets until an NDA is cryptographically signed",
-        "Enterprise SSO via NextAuth.js integrating Microsoft Azure AD (Entra ID) and Google OAuth with domain-specific role tokens",
-        "Granular multi-tier RBAC (Annotator, Senior Validator, Project Manager, Org Admin) enforced via PostgreSQL Row-Level Security",
-        "Consensus QA workflow: multi-annotator prompt evaluation with automated discrepancy flagging for senior domain reviewers",
-        "Automated compensation engine calculating task complexity bounties, verified hours, and quality multipliers for global contractor payroll",
+        "Database-driven RBAC: roles and their permission sets (resource.action.scope) live in the database as JSON, not hardcoded enums — new roles ship without a deploy",
+        "Custom NDA lifecycle engine: a TipTap-based legal document editor with a purpose-built variable-interpolation node, versioned templates, cryptographic document hashing, and bulk admin actions (void, expire, counter-sign, revert, extend)",
+        "Skill taxonomy driving task routing: a categorized skill matrix (language-specific software engineering tracks, math sub-disciplines, legal, scientific writing) scopes which specialists are eligible for which task batches",
+        "Enterprise SSO via NextAuth.js integrating Microsoft Azure AD (Entra ID) and Google OAuth, with verified-email account auto-linking across providers",
+        "Bulk workforce operations spanning batch task assignment and batch admin actions across the contractor lifecycle",
+        "Automated payroll engine computing per-assignment earnings from logged hours (hourly vs. salaried roles) plus bonuses",
       ],
-      problem: `Frontier AI labs require high-precision human reasoning data from specialized domain experts (lawyers, chemists, software engineers, mathematicians). Managing this workforce previously suffered from four severe bottlenecks: manual spreadsheet tracking, compliance risk around unsigned NDAs, cross-client data leakage, and chaotic manual payroll reconciliation.`,
-      approach: `We engineered a unified platform covering the entire contractor journey. Specialists complete domain onboarding exams and must execute digital NDAs before any client asset is unlocked.
+      problem: `Frontier AI labs need high-precision human reasoning data from vetted domain experts — lawyers, mathematicians, software engineers, scientists. GenMorphics was coordinating all of this manually: spreadsheets for task and contractor tracking, no system-enforced compliance step before someone got access to a client's proprietary task data, and payroll reconciled by hand across a global contractor base.`,
+      approach: `We built a single system of record spanning the entire contractor lifecycle. Specialists build categorized skill profiles that scope which task batches they're eligible for. Before any client asset is unlocked, a mandatory NDA has to be executed through a purpose-built e-signature engine — not a third-party service, but a TipTap-based editor that lets admins template legal documents with recipient-specific variables.
 
-Authentication is standardized on Microsoft Azure AD (Entra ID) enterprise SSO. Data confidentiality is enforced at the database level using PostgreSQL Row-Level Security (RLS) combined with short-lived Cloudflare R2 presigned URLs (300s TTL). Consensus algorithms flag annotation disagreements for senior validators, and verified tasks feed directly into an automated payroll engine.`,
-      solution: `GenMorphics AI operates as a secure, SOC2-ready workforce operating system. Enterprise clients can provision dedicated task batches knowing annotators are NDA-compliant and isolated to their specific domain corpus.
-
-Administrators monitor active annotation throughput, review consensus quality scores, and export automated payroll batches in a single click.`,
-      results: `Onboarding friction dropped by over 60% via corporate SSO. Zero cross-client data leaks or unauthorized asset downloads.
-
-Dataset validation throughput increased by 3.4x while maintaining a >98% accuracy consensus score across enterprise fine-tuning deliveries.`,
+Access control isn't hardcoded into the app's role checks — permissions are rows in the database, so the org's structure can change without a code change. Payroll rules were built to match how GenMorphics actually pays people: hourly for operational work, salaried with hourly fallback for managerial roles.`,
+      solution: `GenMorphics AI operates as the operating system for its entire contractor workforce. Enterprise clients get task batches worked by specialists who've cleared skill and NDA gates for that specific engagement. Admins manage roles and permissions as data, review and bulk-action NDA instances at scale, and run payroll from the same platform that tracks the work.`,
+      results: `GenMorphics moved from ad hoc spreadsheets and manual paperwork to one platform governing the full contractor lifecycle — skill-scoped task routing, a system-enforced NDA gate instead of a trust-based process, role and permission changes that ship as data instead of deploys, and payroll generated from the same records as the work itself.`,
       liveUrl: "https://app.genmorphicsai.com",
       gallery: [
         { url: "/projects/genmorphics-app.png", alt: "GenMorphics AI Secure Google & Microsoft Enterprise SSO Sign In" },

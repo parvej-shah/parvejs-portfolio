@@ -278,109 +278,40 @@ The broader lesson is a simple one: LLMs are powerful tools for transforming tex
     slug: "engineering-precision-data-platforms-sft-rlhf",
     title: "What It Actually Takes to Build a Workforce Management Dashboard for an AI Company",
     excerpt:
-      "When GenMorphics AI Solutions needed a platform to coordinate their global team of domain experts, the challenge wasn't the AI — it was access control, skill verification, and making sure the right task reached the right person.",
+      "When GenMorphics AI Solutions needed a platform to coordinate their global team of domain experts, the hard part wasn't the AI — it was compliance, access control, and building tools flexible enough to match how the org actually runs.",
     coverImage: {
       url: "/blog/precision-data-sft-rlhf.png",
       alt: "Building LLM Workforce Platforms Cover",
     },
     featured: true,
     publishedAt: new Date("2026-02-02T14:00:00.000Z"),
-    content: `The initial brief from **GenMorphics AI Solutions** sounded straightforward: build a dashboard to help their team coordinate work across a global network of domain experts. As we got into the details, it became clear that "dashboard" was underselling the complexity significantly.
+    content: `The initial brief from **GenMorphics AI Solutions** sounded straightforward: build a dashboard to help their team coordinate work across a global network of domain experts. As we got into the details, "dashboard" turned out to be underselling it — this became a systems-architecture problem touching compliance, access control, and payroll as much as task management.
 
-GenMorphics works with specialists in software engineering, mathematics, legal reasoning, and scientific disciplines. The work requires matching highly specific tasks to people with verifiable domain depth — not just anyone who checked a box saying they know Python. Building a web platform that could reliably route the right task to the right person, track project status across dozens of concurrent assignments, and maintain strict data access boundaries between different client projects turned out to be a genuine systems architecture challenge.
+## Skill-Scoped Task Routing
 
-## The Skill Routing Problem
+GenMorphics works with specialists across software engineering, mathematics, legal reasoning, and scientific writing. Routing doesn't try to auto-score someone's expertise — a specialist holds skills within categories, and eligibility for a task comes down to whether they hold the named skill in the required category.
 
-The first thing we designed was the skill profiling system. The naive version of this is a checkbox list of technologies and subjects. The problem with that approach is that it makes no distinction between someone who learned Python basics in a weekend course and someone who has been writing production Python services for three years.
+The real design problem wasn't the matching logic — it was making the categories specific enough to mean something. "Knows Python" is close to useless as a routing signal. Splitting software engineering into language-specific tracks, and mathematics into calculus, linear algebra, and discrete math as separate categories rather than one "math" bucket, is what actually made routing reliable. The hard part of this system was taxonomy design, not algorithms.
 
-We structured skill profiles across three dimensions: domain category, competency depth, and verification status.
+## Access Control as Data, Not Code
 
-Domain categories span the disciplines GenMorphics works across — software engineering broken into language-specific tracks, mathematics covering areas like calculus, linear algebra, and discrete math separately, and professional fields including legal analysis, financial modeling, and scientific writing.
+The platform serves people with fundamentally different access needs — domain experts who should see only their own tasks, project managers scoped to their own client portfolios, admins with full reach. Instead of hardcoding role checks scattered through the app, permissions live in the database: each role is a row with a set of \`resource.action.scope\` permissions — \`payment.read.own\`, \`nda.manage.all\`, and so on.
 
-Competency depth marks whether a skill is self-reported or has been verified through a qualification review. Task routing logic only assigns work that requires verified skills to people who hold verified badges in that category.
+That decision paid off the first time GenMorphics needed a new role with a slightly different permission mix. It didn't need a deploy — it needed a database row. For an app that has to keep pace with how a growing team actually organizes itself, that flexibility mattered more than a marginally simpler hardcoded system would have.
 
-\`\`\`typescript
-interface ExpertProfile {
-  id: string;
-  skills: {
-    category: "Software Engineering" | "Mathematics" | "Legal" | "Scientific";
-    subcategory: string;
-    depth: "Introductory" | "Proficient" | "Expert";
-    verified: boolean;
-    verifiedAt: Date | null;
-  }[];
-  activeTaskCount: number;
-  maxConcurrentTasks: number;
-}
+## Building an NDA Engine Instead of Buying One
 
-function isEligibleForTask(expert: ExpertProfile, task: TaskRequirement): boolean {
-  return task.requiredSkills.every(req =>
-    expert.skills.some(s =>
-      s.subcategory === req.subcategory &&
-      s.depth >= req.minimumDepth &&
-      (req.requiresVerification ? s.verified : true)
-    )
-  );
-}
-\`\`\`
+Client task data — code, documents, domain material — can't reach a specialist until they've signed an NDA specific to that engagement. Rather than bolt on a third-party e-signature product, we built the NDA lifecycle inside the platform: a TipTap-based rich text editor with a custom node type for inserting recipient-specific variables into a legal template, template versioning so a signed document stays tied to the exact terms it was signed under, and a cryptographic hash of the final document for tamper-evidence.
 
-## Authentication Architecture
+Because NDA volume scales with contractor headcount, admins also needed to act on instances in bulk — voiding, expiring, counter-signing, reverting, or extending many at once rather than one dialog at a time. Building this in-house meant the NDA gate could be wired directly into task access instead of living as a disconnected compliance checkbox.
 
-The platform serves multiple stakeholders with fundamentally different access requirements. Domain experts can see only their assigned tasks and their own performance metrics. Project managers can see all tasks within their assigned project portfolio but not tasks belonging to other clients. Administrators have full access to user management, skill verification, and cross-project reporting.
+## Payroll That Matches How the Org Actually Pays People
 
-We implemented this through role-based access control (RBAC) with row-level security at the database layer. Supabase's Row Level Security policies enforce access boundaries at the data layer itself, which means even if a bug in application code produced an unauthorized query, the database would refuse to return the data.
-
-\`\`\`sql
--- Experts can only view their own task assignments
-CREATE POLICY "expert_own_tasks" ON task_assignments
-  FOR SELECT USING (
-    expert_id = auth.uid()
-  );
-
--- Project managers see tasks within their managed projects
-CREATE POLICY "pm_project_tasks" ON task_assignments
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM project_managers
-      WHERE user_id = auth.uid()
-        AND project_id = task_assignments.project_id
-    )
-  );
-\`\`\`
-
-For authentication itself, we integrated OAuth 2.0 with Google Workspace, which was the identity provider GenMorphics already used internally. This eliminated password management entirely for the core team while still allowing external domain experts to authenticate through a separate flow.
-
-## The Dataset Access Problem
-
-Some tasks involve reviewing code repositories, audio samples, or domain-specific documents that belong to specific clients. These assets cannot be freely downloadable — they should expire and become inaccessible once a task is completed or reassigned.
-
-We addressed this with short-lived signed URLs. All work materials are stored in private cloud storage buckets with no public access. When a user opens a task, the server generates a signed URL that is valid for 300 seconds — long enough to view and work with the material, short enough that the URL is useless by the time a task session ends.
-
-\`\`\`typescript
-async function getTaskAssetUrl(
-  taskId: string,
-  assetPath: string,
-  requestingUserId: string
-): Promise<string> {
-  const assignment = await db.taskAssignment.findFirst({
-    where: { taskId, expertId: requestingUserId, status: "ACTIVE" },
-  });
-
-  if (!assignment) throw new Error("Unauthorized: task not assigned to user");
-
-  const { data } = await supabase.storage
-    .from("task-assets")
-    .createSignedUrl(assetPath, 300);
-
-  return data.signedUrl;
-}
-\`\`\`
+Payroll logic isn't one formula — it mirrors two different employment models in the same system. Operational roles (annotators, reviewers) are paid hourly against logged, effective time. Managerial roles are paid a fixed salary unless they have an hourly rate set, in which case hourly wins. Bonuses layer on top of either. None of this is generic timesheet-software logic — it's a direct encoding of how GenMorphics structures compensation across two different kinds of contributors.
 
 ## What We Learned
 
-The most valuable insight from this project was how much the technical complexity was driven by human organizational structure rather than technical requirements. The skill routing logic, the access control layers, the asset expiry design — all of it was a direct translation of how GenMorphics actually manages their team and their client commitments.
-
-The web platform wasn't replacing that structure; it was encoding it in a way that could scale. That distinction shaped every architectural decision we made.`,
+The technical complexity here was never really about AI — it was a direct translation of how GenMorphics organizes people, compliance, and money. The skill taxonomy, the data-driven permission model, the in-house NDA engine, the dual payroll model — each one exists because encoding the org's actual structure mattered more than reaching for the nearest off-the-shelf pattern. A schema that's grown to 28 models across 61 migrations without a rewrite is really a record of that structure evolving over time, and the platform evolving with it.`,
   },
   {
     slug: "conversational-commerce-webhook-architecture",
