@@ -71,10 +71,21 @@ async function syndicateToDevTo() {
       }
 
       console.log(`  🚀 Publishing to DEV.to: "${post.title}"...`);
-      const tags = TAG_MAP[post.slug] || ["webdev", "programming", "tech"];
-      const coverImage = `${SITE_URL}${post.coverImage.url}`;
+      const coverImage = post.coverImage?.url
+        ? post.coverImage.url.startsWith("http")
+          ? post.coverImage.url
+          : `${SITE_URL}${post.coverImage.url}`
+        : `${SITE_URL}/og.jpg`;
 
-      const markdownBody = `> *Originally published at [parvejshah.com/blog/${post.slug}](${SITE_URL}/blog/${post.slug}) by [Parvej Shah](${SITE_URL}).*
+      const markdownBody = `---
+title: ${post.title}
+published: true
+tags: ${tags.join(", ")}
+canonical_url: ${SITE_URL}/blog/${post.slug}
+cover_image: ${coverImage}
+---
+
+> *Originally published at [parvejshah.com/blog/${post.slug}](${SITE_URL}/blog/${post.slug}) by [Parvej Shah](${SITE_URL}).*
 
 ${post.content}
 
@@ -179,7 +190,11 @@ ${post.content}
               publicationId: config.hashnodePublicationId,
               contentMarkdown: markdownBody,
               coverImageOptions: {
-                coverImageURL: `${SITE_URL}${post.coverImage.url}`,
+                coverImageURL: post.coverImage?.url
+                  ? post.coverImage.url.startsWith("http")
+                    ? post.coverImage.url
+                    : `${SITE_URL}${post.coverImage.url}`
+                  : `${SITE_URL}/og.jpg`,
               },
               originalArticleURL: canonicalUrl,
               tags,
