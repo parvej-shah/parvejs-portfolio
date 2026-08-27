@@ -174,7 +174,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     "University of Dhaka",
   ];
 
-  const ogImageUrl = `${defaultSiteUrl}/blog/${post.slug}/opengraph-image`;
+  const ogImageUrl = `${defaultSiteUrl}/api/og/blog/${post.slug}`;
 
   return {
     title: `${post.title} | Parvej Shah`,
