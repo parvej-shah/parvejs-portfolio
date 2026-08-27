@@ -276,7 +276,7 @@ The broader lesson is a simple one: LLMs are powerful tools for transforming tex
   },
   {
     slug: "engineering-precision-data-platforms-sft-rlhf",
-    title: "What It Actually Takes to Build a Workforce Management Dashboard for an AI Company",
+    title: "What It Actually Takes to Build a Workforce Management Platform for an AI Company",
     excerpt:
       "When GenMorphics AI Solutions needed a platform to coordinate their global team of domain experts, the hard part wasn't the AI — it was compliance, access control, and building tools flexible enough to match how the org actually runs.",
     coverImage: {
