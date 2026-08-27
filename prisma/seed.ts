@@ -575,10 +575,10 @@ async function seedPosts() {
 
 const sectionContent: Record<SectionKey, unknown> = {
   hero: {
-    eyebrow: "Full Stack Web Developer",
-    headlineLines: ["From idea", "to product", "to profit."],
+    eyebrow: "Software Engineer & AI Systems Developer",
+    headlineLines: ["From idea", "to production", "to scale."],
     description:
-      "I design and build full-stack web products that load fast, feel effortless, and turn visitors into customers — from the first wireframe to the final deploy.",
+      "I design and build production AI voice pipelines, high-concurrency webhook infrastructure, and full-stack web products that load fast and feel effortless.",
     primaryCta: { label: "Get a Free Quote", href: "#contact" },
     secondaryCta: { label: "View My Work", href: "#portfolio" },
     trustLabel: "Trusted by 12+ clients",
@@ -662,11 +662,11 @@ const sectionContent: Record<SectionKey, unknown> = {
     quote:
       "Great software isn't just shipped — it's considered. Every decision, from the database to the last pixel, should serve the people using it.",
     quoteAuthor: "Parvej Shah",
-    quoteRole: "Full Stack Web Developer, IIT DU",
+    quoteRole: "Software Engineer, IIT DU",
     points: [
-      "Full-stack depth — React, Next.js, Node.js, Express & MongoDB",
-      "Engineering foundation from IIT, University of Dhaka",
-      "Trusted partner to startups, businesses, and personal brands",
+      "AI & Automation — WebRTC, Voice AI pipelines, FSM orchestration",
+      "Full-stack depth — Next.js, Node.js, Redis, PostgreSQL & Prisma",
+      "Current Focus — Lead Developer at CoderVai & University of Dhaka",
     ],
     badgeValue: "12+",
     badgeLabel: "people trust my work",
@@ -781,14 +781,14 @@ const sectionContent: Record<SectionKey, unknown> = {
     ctaLabel: "Start a Project",
     ctaHref: "/#contact",
     copyrightName: "Parvej Shah Labib",
-    copyrightRole: "Full Stack Web Developer",
+    copyrightRole: "Software Engineer & AI Systems Developer",
   },
   seo: {
-    title: "Parvej Shah — Full Stack Web Developer | Dhaka, Bangladesh",
+    title: "Parvej Shah — Software Engineer & AI Systems Developer",
     description:
-      "Full-stack developer building fast, scalable web products with React, Next.js, Node.js and MongoDB. Based in Dhaka — available for freelance projects worldwide.",
+      "Software Engineer & AI Systems Developer based at University of Dhaka, Bangladesh. I build production AI voice pipelines, high-concurrency webhook infrastructure, and full-stack systems.",
     ogImage: "/og.jpg",
-    siteUrl: "https://parvejshah.vercel.app",
+    siteUrl: "https://parvejshah.com",
   },
 };
 
