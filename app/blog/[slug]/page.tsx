@@ -174,7 +174,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     "University of Dhaka",
   ];
 
-  const ogImageUrl = `${defaultSiteUrl}/api/og/blog/${post.slug}`;
+  const ogParams = new URLSearchParams({
+    title: post.title,
+    excerpt: post.excerpt || "",
+    ...(post.coverImage?.url ? { cover: post.coverImage.url } : {}),
+  });
+  const ogImageUrl = `${defaultSiteUrl}/api/og?${ogParams.toString()}`;
 
   return {
     title: `${post.title} | Parvej Shah`,
