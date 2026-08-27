@@ -12,9 +12,9 @@ import { getSection } from "@/lib/data/public";
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const defaultSeo = {
-  title: "Parvej Shah — Full Stack Web Developer | Dhaka, Bangladesh",
+  title: "Parvej Shah — Software Engineer & AI Systems Developer | University of Dhaka",
   description:
-    "Full-stack developer building fast, scalable web products with React, Next.js, Node.js and MongoDB. Based in Dhaka — available for freelance projects worldwide.",
+    "Software Engineer & AI Systems Developer based at University of Dhaka, Bangladesh. I build production AI voice pipelines, high-concurrency webhook infrastructure, and full-stack systems in Next.js and TypeScript — including real-time telephony, payment webhooks, and deterministic multi-agent architectures.",
   ogImage: "/og.jpg",
   siteUrl: "https://parvejshah.com",
 };
@@ -55,46 +55,81 @@ export default async function RootLayout({ children }) {
   const personJsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",
-    name: "Parvej Shah Labib",
-    alternateName: "Parvej Shah",
+    name: "Parvej Shah",
+    alternateName: ["Parvej Shah Labib", "Parvej Shah Shah Labib"],
     url: seo.siteUrl,
-    image: new URL(seo.ogImage, seo.siteUrl).toString(),
-    jobTitle: "Full Stack Web Developer",
-    worksFor: { "@type": "Organization", name: "Freelance" },
+    image: new URL("/og.jpg", seo.siteUrl).toString(),
+    jobTitle: "Software Engineer & AI Systems Developer",
+    worksFor: {
+      "@type": "Organization",
+      name: "CoderVai",
+      url: "https://www.codervai.com",
+    },
+    affiliation: [
+      {
+        "@type": "EducationalOrganization",
+        name: "University of Dhaka",
+        sameAs: "https://www.du.ac.bd/",
+      },
+      {
+        "@type": "Organization",
+        name: "CoderVai",
+        url: "https://www.codervai.com",
+      },
+    ],
     alumniOf: {
       "@type": "EducationalOrganization",
-      name: "Dhaka University",
+      name: "University of Dhaka",
       sameAs: "https://www.du.ac.bd/",
     },
-    address: { "@type": "PostalAddress", addressLocality: "Dhaka", addressCountry: "BD" },
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Dhaka",
+      addressRegion: "Dhaka Division",
+      addressCountry: "BD",
+    },
     email: "parvejshahlabib007@gmail.com",
     knowsAbout: [
+      "Software Engineering",
+      "AI Systems Development",
+      "Voice AI Pipelines",
+      "Real-Time Telephony",
+      "WebRTC",
+      "SIP Protocol",
+      "Deterministic Multi-Agent Systems",
+      "LLM Orchestration",
+      "TypeScript Finite State Machines",
       "Full-Stack Web Development",
       "React",
       "Next.js",
+      "React Server Components",
       "Node.js",
       "TypeScript",
       "JavaScript",
-      "Express.js",
       "PostgreSQL",
-      "MongoDB",
       "Prisma ORM",
-      "Tailwind CSS",
-      "RESTful API Development",
-      "GraphQL",
-      "AI & LLM Integration",
-      "Voice AI Pipelines",
-      "Multi-Agent Systems",
-      "WebSockets",
-      "Microservices Architecture",
-      "Server-Side Rendering (SSR)",
-      "React Server Components",
-      "Cloudflare R2",
-      "Vercel Deployment",
-      "Docker",
+      "Supabase",
       "Redis",
-      "Generative Engine Optimization (GEO)",
-      "Technical Search Engine Optimization (SEO)"
+      "BullMQ",
+      "WebSockets",
+      "Payment Webhook Engineering",
+      "bKash Payment Integration",
+      "Nagad Payment Integration",
+      "Idempotent Webhook Design",
+      "Offline-First PWA",
+      "IndexedDB",
+      "Workbox Service Workers",
+      "Cloudflare R2",
+      "Vercel Edge Network",
+      "Docker",
+      "Competitive Programming Platforms",
+      "EdTech Systems",
+      "Server-Side Rendering",
+      "Generative Engine Optimization",
+      "Technical SEO",
+      "University of Dhaka",
+      "CoderVai",
+      "Bangladesh",
     ],
     sameAs: [
       "https://github.com/parvej-shah",
@@ -105,38 +140,44 @@ export default async function RootLayout({ children }) {
       "https://medium.com/@parvejshah",
       "https://peerlist.io/parvejshah",
       "https://www.producthunt.com/@parvejshah",
-      "https://dribbble.com/parvej-shah-labib",
-      "https://www.behance.net/parvejshahlabib",
-      "https://about.me/parvejshah"
     ],
   };
 
   const websiteJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "Parvej Shah — Portfolio",
+    name: "Parvej Shah — Software Engineer & AI Systems Developer",
     url: seo.siteUrl,
     description: seo.description,
-    author: { "@type": "Person", name: "Parvej Shah" },
+    author: {
+      "@type": "Person",
+      name: "Parvej Shah",
+      affiliation: "University of Dhaka",
+    },
   };
 
   const serviceJsonLd = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
-    name: "Parvej Shah Web Development Services",
+    name: "Parvej Shah — Engineering Services",
     description:
-      "Full-stack web development services — React, Next.js, Node.js and MongoDB",
+      "Software engineering services specialising in AI voice pipelines, high-concurrency full-stack systems, Next.js/TypeScript platforms, payment webhook infrastructure, and offline-first PWAs.",
     url: seo.siteUrl,
-    provider: { "@type": "Person", name: "Parvej Shah" },
+    provider: {
+      "@type": "Person",
+      name: "Parvej Shah",
+      affiliation: "University of Dhaka",
+    },
     areaServed: "Worldwide",
     hasOfferCatalog: {
       "@type": "OfferCatalog",
-      name: "Web Development Services",
+      name: "Engineering Services",
       itemListElement: [
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "Full-Stack Web Development" } },
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "React & Next.js Development" } },
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "API & Backend Development" } },
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "Responsive Web Design" } },
+        { "@type": "Offer", itemOffered: { "@type": "Service", name: "AI Voice Pipeline Engineering" } },
+        { "@type": "Offer", itemOffered: { "@type": "Service", name: "Full-Stack Next.js Platform Development" } },
+        { "@type": "Offer", itemOffered: { "@type": "Service", name: "Payment Webhook & Infrastructure Engineering" } },
+        { "@type": "Offer", itemOffered: { "@type": "Service", name: "Offline-First PWA Development" } },
+        { "@type": "Offer", itemOffered: { "@type": "Service", name: "LLM & Multi-Agent System Architecture" } },
       ],
     },
   };
@@ -147,28 +188,36 @@ export default async function RootLayout({ children }) {
     mainEntity: [
       {
         "@type": "Question",
-        name: "What services does Parvej Shah offer?",
+        name: "Who is Parvej Shah?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Parvej Shah offers full-stack web development services, specializing in React, Next.js, Node.js, and MongoDB. He builds scalable, high-performance web products.",
+          text: "Parvej Shah is a Software Engineer & AI Systems Developer based at the University of Dhaka, Bangladesh. He builds production AI voice pipelines, high-concurrency full-stack systems, and real-time infrastructure, currently working with CoderVai.",
         },
       },
       {
         "@type": "Question",
-        name: "What is Parvej Shah's tech stack?",
+        name: "What is Parvej Shah known for technically?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Parvej Shah's core tech stack includes React, Next.js, Node.js, Express, MongoDB, JavaScript/TypeScript, and Tailwind CSS.",
+          text: "Parvej Shah is known for engineering AI voice response pipelines under 1.8 seconds using neural VAD, streaming STT/TTS, and WebRTC/SIP; designing deterministic multi-agent FSMs to replace non-deterministic LLM orchestration; and building idempotent payment webhook systems for bKash and Nagad at production scale.",
         },
       },
       {
         "@type": "Question",
-        name: "Is Parvej Shah available for freelance work?",
+        name: "Where is Parvej Shah based and is he available for remote work?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Yes, Parvej Shah is based in Dhaka, Bangladesh, and is available for freelance projects worldwide.",
+          text: "Parvej Shah is based in Dhaka, Bangladesh and is a software engineering student at the University of Dhaka. He is available for remote engineering contracts and collaborations worldwide.",
         },
-      }
+      },
+      {
+        "@type": "Question",
+        name: "What companies has Parvej Shah worked with?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Parvej Shah has worked on production systems for CoderVai (competitive programming LMS), Minions.AI (AI voice telephony), GenMorphics AI (enterprise workforce management), MathPro Academy (EdTech platform), SellerVai (conversational commerce), Badhan Blood Network (emergency donor PWA), and CPRBD at University of Dhaka.",
+        },
+      },
     ],
   };
 
