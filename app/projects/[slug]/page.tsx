@@ -18,7 +18,8 @@ import Reveal from "@/components/Reveal";
 import ProjectGallery from "@/components/ProjectGallery";
 import { buttonVariants } from "@/components/ui/button";
 import { getProjectBySlug, getPublishedProjects, getSection } from "@/lib/data/public";
-import { markdownRemarkPlugins } from "@/lib/markdown";
+import { getReadingStats, markdownRemarkPlugins } from "@/lib/markdown";
+import Mermaid from "@/components/Mermaid";
 import { cn } from "@/lib/utils";
 
 type PageProps = {
@@ -444,7 +445,21 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                     <span className="eyebrow">{section.label}</span>
                   </div>
                   <div className="prose-portfolio">
-                    <ReactMarkdown remarkPlugins={markdownRemarkPlugins}>{value}</ReactMarkdown>
+                    <ReactMarkdown 
+                      remarkPlugins={markdownRemarkPlugins}
+                      components={{
+                        code(props: any) {
+                          const { children, className, node, ...rest } = props;
+                          const match = /language-(\w+)/.exec(className || "");
+                          if (match && match[1] === "mermaid") {
+                            return <Mermaid chart={String(children).replace(/\n$/, "")} />;
+                          }
+                          return <code {...rest} className={className}>{children}</code>;
+                        }
+                      }}
+                    >
+                      {value}
+                    </ReactMarkdown>
                   </div>
                 </Reveal>
               );

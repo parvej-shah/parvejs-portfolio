@@ -9,6 +9,7 @@ import { getPostBySlug, getPublishedPosts, getSection } from "@/lib/data/public"
 import { getReadingStats, markdownRemarkPlugins } from "@/lib/markdown";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import Mermaid from "@/components/Mermaid";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -381,7 +382,21 @@ export default async function BlogDetailPage({ params }: PageProps) {
       <section className="py-16 lg:py-20">
         <div className="mx-auto max-w-3xl px-5">
           <div className="prose-portfolio prose-portfolio-lg">
-            <ReactMarkdown remarkPlugins={markdownRemarkPlugins}>{post.content}</ReactMarkdown>
+            <ReactMarkdown 
+              remarkPlugins={markdownRemarkPlugins}
+              components={{
+                code(props: any) {
+                  const { children, className, node, ...rest } = props;
+                  const match = /language-(\w+)/.exec(className || "");
+                  if (match && match[1] === "mermaid") {
+                    return <Mermaid chart={String(children).replace(/\n$/, "")} />;
+                  }
+                  return <code {...rest} className={className}>{children}</code>;
+                }
+              }}
+            >
+              {post.content}
+            </ReactMarkdown>
           </div>
 
           <Reveal className="mt-16 flex flex-col gap-5 rounded-[1.6rem] border border-line bg-ink-2/60 p-8 sm:flex-row sm:items-center sm:justify-between">
