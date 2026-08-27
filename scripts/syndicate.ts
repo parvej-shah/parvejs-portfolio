@@ -77,6 +77,8 @@ async function syndicateToDevTo() {
           : `${SITE_URL}${post.coverImage.url}`
         : `${SITE_URL}/og.jpg`;
 
+      const tags = TAG_MAP[post.slug] || ["webdev", "programming", "tech"];
+
       const markdownBody = `---
 title: ${post.title}
 published: true

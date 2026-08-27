@@ -174,12 +174,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     "University of Dhaka",
   ];
 
-  const ogParams = new URLSearchParams({
-    title: post.title,
-    excerpt: post.excerpt || "",
-    ...(post.coverImage?.url ? { cover: post.coverImage.url } : {}),
-  });
-  const ogImageUrl = `${defaultSiteUrl}/api/og?${ogParams.toString()}`;
+  let ogImageUrl = `${defaultSiteUrl}/og.jpg`;
+  if (post.coverImage?.url) {
+    if (post.coverImage.url.startsWith("http")) {
+      ogImageUrl = `${defaultSiteUrl}/api/og?cover=${encodeURIComponent(post.coverImage.url)}`;
+    } else {
+      ogImageUrl = `${defaultSiteUrl}${post.coverImage.url}`;
+    }
+  }
 
   return {
     title: `${post.title} | Parvej Shah`,
@@ -197,7 +199,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
           width: 1200,
           height: 630,
           alt: post.title,
-          type: "image/png",
+          type: "image/jpeg",
         },
       ],
       type: "article",
