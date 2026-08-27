@@ -111,7 +111,6 @@ Access control isn't hardcoded into the app's role checks — permissions are ro
       results: `GenMorphics moved from ad hoc spreadsheets and manual paperwork to one platform governing the full contractor lifecycle — skill-scoped task routing, a system-enforced NDA gate instead of a trust-based process, role and permission changes that ship as data instead of deploys, and payroll generated from the same records as the work itself.`,
       liveUrl: "https://app.genmorphicsai.com",
       gallery: [
-        { url: "/projects/genmorphics-app.png", alt: "GenMorphics AI Secure Google & Microsoft Enterprise SSO Sign In" },
         { url: "/projects/genmorphics-overview.png", alt: "GenMorphics AI Expert Dashboard & Task Management" },
         { url: "/projects/genmorphics-skills.png", alt: "Granular Skill Matrix & Software Specialization Manager" },
         { url: "/projects/genmorphics-home.png", alt: "GenMorphics AI Solutions Public Portal" },
