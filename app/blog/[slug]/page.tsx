@@ -380,9 +380,9 @@ export default async function BlogDetailPage({ params }: PageProps) {
 
       <section className="py-16 lg:py-20">
         <div className="mx-auto max-w-3xl px-5">
-          <Reveal className="prose-portfolio prose-portfolio-lg">
+          <div className="prose-portfolio prose-portfolio-lg">
             <ReactMarkdown remarkPlugins={markdownRemarkPlugins}>{post.content}</ReactMarkdown>
-          </Reveal>
+          </div>
 
           <Reveal className="mt-16 flex flex-col gap-5 rounded-[1.6rem] border border-line bg-ink-2/60 p-8 sm:flex-row sm:items-center sm:justify-between">
             <div>
