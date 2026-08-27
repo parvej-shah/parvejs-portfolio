@@ -174,12 +174,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     "University of Dhaka",
   ];
 
-  let ogImageUrl = `${defaultSiteUrl}/og.jpg`;
+  let ogImageUrl = `${defaultSiteUrl}/og/${post.slug}.jpg`;
   if (post.coverImage?.url) {
-    if (post.coverImage.url.startsWith("http")) {
-      ogImageUrl = `${defaultSiteUrl}/api/og?cover=${encodeURIComponent(post.coverImage.url)}`;
-    } else {
+    if (post.coverImage.url.startsWith("/og/")) {
       ogImageUrl = `${defaultSiteUrl}${post.coverImage.url}`;
+    } else if (post.coverImage.url.startsWith("http")) {
+      ogImageUrl = `${defaultSiteUrl}/api/og?cover=${encodeURIComponent(post.coverImage.url)}`;
     }
   }
 
