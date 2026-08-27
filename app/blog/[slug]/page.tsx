@@ -174,11 +174,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     "University of Dhaka",
   ];
 
-  const absoluteImageUrl = post.coverImage
-    ? post.coverImage.url.startsWith("http")
-      ? post.coverImage.url
-      : `${defaultSiteUrl}${post.coverImage.url}`
-    : `${defaultSiteUrl}/og.jpg`;
+  const ogImageUrl = `${defaultSiteUrl}/blog/${post.slug}/opengraph-image`;
 
   return {
     title: `${post.title} | Parvej Shah`,
@@ -189,12 +185,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: post.title,
       description: post.excerpt,
       url: `/blog/${post.slug}`,
+      siteName: "Parvej Shah",
       images: [
         {
-          url: absoluteImageUrl,
-          width: 1600,
-          height: 900,
-          alt: post.coverImage?.alt || post.title,
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+          type: "image/png",
         },
       ],
       type: "article",
@@ -208,7 +206,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       card: "summary_large_image",
       title: post.title,
       description: post.excerpt,
-      images: [absoluteImageUrl],
+      images: [ogImageUrl],
       creator: "@parvejshah",
     },
   };
