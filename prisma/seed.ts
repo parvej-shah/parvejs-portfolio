@@ -270,7 +270,7 @@ Streak tracking runs correctly under concurrent midnight submissions without any
       slug: "cprbd-du",
       title: "CPR BDDU (University of Dhaka)",
       summary:
-        "Institutional credentialing and executive education platform for the Center for Policy Research on Business and Development at University of Dhaka. Solves manual Canva certificate generation, multi-installment tuition reconciliation via SSLCommerz, and provides instant public verification via HMAC QR codes for corporate HR and embassies.",
+        "Institutional credentialing and executive education platform for the Center for Policy Research on Business and Development at University of Dhaka. Solves manual Canva certificate generation, multi-installment tuition reconciliation via SSLCommerz, and provides instant public verification via Edge-cached QR validation for corporate HR and embassies.",
       status: "PUBLISHED" as const,
       featured: true,
       client: "Department of International Business, University of Dhaka",
@@ -283,7 +283,7 @@ Streak tracking runs correctly under concurrent midnight submissions without any
         "SSLCommerz Multi-Installment Gateway",
         "TipTap Course Curriculum Editor",
         "Dynamic Visual Coordinate Certificate Engine",
-        "HMAC-SHA256 Cryptographic Verification",
+        "Edge-Cached Database Lookups (<35ms)",
         "Docker & Docker Compose",
         "Tailwind CSS",
       ],
@@ -291,7 +291,7 @@ Streak tracking runs correctly under concurrent midnight submissions without any
         "Dynamic Visual Coordinate Certificate Designer: allows admins to visually position recipient text, font sizes, QR codes, and course module lists on high-res backgrounds",
         "SSLCommerz Multi-Installment Tuition Gateway: manages structured 2-to-3 installment payment schedules for executive trainees with automated receipts",
         "Academic Prerequisite Issuance Gate: enforces that 100% of tuition installments and course modules are completed before certificate minting is unlocked",
-        "Instant Public Verification (<35ms): employers and embassies scan QR codes linking to /verify/[certificateId] with timing-safe HMAC checks",
+        "Instant Public Verification (<35ms): employers and embassies scan QR codes linking to /verify/[certificateId] with edge-cached Database validations",
         "TipTap-powered academic curriculum and class material distribution repository for executive cohorts",
         "Full Docker and Docker Compose production deployment containerizing Next.js and PostgreSQL",
       ],
@@ -303,7 +303,7 @@ Streak tracking runs correctly under concurrent midnight submissions without any
       approach: `We engineered an end-to-end institutional platform:
 - Administrators visually configure template coordinates (X/Y coordinates, QR sizing, module grid placement) directly in the web UI.
 - Tuition is handled through a structured SSLCommerz multi-installment gateway, tracking each installment's status.
-- The issuance engine programmatically verifies that all installments and TipTap module requirements are satisfied before minting unique, HMAC-SHA256 signed certificate serials.
+- The issuance engine programmatically verifies that all installments and TipTap module requirements are satisfied before minting unique, securely validated certificate serials.
 - Public QR codes allow instant, unauthenticated verification by employers in under 35ms.`,
       solution: `The platform provides University of Dhaka with a modern institutional portal. Administrative overhead for graduating a 150-student cohort dropped from 4 days to a single automated batch run. HR departments and embassies verify credentials instantly with zero administrative intervention.`,
       results: `Certificate generation time per cohort reduced from 4 days to under 60 seconds. 100% elimination of unverified or unpaid certificate issuance.
