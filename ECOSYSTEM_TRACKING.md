@@ -42,13 +42,13 @@
 
 | Platform | Handle / Identifier | URL / Location | Credentials / Notes |
 |---|---|---|---|
-| **Primary Domain** | `parvejshah.com` | [Cloudflare Dashboard](https://dash.cloudflare.com) | Account ID: `bb80ba9f42ced995154109f99e20310f`<br>Registrant: `parvejshahlabib007@gmail.com` |
+| **Primary Domain** | `parvejshah.com` | [Cloudflare Dashboard](https://dash.cloudflare.com) | Managed in Cloudflare Dashboard<br>Registrant: `parvejshahlabib007@gmail.com` |
 | **Vercel Hosting** | `parvejshah` (`parvejs-portfolio`) | [Vercel Dashboard](https://vercel.com/dashboard) | Primary Production Domain: `parvejshah.com`<br>Vercel Account: `parvejshahlabib007@gmail.com` |
 | **Google Account** | `parvejshahlabib007@gmail.com` | [Google Account](https://myaccount.google.com) | Primary Google Identity |
 | **Google Search Console** | `sc-domain:parvejshah.com` | [GSC Dashboard](https://search.google.com/search-console) | Domain Property Verified<br>Sitemap: `https://parvejshah.com/sitemap.xml` |
 | **Typo Gmail (Bridge)** | `parvejshalabib007@gmail.com` | [Gmail](https://mail.google.com) | Created as recovery bridge for initial Cloudflare domain registration typo |
 | **GitHub** | `@parvej-shah` | [https://github.com/parvej-shah](https://github.com/parvej-shah) | Main code repository: `parvejs-portfolio`<br>Profile README: `parvej-shah/parvej-shah` |
-| **DEV.to** | `@parvejshah` | [https://dev.to/parvejshah](https://dev.to/parvejshah) | API Key configured: `KMc1FxYpHEA4GRRCDdA9arD9`<br>Bio: `Software Engineer & AI Systems Developer \| University of Dhaka · CoderVai · Bangladesh` |
+| **DEV.to** | `@parvejshah` | [https://dev.to/parvejshah](https://dev.to/parvejshah) | API Key stored in environment variables<br>Bio: `Software Engineer & AI Systems Developer \| University of Dhaka · CoderVai · Bangladesh` |
 | **Hashnode** | `@parvej-shah` | [https://hashnode.com/@parvejshah](https://hashnode.com/@parvejshah) / [parvejshah.hashnode.dev](https://parvejshah.hashnode.dev) | Bio: `Software Engineer & AI Systems Developer \| University of Dhaka · CoderVai`<br>Location: `Dhaka, Bangladesh`<br>Website: `https://parvejshah.com` |
 | **Peerlist** | `@parvejshah` | [https://peerlist.io/parvejshah](https://peerlist.io/parvejshah) | Bio: `Software Engineer & AI Systems Developer \| University of Dhaka · CoderVai`<br>Location: `Dhaka, BD`<br>Website: `https://parvejshah.com` |
 | **Medium** | `@parvejshah` | [https://parvejshah.medium.com](https://parvejshah.medium.com) | Bio: `Software Engineer & AI Systems Developer. University of Dhaka · CoderVai. Building AI voice pipelines, real-time infra & Next.js systems. parvejshah.com` |
@@ -60,27 +60,15 @@
 ## 🔐 Environment Variables & Secrets Configuration
 
 ### Local Environment (`.env`):
-```ini
-DATABASE_URL=postgresql://neondb_owner:npg_YfIa5dJPcO6C@ep-wandering-glitter-ao18o0n3-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
-DIRECT_URL=postgresql://neondb_owner:npg_YfIa5dJPcO6C@ep-wandering-glitter-ao18o0n3.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
-
-ADMIN_EMAIL=parvejshahlabib007@gmail.com
-ADMIN_PASSWORD=@Parvej@2026@Portfolio
-
-R2_ACCOUNT_ID=1f53ec1fd1cecae820c14938b7831ab3
-R2_BUCKET=mathpro
-R2_ACCESS_KEY_ID=96ac01ae27d9198aac38ac87b1fee998
-R2_SECRET_ACCESS_KEY=44189b51fd1eb68614a792ecb7d891c23d8ae68cc3e85465260b0727f29f0235
-R2_ENDPOINT=https://1f53ec1fd1cecae820c14938b7831ab3.r2.cloudflarestorage.com
-R2_PUBLIC_URL=https://cdn.mathpro.academy
-
-DEVTO_API_KEY=KMc1FxYpHEA4GRRCDdA9arD9
-NEXT_PUBLIC_SITE_URL=https://parvejshah.com
-```
+Refer to `.env.example` for all required environment variable keys:
+- `DATABASE_URL` / `DIRECT_URL`: Neon PostgreSQL pooled and direct connection strings.
+- `ADMIN_EMAIL` / `ADMIN_PASSWORD`: Admin dashboard credentials.
+- `R2_ACCOUNT_ID`, `R2_BUCKET`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_ENDPOINT`, `R2_PUBLIC_URL`: Cloudflare R2 bucket credentials.
+- `DEVTO_API_KEY`: DEV.to API access token for automated syndication.
+- `NEXT_PUBLIC_SITE_URL`: `https://parvejshah.com`
 
 ### Vercel Production Environment:
-* `DEVTO_API_KEY`: `KMc1FxYpHEA4GRRCDdA9arD9` (Saved across Production, Preview, Development)
-* `NEXT_PUBLIC_SITE_URL`: `https://parvejshah.com`
+Configured under Vercel Project Settings > Environment Variables.
 
 ---
 
