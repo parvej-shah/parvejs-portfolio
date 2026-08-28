@@ -766,9 +766,9 @@ That's usually how it works: designing for the hard constraint improves performa
   },
   {
     slug: "scaling-competitive-programming-lms-architectures",
-    title: "Designing the Learning Progression Engine Behind Codervai CP",
+    title: "Streaks Without Race Conditions: What Actually Runs Behind Codervai CP",
     excerpt:
-      "How do you structure a competitive programming course so students build skills in the right order? How do you track daily streaks without race conditions when thousands of students submit near midnight? This is what we built.",
+      "The 'cohort pacing' story behind Codervai CP's module unlocking was cleaner than what's actually in production — a simple admin-publish flow. Here's what's real: the publish flow, the atomic streak upsert that survives a midnight submission storm, and why we didn't build a custom video pipeline.",
     coverImage: {
       url: "/blog/competitive-programming-lms.png",
       alt: "Scaling Algorithmic Training Systems Cover",
@@ -777,37 +777,13 @@ That's usually how it works: designing for the hard constraint improves performa
     publishedAt: new Date("2025-12-24T14:10:00.000Z"),
     content: `Competitive programming requires building a specific kind of knowledge: algorithms and data structures that compose with each other. You can't understand dynamic programming without first being solid on recursion. You can't reason about graph traversal without understanding how to implement a queue. The dependency tree is real, and the order in which concepts are introduced matters.
 
-**Codervai CP** is a structured competitive programming learning platform. When we were designing its learning progression engine, the core product question was: how do you prevent students from jumping to advanced problems before they've built the foundational skills, without making the platform feel restrictive or condescending?
+**Codervai CP** is a structured competitive programming learning platform. Separately, its daily-streak mechanic has to survive a predictable concurrency problem: a burst of submissions near midnight, all racing to protect a streak before the day resets.
 
-The answer we arrived at was timed module unlocking with a cohort schedule — not ability gating, which frustrates students who feel artificially held back, but temporal pacing, which mirrors how well-designed university courses work.
+## Publishing, Not Pacing
 
-## Module Unlock Logic
+The original plan for content release was a cohort calendar — module 1 from day 0, module 2 from day 7, and so on, mirroring how a university course paces itself. That's not what's actually running. The real mechanism is simpler: an instructor flips a chapter's \`is_live\` flag from the admin CMS, and every enrolled student is notified the moment it happens.
 
-Each course cohort operates on a defined schedule: module 1 is available from day 0, module 2 from day 7, module 3 from day 14, and so on. Students who enroll on any day within the cohort window get access to the modules that have been released as of their enrollment date, and new modules unlock on the cohort's schedule going forward.
-
-\`\`\`typescript
-interface CohortModule {
-  moduleIndex: number;
-  unlockAfterDays: number;
-  title: string;
-  problemIds: string[];
-}
-
-function getAvailableModules(
-  cohortStartDate: Date,
-  modules: CohortModule[]
-): CohortModule[] {
-  const elapsedDays = Math.floor(
-    (Date.now() - cohortStartDate.getTime()) / (1000 * 60 * 60 * 24)
-  );
-
-  return modules.filter(
-    module => elapsedDays >= module.unlockAfterDays
-  );
-}
-\`\`\`
-
-The cohort start date is fixed. All students in the cohort see the same modules on the same calendar days. This creates a shared experience — students are working on the same problems simultaneously, which drives community discussion and makes group study sessions more productive.
+That ended up being the better call, not a fallback. A publish button doesn't have timezone edge cases, doesn't need a scheduler that has to stay correct forever, and gives instructors a real escape hatch — a chapter that isn't ready yet just doesn't get published, instead of unlocking on schedule whether it's ready or not.
 
 ## The Streak Concurrency Problem
 
@@ -820,62 +796,68 @@ Consider the naive approach:
 \`\`\`typescript
 // BROKEN: race condition when two submissions arrive simultaneously
 async function updateStreak(userId: string): Promise<void> {
-  const streak = await db.userStreak.findUnique({ where: { userId } });
+  const { rows } = await pool.query(
+    'SELECT * FROM "UserStreak" WHERE "userId" = $1',
+    [userId]
+  );
+  const streak = rows[0];
   const today = new Date().toDateString();
 
-  if (streak?.lastActiveDate.toDateString() === today) return;
+  if (streak && new Date(streak.lastActiveDate).toDateString() === today) return;
 
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const wasActiveYesterday =
-    streak?.lastActiveDate.toDateString() === yesterday.toDateString();
+    streak && new Date(streak.lastActiveDate).toDateString() === yesterday.toDateString();
 
-  await db.userStreak.upsert({
-    where: { userId },
-    create: { userId, currentStreak: 1, lastActiveDate: new Date() },
-    update: {
-      currentStreak: wasActiveYesterday ? streak!.currentStreak + 1 : 1,
-      lastActiveDate: new Date(),
-    },
-  });
+  const newStreak = wasActiveYesterday ? streak.currentStreak + 1 : 1;
+  await pool.query(
+    \`INSERT INTO "UserStreak" ("userId", "currentStreak", "lastActiveDate")
+     VALUES ($1, $2, NOW())
+     ON CONFLICT ("userId") DO UPDATE SET "currentStreak" = $2, "lastActiveDate" = NOW()\`,
+    [userId, newStreak]
+  );
 }
 \`\`\`
 
-If two problem submissions from the same user arrive within milliseconds of each other, both threads execute the findUnique call before either has written. Both see the streak as needing an update. Both write. The streak increments by 2 instead of 1.
+If two problem submissions from the same user arrive within milliseconds of each other, both queries execute the SELECT before either has written. Both see the streak as needing an update. Both write. The streak increments by 2 instead of 1.
 
-The correct solution is an atomic upsert at the database level using a raw SQL INSERT ON CONFLICT DO UPDATE with CASE logic:
+The actual fix is an atomic upsert at the database level, in one parameterized query, with no application-code read-then-write step at all:
 
 \`\`\`typescript
 async function recordActivityAndUpdateStreak(userId: string): Promise<void> {
   const today = new Date().toISOString().split("T")[0];
 
-  await prisma.$executeRaw\`
-    INSERT INTO "UserStreak" ("userId", "lastActiveDate", "currentStreak", "updatedAt")
-    VALUES (\${userId}, \${today}::date, 1, NOW())
-    ON CONFLICT ("userId") DO UPDATE SET
-      "currentStreak" = CASE
-        WHEN "UserStreak"."lastActiveDate" = (\${today}::date - INTERVAL '1 day')
-          THEN "UserStreak"."currentStreak" + 1
-        WHEN "UserStreak"."lastActiveDate" = \${today}::date
-          THEN "UserStreak"."currentStreak"
-        ELSE 1
-      END,
-      "lastActiveDate" = \${today}::date,
-      "updatedAt" = NOW()
-    WHERE "UserStreak"."lastActiveDate" < \${today}::date;
-  \`;
+  await pool.query(
+    \`INSERT INTO "UserStreak" ("userId", "lastActiveDate", "currentStreak", "updatedAt")
+     VALUES ($1, $2::date, 1, NOW())
+     ON CONFLICT ("userId") DO UPDATE SET
+       "currentStreak" = CASE
+         WHEN "UserStreak"."lastActiveDate" = ($2::date - INTERVAL '1 day')
+           THEN "UserStreak"."currentStreak" + 1
+         WHEN "UserStreak"."lastActiveDate" = $2::date
+           THEN "UserStreak"."currentStreak"
+         ELSE 1
+       END,
+       "lastActiveDate" = $2::date,
+       "updatedAt" = NOW()
+     WHERE "UserStreak"."lastActiveDate" < $2::date OR "UserStreak"."userId" IS NULL\`,
+    [userId, today]
+  );
 }
 \`\`\`
 
-The entire logic — check yesterday, check today, compute new streak — is a single atomic database operation. No application code reads a value and then writes a derived value. Concurrent calls for the same user will serialize at the database lock level without corrupting the streak count.
+The entire logic — check yesterday, check today, compute new streak — is a single atomic database operation, guarded by the trailing WHERE clause: it doubles as same-day idempotency (a second submission the same day is a no-op, not a second increment) and as anti-backdating (a write can't apply against a date older than what's already stored). No application code reads a value and then writes a derived value. Concurrent calls for the same user serialize at the database lock level without corrupting the streak count.
 
-## Video Walkthrough Quality
+## Video: Buy, Don't Build
 
-Editorial code walkthroughs on a competitive programming platform have a specific quality challenge: the content is code on a dark background. Standard video compression is optimized for natural scenes and photographs, and it performs poorly on text — blurring the fine details in syntax that make or break code legibility.
+Editorial code walkthroughs on a competitive programming platform have a specific quality challenge: the content is code on a dark background, and standard video compression optimized for natural scenes tends to blur the fine syntax details that make code legible.
 
-We encode video content in HLS with multiple quality tiers, but the top-tier encoding profile is configured explicitly for code content: higher quantization parameter limits for text regions, reduced temporal compression, and target bitrate that prioritizes sharp edges over smooth gradients.
+The instinct is to reach for a custom encoding profile — tuned quantization, reduced temporal compression, all the FFmpeg knobs. We didn't build that. Walkthroughs are delivered through BunnyCDN Stream, which handles HLS segmentation and adaptive bitrate on its own, or a plain YouTube embed where that's simpler. Legible video-of-code at reasonable cost is a solved problem one layer up the stack; building a custom transcoding pipeline would have meant maintaining infrastructure that mostly re-implements what a CDN already does well, for a marginal quality gain that never got prioritized against actual product work.
 
-The encoding configuration is a single FFmpeg preset that content creators run locally before uploading. The infrastructure side handles HLS segmentation and CDN distribution automatically. The hard part was getting the quality parameters right, which required testing the encoding against several monitors, devices, and network conditions to find settings that were legible under all conditions.`,
+## What Held Up, What Didn't
+
+The streak upsert design held up exactly as built — it's still the atomic, single-round-trip operation described above, running unmodified under real midnight traffic. The "cohort pacing" idea didn't survive contact with actual instructors using the platform; a manual publish flow turned out to be both simpler to build and easier for content creators to reason about than a scheduler would have been.`,
   },
   {
     slug: "high-speed-edge-verification-institutional-credentials",

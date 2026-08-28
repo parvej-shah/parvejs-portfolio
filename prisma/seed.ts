@@ -215,7 +215,7 @@ For payments, instead of trusting the webhook payload, every IPN triggers an act
       slug: "codervai-cp",
       title: "Codervai CP Platform",
       summary:
-        "Competitive programming training platform for BUET CSE alumni and Googlers at Codervai. Timed module unlocking keeps 2,000+ students on a shared learning pace. Atomic PostgreSQL upserts handle streak tracking without race conditions when thousands of students submit near midnight.",
+        "Competitive programming training platform for BUET CSE alumni and Googlers at Codervai. An admin-triggered chapter-publishing flow keeps 4,000+ students moving through curated modules. Atomic PostgreSQL upserts handle streak tracking without race conditions when thousands of students submit near midnight.",
       status: "PUBLISHED" as const,
       featured: true,
       client: "Codervai / BUET CSE Alumni & Googlers",
@@ -227,30 +227,28 @@ For payments, instead of trusting the webhook payload, every IPN triggers an act
         "TypeScript",
         "Tailwind CSS",
         "Node.js",
-        "PostgreSQL",
-        "Prisma ORM",
-        "HLS Video Streaming",
+        "PostgreSQL (raw SQL via node-postgres)",
+        "HLS Video Streaming (BunnyCDN Stream + YouTube)",
       ],
       keyFeatures: [
-        "Temporal module unlocking based on cohort schedule — calendar-driven pacing like a university course, not ability gating",
-        "Atomic SQL UPSERT for streak tracking: check-yesterday, check-today, and compute-new-streak in a single database operation with no race conditions",
+        "Admin-triggered chapter publishing: instructors flip a chapter live from the CMS, which immediately notifies every enrolled student — a simple, reliable release mechanism instead of the more failure-prone cron-scheduled pacing it was pitched as",
+        "Atomic SQL UPSERT for streak tracking: a single INSERT ON CONFLICT DO UPDATE with CASE logic decides same-day/consecutive-day/reset in one database round-trip, with same-day idempotency and anti-backdating built into the WHERE clause",
         "300+ curated algorithmic problems from C++ STL fundamentals through Dynamic Programming, Graphs, and Trees",
-        "HLS video encoding profile tuned for code content: higher quantization limits for text regions, reduced temporal compression for sharp monospace fonts",
-        "Student dashboard tracking module completion, learning streaks, and cohort ranking",
+        "Live cohort leaderboard ranking students by problems solved and streak, backed by the same streak-tracking data",
+        "Video walkthroughs delivered via BunnyCDN Stream (HLS) or YouTube embeds — no custom encoding pipeline, because reinventing video infrastructure wasn't worth the engineering cost for this platform",
+        "Student dashboard tracking module completion, learning streaks, and leaderboard position",
         "Problem solutions paired with video walkthroughs explaining the reasoning, not just the accepted code",
       ],
       problem: `Competitive programming has a well-known attrition problem: students get access to a large problem bank, attempt problems that are too advanced for their current level, get frustrated, and drop out. The knowledge dependency tree is real — you can't reason about graph algorithms if you're still shaky on recursion.
 
-The Codervai team — BUET CSE alumni and Google engineers — wanted a structured training program that enforced the right learning sequence without feeling like a rigid lockdown. They also needed streak tracking that held up under concurrent midnight submissions, where thousands of students rushed to maintain streaks before the daily reset.`,
-      approach: `The module unlock design uses temporal pacing rather than competency gating. Each cohort runs on a fixed schedule: module 1 from day 0, module 2 from day 7, and so on. All students see the same modules on the same calendar days — creating a shared experience that makes the Discord community useful rather than fractured across different curriculum points.
+The Codervai team — BUET CSE alumni and Google engineers — wanted a structured training program that enforced the right learning sequence without feeling like a rigid lockdown. Engagement mechanics like daily streaks only work if they're trustworthy — a burst of near-midnight submissions, all racing to protect a streak before the day resets, will silently corrupt a naively-implemented counter under concurrent load.`,
+      approach: `Course content ships as chapters that instructors publish explicitly from the admin CMS rather than on a fixed cohort calendar — a chapter goes live the moment it's ready, and every enrolled student is notified immediately. That's a deliberate trade: less "shared pacing" theater, more reliability, since a publish button doesn't silently fail the way a cron-scheduled unlock can.
 
-The streak concurrency problem required moving all logic to the database level. The naive approach — read the current streak, compute the new value, write it back — has a race condition when two submissions arrive for the same user within milliseconds. The fix was a single atomic SQL INSERT ON CONFLICT DO UPDATE with CASE logic: check whether yesterday was active, whether today has already been counted, or whether the streak needs to reset. No application code reads a value before writing.`,
-      solution: `The platform launched with structured curriculum cohorts. Students enroll, receive access to day-0 modules immediately, and watch new modules unlock on the cohort schedule. Each module contains curated problems with in-depth video editorial walkthroughs that explain reasoning and trade-offs rather than just showing the accepted solution.
+The streak concurrency problem required moving all logic to the database level. The naive approach — read the current streak, compute the new value, write it back — has a race condition when two submissions arrive for the same user within milliseconds. The fix is a single atomic SQL INSERT ON CONFLICT DO UPDATE with CASE logic: check whether yesterday was active, whether today has already been counted, or whether the streak needs to reset, all inside one WHERE-guarded statement so a stale write can't clobber a newer one.
 
-Video encoding was optimized specifically for code content — dark IDE backgrounds with monospace syntax need higher sharpness settings than natural scenes. The resulting quality keeps code text legible even at lower bitrates on mobile connections.`,
-      results: `The platform enrolled over 2,000 students across training cohorts. The temporal module structure kept students on a shared learning pace, which showed up in the Discord community as genuine peer learning rather than isolated struggles.
-
-Streak tracking runs correctly under concurrent midnight submissions without any duplicate increments or missed streaks — the atomic SQL implementation handles concurrency transparently at the database level.`,
+For video, we deliberately didn't build a custom encoding pipeline. Editorial walkthroughs are delivered through BunnyCDN Stream (HLS) or plain YouTube embeds — proven infrastructure for the actual problem, rather than an in-house transcoding stack that would mostly duplicate what a CDN already does well.`,
+      solution: `The platform runs as a structured curriculum with a live problem bank and an admin-controlled publishing flow: students get access to a chapter the moment an instructor marks it live, with an immediate notification. Each module pairs curated problems with in-depth video editorial walkthroughs — delivered via a CDN, not custom video infrastructure — that explain reasoning and trade-offs rather than just showing the accepted solution. A cohort leaderboard, driven by the same streak-tracking data, gives students a live sense of where they stand.`,
+      results: `The platform has enrolled 4,000+ students across training cohorts, working through a bank of 300+ curated algorithmic problems. Streak tracking runs correctly under concurrent midnight submissions without duplicate increments or missed streaks — the atomic SQL implementation handles concurrency transparently at the database level, with same-day idempotency and anti-backdating guards built into the query itself.`,
       liveUrl: "https://cpnew.codervai.com",
       gallery: [
         { url: "/projects/codervai-courses.png", alt: "Codervai All Courses & Bundle Catalog" },

@@ -33,6 +33,7 @@ const projectMetaTitleMap: Record<string, string> = {
   "cprbd-du": "CPRBD DU Case Study: Certification & Tuition Platform | Parvej Shah",
   "mathpro-academy": "MathPro Academy Case Study: EdTech Platform with KaTeX | Parvej Shah",
   "sellervai": "SellerVai Case Study: Conversational Commerce Platform | Parvej Shah",
+  "codervai-cp": "Codervai CP Case Study: Competitive Programming Platform | Parvej Shah",
 };
 
 // The DB summary is written for the on-page intro paragraph and runs 300-400
@@ -47,6 +48,8 @@ const projectMetaDescriptionMap: Record<string, string> = {
     "EdTech platform for 4,000+ Bangladeshi students: client-side KaTeX rendering, SSLCommerz/MFS checkout with bundles, and a no-code admin backend.",
   "sellervai":
     "Conversational commerce agent for Bangladeshi merchants: message debouncing, hybrid product search, intent scoring, and a merchant analytics dashboard.",
+  "codervai-cp":
+    "Competitive programming platform for 4,000+ students: atomic PostgreSQL streak upserts, admin-triggered chapter publishing, and CDN video walkthroughs.",
 };
 
 const caseStudySections = [
@@ -111,6 +114,14 @@ const projectKeywordsMap: Record<string, string[]> = {
     "SSLCommerz multi-installment",
     "visual certificate designer",
     "block-based CMS",
+  ],
+  "codervai-cp": [
+    "Codervai CP",
+    "competitive programming platform",
+    "atomic SQL upsert streak tracking",
+    "PostgreSQL race condition",
+    "admin-triggered content publishing",
+    "BunnyCDN Stream HLS video",
   ],
 };
 

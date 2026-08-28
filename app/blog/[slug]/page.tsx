@@ -122,13 +122,12 @@ const postKeywordsMap: Record<string, string[]> = {
     "consensus QA",
   ],
   "scaling-competitive-programming-lms-architectures": [
-    "CoderVai CP",
+    "Codervai CP",
     "competitive programming LMS",
-    "ICPC contest scoring",
-    "Redis streak counter",
-    "DAG prerequisite curriculum",
-    "University of Dhaka BSSE",
-    "automated code judge",
+    "PostgreSQL atomic upsert",
+    "streak tracking race condition",
+    "admin-triggered content publishing",
+    "BunnyCDN Stream HLS",
   ],
   "nextjs-16-turbopack-deep-dive": [
     "Next.js 16 Turbopack",
