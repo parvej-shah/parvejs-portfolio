@@ -34,6 +34,18 @@ const projectMetaTitleMap: Record<string, string> = {
   "mathpro-academy": "MathPro Academy Case Study: EdTech Platform with KaTeX | Parvej Shah",
 };
 
+// The DB summary is written for the on-page intro paragraph and runs 300-400
+// chars — too long for a SERP snippet, which Google truncates around ~155-160.
+// Shorter, meta-only descriptions for the case studies verified against source.
+const projectMetaDescriptionMap: Record<string, string> = {
+  "genmorphics-ai":
+    "Enterprise workforce platform for GenMorphics AI: skill-based task routing, a custom NDA lifecycle engine, database-driven RBAC, and automated payroll.",
+  "cprbd-du":
+    "Credentialing platform for CPRBD at University of Dhaka: template-driven certificates, SSLCommerz multi-installment tuition, and a no-code staff CMS.",
+  "mathpro-academy":
+    "EdTech platform for 4,000+ Bangladeshi students: client-side KaTeX rendering, SSLCommerz/MFS checkout with bundles, and a no-code admin backend.",
+};
+
 const caseStudySections = [
   { key: "problem", label: "Problem", step: "01", icon: CircleHelp },
   { key: "approach", label: "Approach", step: "02", icon: Compass },
@@ -127,16 +139,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     : `${defaultSiteUrl}/og.jpg`;
 
   const pageTitle = projectMetaTitleMap[slug] || `${project.title} — Case Study | Parvej Shah`;
+  const pageDescription = projectMetaDescriptionMap[slug] || project.summary;
 
   return {
     title: pageTitle,
-    description: project.summary,
+    description: pageDescription,
     keywords,
     alternates: { canonical: `/projects/${project.slug}` },
     openGraph: {
       type: "article",
       title: pageTitle,
-      description: project.summary,
+      description: pageDescription,
       url: `/projects/${project.slug}`,
       images: [
         {
@@ -151,7 +164,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     twitter: {
       card: "summary_large_image",
       title: pageTitle,
-      description: project.summary,
+      description: pageDescription,
       images: [absoluteImageUrl],
       creator: "@parvejshah",
     },
