@@ -516,11 +516,6 @@ The Manifest V3 service worker implementation handles the browser's aggressive t
 import { blogPosts } from "./posts-data";
 
 async function seedPosts() {
-  const validSlugs = blogPosts.map((p) => p.slug);
-  await prisma.post.deleteMany({
-    where: { slug: { notIn: validSlugs } },
-  });
-
   for (const postData of blogPosts) {
     const { coverImage, ...postFields } = postData;
 
