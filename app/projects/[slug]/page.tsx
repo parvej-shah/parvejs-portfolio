@@ -28,6 +28,12 @@ type PageProps = {
 
 const defaultSiteUrl = "https://parvejshah.com";
 
+const projectMetaTitleMap: Record<string, string> = {
+  "genmorphics-ai": "GenMorphics AI Case Study: Workforce Management Platform | Parvej Shah",
+  "cprbd-du": "CPRBD DU Case Study: Certification & Tuition Platform | Parvej Shah",
+  "mathpro-academy": "MathPro Academy Case Study: EdTech Platform with KaTeX | Parvej Shah",
+};
+
 const caseStudySections = [
   { key: "problem", label: "Problem", step: "01", icon: CircleHelp },
   { key: "approach", label: "Approach", step: "02", icon: Compass },
@@ -120,14 +126,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       : `${defaultSiteUrl}${project.gallery[0].url}`
     : `${defaultSiteUrl}/og.jpg`;
 
+  const pageTitle = projectMetaTitleMap[slug] || `${project.title} — Case Study | Parvej Shah`;
+
   return {
-    title: `${project.title} — Case Study | Parvej Shah`,
+    title: pageTitle,
     description: project.summary,
     keywords,
     alternates: { canonical: `/projects/${project.slug}` },
     openGraph: {
       type: "article",
-      title: `${project.title} — Case Study | Parvej Shah`,
+      title: pageTitle,
       description: project.summary,
       url: `/projects/${project.slug}`,
       images: [
@@ -142,7 +150,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     twitter: {
       card: "summary_large_image",
-      title: `${project.title} — Case Study | Parvej Shah`,
+      title: pageTitle,
       description: project.summary,
       images: [absoluteImageUrl],
       creator: "@parvejshah",
