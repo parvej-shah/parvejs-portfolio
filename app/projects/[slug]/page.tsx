@@ -32,6 +32,7 @@ const projectMetaTitleMap: Record<string, string> = {
   "genmorphics-ai": "GenMorphics AI Case Study: Workforce Management Platform | Parvej Shah",
   "cprbd-du": "CPRBD DU Case Study: Certification & Tuition Platform | Parvej Shah",
   "mathpro-academy": "MathPro Academy Case Study: EdTech Platform with KaTeX | Parvej Shah",
+  "sellervai": "SellerVai Case Study: Conversational Commerce Platform | Parvej Shah",
 };
 
 // The DB summary is written for the on-page intro paragraph and runs 300-400
@@ -44,6 +45,8 @@ const projectMetaDescriptionMap: Record<string, string> = {
     "Credentialing platform for CPRBD at University of Dhaka: template-driven certificates, SSLCommerz multi-installment tuition, and a no-code staff CMS.",
   "mathpro-academy":
     "EdTech platform for 4,000+ Bangladeshi students: client-side KaTeX rendering, SSLCommerz/MFS checkout with bundles, and a no-code admin backend.",
+  "sellervai":
+    "Conversational commerce agent for Bangladeshi merchants: message debouncing, hybrid product search, intent scoring, and a merchant analytics dashboard.",
 };
 
 const caseStudySections = [
@@ -94,11 +97,12 @@ const projectKeywordsMap: Record<string, string[]> = {
   "sellervai": [
     "SellerVai",
     "conversational commerce bot",
-    "FastAPI LangGraph",
-    "PGVector FastEmbed",
-    "Gemini Vision product search",
+    "FastAPI DeepSeek agent",
+    "PGVector FastEmbed hybrid search",
+    "Gemini Vision marketing content",
     "Meta Graph API WhatsApp Messenger",
     "message debouncing",
+    "intent qualification scoring",
   ],
   "cprbd-du": [
     "CPRBD DU",

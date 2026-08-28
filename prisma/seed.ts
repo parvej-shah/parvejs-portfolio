@@ -121,43 +121,42 @@ Access control isn't hardcoded into the app's role checks — permissions are ro
       slug: "sellervai",
       title: "SellerVai",
       summary:
-        "Multi-modal conversational commerce platform for online merchants in Bangladesh. Combines FastAPI, PGVector with FastEmbed, Gemini Vision (for product photo recognition), DeepSeek in Banglish, and a 7-second Message Debouncer across Messenger, WhatsApp, and Instagram.",
+        "Conversational commerce platform for online merchants in Bangladesh. A per-conversation message debouncer, hybrid product search, and a DeepSeek-powered sales agent handle customer chat across Messenger, Instagram, WhatsApp, and Telegram, backed by a merchant analytics dashboard and automated follow-up nudges.",
       status: "PUBLISHED" as const,
       featured: true,
-      client: "SellerVai Technologies",
+      client: "SellerVai",
       role: "Lead Full-Stack & AI Engineer",
       timeline: "2025 – 2026",
       techStack: [
         "FastAPI (Python, Async)",
         "Next.js (App Router)",
-        "PostgreSQL + PGVector",
+        "PostgreSQL + PGVector (RAG fallback search)",
         "FastEmbed (multilingual-e5-small)",
-        "Gemini Vision API",
-        "DeepSeek via LangChain / LangGraph",
-        "Meta Graph API (Messenger, WhatsApp, IG)",
+        "Gemini Vision API (merchant marketing-post generation)",
+        "DeepSeek via LangChain (hand-rolled tool-calling agent)",
+        "Meta Graph API (Messenger, Instagram, WhatsApp)",
         "Telegram Bot API",
         "SQLAlchemy (Async)",
+        "APScheduler (offline analysis & follow-up dispatch)",
       ],
       keyFeatures: [
-        "Per-Conversation Message Debouncer (7.0s quiet buffer): aggregates rapid-fire multi-message bursts into a single coherent prompt",
-        "Multi-modal product recognition: Gemini Vision extracts apparel and gadget attributes from customer screenshots/photos",
-        "Multilingual vector similarity search: FastEmbed + PGVector cosine matching against merchant catalog SKUs in sub-15ms",
-        "Natural Banglish conversational agent: DeepSeek generates friendly, colloquial responses with price, size availability, and delivery info",
-        "Omnichannel Meta Graph webhook ingestion: unified inbox covering Facebook Messenger, Instagram DMs, WhatsApp, and Telegram",
-        "Automated Cash on Delivery (COD) screening and order checkout link generation",
+        "Per-conversation message debouncer: an in-memory 7-second quiet-window buffer merges rapid-fire multi-message bursts into one prompt — single-process by design, with the Redis migration path already scoped in code comments for when it needs to scale past one worker",
+        "Gemini Vision-powered marketing content: merchants upload product photos and Gemini Vision extracts attributes to auto-draft social posts — a merchant tool, not customer-facing recognition",
+        "Hybrid product search: SQL ILIKE match first, with PGVector semantic search as a fallback over merchant-uploaded catalogs and documents for Banglish queries ILIKE misses",
+        "Deterministic intent-qualification scoring: the LLM reports only observed signals (unprompted contact info, prior delivered orders, price-only questions, hard haggling) — it never assigns the score itself — and a low score nudges the agent toward requesting advance bKash payment instead of blind COD",
+        "Merchant analytics suite fed by a scheduled offline conversation analyzer: conversion funnel, lost-reason analysis with estimated taka lost, demand-gap detection, and stockout cost estimation — WON outcomes are read directly from the order record, the LLM only classifies the ambiguous LOST/NO_RESPONSE cases",
+        "Staged follow-up nudges (1h/24h/72h) after a buying-intent signal goes quiet, with platform-aware compliance — only the first-stage nudge is allowed on Messenger under its 24-hour messaging-window policy, later stages are cancelled there automatically",
+        "Omnichannel webhook ingestion across Messenger, Instagram, WhatsApp, and Telegram, processed asynchronously per request",
+        "Order creation with per-store daily follow-up caps and instant cancellation on any customer reply, order, or opt-out",
       ],
-      problem: `In Bangladeshi social commerce, customers do not use search bars or SKU codes. They send screenshots of products to a seller's Facebook page or WhatsApp with rapid-fire Banglish texts (*"ei design ta ache? dam koto?"*).
+      problem: `In Bangladeshi social commerce, customers don't use search bars or SKU codes — they send screenshots and rapid-fire Banglish texts (*"ei design ta ache? dam koto?"*) straight to a seller's Facebook page or WhatsApp. Naive bots fire a completion per message, producing chaotic duplicate replies.
 
-Naive webhook bots fire 3 parallel LLM completions for 3 rapid messages, generating chaotic duplicate replies, confusing the customer, and blowing up API token costs.`,
-      approach: `We engineered a multi-modal pipeline on FastAPI:
-1. Inbound webhooks pass through an asynchronous \`MessageDebouncer\` that buffers rapid messages until a 7-second quiet window is reached.
-2. If the customer attached a photo, Gemini Vision extracts visual product features (cut, color, material).
-3. FastEmbed (\`intfloat/multilingual-e5-small\`) computes embeddings to query PostgreSQL PGVector for the top matching store SKUs.
-4. DeepSeek via LangGraph crafts a natural, hospitable Banglish reply containing price, stock status, delivery fees, and order confirmation links.`,
-      solution: `SellerVai automates 85% of routine social commerce interactions without human intervention. Merchants maintain a unified cross-platform dashboard while the AI salesperson handles product inquiries, photo lookups, and COD order collection 24/7.`,
-      results: `Duplicate bot responses were completely eliminated (-68.7% noise reduction). Product screenshot recognition achieved a 91.4% Top-1 SKU match accuracy.
+Separately, merchants had no visibility into why conversations weren't converting — a customer who asked about price and vanished looked identical, from the merchant's side, to one who was never going to buy.`,
+      approach: `Inbound webhooks from all four channels are debounced per-conversation — a 7-second in-memory quiet window merges rapid-fire messages into one prompt before the agent sees them. Product lookups run SQL ILIKE first, falling back to PGVector semantic search over merchant-uploaded catalogs and documents when a Banglish query doesn't match literally. A hand-rolled DeepSeek tool-calling loop handles the conversation, and every order it creates carries a deterministic intent score built from signals the LLM reports but never scores itself — low-intent orders get nudged toward advance payment instead of blind COD.
 
-Token spend per conversation dropped by 70.8%, while lead-to-order conversion rates increased by 119.6% across participating merchants.`,
+Underneath the live conversation, a scheduled analyzer classifies each idle conversation for the merchant dashboard — but only the ambiguous outcomes go through an LLM; whether an order actually converted is read straight from the database, not inferred. That feeds a real insights dashboard (funnel, lost-reasons, demand gaps, stockout cost) and a staged follow-up system that nudges quiet-but-interested customers back, respecting each platform's own messaging-window rules.`,
+      solution: `SellerVai runs as a single AI salesperson across a merchant's Messenger, Instagram, WhatsApp, and Telegram, replying with price, stock, and delivery info from an evolving product catalog and knowledge base. Merchants get a dashboard that explains why conversations are being lost, not just how many closed, and a follow-up system that re-engages the ones that went quiet without crossing platform messaging policies.`,
+      results: `Rapid-fire message bursts get one coherent reply instead of several duplicate ones, by construction — the debouncer makes duplicate bot replies structurally impossible, not just less frequent. Merchants get lost-reason, demand-gap, and stockout-cost visibility they didn't have before, computed from real order and conversation data rather than guesswork. The follow-up system re-engages buying-intent conversations that went quiet, without violating Messenger's 24-hour messaging window.`,
       liveUrl: "https://www.sellervai.com",
       gallery: [
         { url: "/projects/sellervai-home.png", alt: "SellerVai AI Social Commerce Salesperson & Multichannel Platform" },

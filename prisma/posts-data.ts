@@ -370,113 +370,73 @@ The technical complexity here was never really about AI — it was a direct tran
   },
   {
     slug: "conversational-commerce-webhook-architecture",
-    title: "Building a Chat-Based Sales Bot That Doesn't Drop Messages During Flash Sales",
+    title: "A Debouncer That Doesn't Scale Past One Worker (On Purpose, For Now)",
     excerpt:
-      "SellerVai processes orders through WhatsApp, Facebook Messenger, and Telegram. During peak traffic, webhook delivery gets messy. Here's the architecture that keeps every message processed exactly once.",
+      "SellerVai merges rapid-fire customer messages into one reply using an in-memory buffer that explicitly can't run on more than one process. Here's why that's the right call today, and what the code already says about the day it isn't.",
     coverImage: {
       url: "/blog/conversational-commerce-webhooks.png",
       alt: "Conversational Commerce Webhook Architecture Cover",
     },
     featured: false,
     publishedAt: new Date("2026-01-28T11:15:00.000Z"),
-    content: `In Bangladesh and much of South and Southeast Asia, e-commerce doesn't look like what a Silicon Valley product manager pictures. Buyers don't browse product catalogs, add items to carts, and check out with saved payment methods. They send a message on Facebook or WhatsApp, ask if an item is in stock, negotiate slightly, confirm their address, and pay by mobile banking transfer. The entire purchase funnel is a conversation.
+    content: `In Bangladesh and much of South and Southeast Asia, e-commerce doesn't look like what a Silicon Valley product manager pictures. Buyers don't browse a catalog and check out with a saved card. They send a message on Facebook or WhatsApp, ask if an item is in stock, negotiate slightly, confirm their address, and pay cash on delivery or by mobile banking transfer. The entire purchase funnel is a conversation.
 
-**SellerVai** is a platform built for exactly this reality: a 24/7 automated sales assistant that handles order inquiries, processes orders in Bengali and Banglish, and filters fake Cash-on-Delivery (COD) requests across WhatsApp Business API, Facebook Messenger, and Telegram.
+**SellerVai** is built for exactly this reality — a sales agent that handles order inquiries across WhatsApp, Facebook Messenger, and Instagram, in Bengali and Banglish. The first engineering problem it has to solve isn't the AI. It's that customers don't send one message — they send four.
 
-The core engineering challenge wasn't the AI. It was the plumbing.
+## The Problem With Multi-Message Bursts
 
-## Why Webhooks Are Harder Than They Look
+A real customer message looks less like a single query and more like this, sent as three separate texts twenty seconds apart:
 
-Every message sent to a business on WhatsApp or Facebook triggers an HTTP POST from Meta's servers to your registered webhook URL. The contract is simple: respond with 200 OK within a few seconds, or Meta assumes delivery failed and retries.
+> *"vai ei sneaker ta ki size 42 ache?"*
+> *"cash on delivery hobe?"*
+> *"dhaka te koto din lagbe?"*
 
-When your webhook handler needs to classify intent, query a product database, check inventory, generate a personalized response, and sometimes initiate a payment collection flow — none of which can happen in a few seconds — you have a problem. The naive solution of doing all that work synchronously inside the webhook handler means you're constantly racing against the timeout, and you lose that race regularly during any period of elevated load.
+A webhook handler that reacts to each message independently fires three separate completions for what is, semantically, one question. The customer gets three overlapping replies instead of one coherent answer, and the token bill triples for no benefit.
 
-The retry behavior makes it worse. When Meta doesn't get its 200 OK, it retries the same message. Now you have the same message being processed twice, potentially resulting in the same customer getting two replies, the same order being created twice, or two inventory decrements for a single purchase.
+## The Debouncer, As It Actually Runs
 
-## The Ingestion Architecture
+SellerVai's fix is a per-conversation buffer that waits for a customer to actually finish typing before generating a reply — not a fixed delay, a *quiet window*. Every new message from the same conversation resets the timer; the buffered messages only get flushed to the agent once 7 seconds pass with nothing new arriving.
 
-The solution is to treat the webhook endpoint as nothing more than an authenticated message receiver. Its only responsibility is to verify the signature and acknowledge delivery. All actual processing happens asynchronously.
+\`\`\`python
+# Simplified from the real handler — one buffer per conversation ID,
+# reset on every new message, flushed after 7.0s of silence.
+class MessageDebouncer:
+    def __init__(self, delay: float = 7.0):
+        self.delay = delay
+        self.buffers: dict[str, list[str]] = {}
+        self.timers: dict[str, asyncio.TimerHandle] = {}
 
-\`\`\`typescript
-// Webhook ingestion handler — responds in < 15ms
-export async function POST(req: Request) {
-  const rawBody = await req.text();
-  const signature = req.headers.get("x-hub-signature-256") ?? "";
+    async def add_message(self, conversation_id: str, text: str, on_flush):
+        self.buffers.setdefault(conversation_id, []).append(text)
+        if conversation_id in self.timers:
+            self.timers[conversation_id].cancel()
 
-  if (!verifyMetaSignature(rawBody, signature, META_APP_SECRET)) {
-    return new Response("Forbidden", { status: 403 });
-  }
+        async def flush():
+            messages = self.buffers.pop(conversation_id, [])
+            self.timers.pop(conversation_id, None)
+            await on_flush(conversation_id, "\\n".join(messages))
 
-  const payload = JSON.parse(rawBody) as MetaWebhookPayload;
-
-  await messageQueue.add("process-incoming", {
-    channel: "whatsapp",
-    rawPayload: payload,
-    receivedAt: Date.now(),
-  });
-
-  return new Response("OK", { status: 200 });
-}
+        loop = asyncio.get_event_loop()
+        self.timers[conversation_id] = loop.call_later(
+            self.delay, lambda: asyncio.ensure_future(flush())
+        )
 \`\`\`
 
-A FastAPI background task or in-memory debouncer holds the message context. The webhook handler has already returned 200 OK to Meta and is completely done. The actual work — intent classification, inventory lookup, response generation — happens in worker processes with no timeout pressure.
+Three messages in twenty seconds become one joined prompt, and the agent replies once.
 
-## The Deduplication Layer
+## Why In-Memory, Why Now
 
-Workers can't blindly process everything in the queue. If Meta retried a message three times before getting its 200 OK, there are three copies of that message in the queue.
+This buffer lives entirely in process memory, keyed by conversation ID — there's no Redis, no external store. That's a deliberate, scoped tradeoff, not an oversight, and the code says so directly: this design only works correctly with a single running worker. Run two workers behind a load balancer and a customer's messages could land on different processes, each with no idea the other is buffering the same conversation — the debounce would silently stop working.
 
-Every message gets fingerprinted before processing. The fingerprint is derived from the channel, the sender ID, and the platform's native message ID. The fingerprint goes into our FastAPI in-process debouncer map with a TTL. If the key already exists, that message has been processed recently and the worker skips it.
+For SellerVai's current traffic, one worker handling this path is genuinely fine — no infrastructure dependency, no network hop, no serialization cost, and a buffer that's trivial to reason about because it's just a dict. The migration path is already scoped for the day that stops being true: move the buffer and its timers into Redis, keyed the same way, so any worker can pick up any conversation. That's a known, deliberate future change, not a bug waiting to be found in production.
 
-\`\`\`typescript
-function buildMessageFingerprint(
-  channel: "whatsapp" | "messenger" | "telegram",
-  senderId: string,
-  messageId: string
-): string {
-  return crypto
-    .createHash("sha256")
-    .update(\`\${channel}:\${senderId}:\${messageId}\`)
-    .digest("hex");
-}
+## Async Without a Queue
 
-async function processMessage(event: IncomingMessageEvent): Promise<void> {
-  const fingerprint = buildMessageFingerprint(
-    event.channel,
-    event.senderId,
-    event.messageId
-  );
+The webhook handlers themselves don't push work onto a job queue — they hand off to FastAPI's \`BackgroundTasks\`, which runs the debounce-and-reply logic after the HTTP response has already gone back to Meta or Telegram. That buys simplicity: no queue to operate, no broker to keep alive, no separate worker deployment. What it doesn't buy is durability — a task that's in flight when the process restarts is gone, the same way the debounce buffer is. Both tradeoffs point the same direction: this is a single-process design, made once, applied consistently, not different pieces of the system quietly disagreeing about how much reliability they promise.
 
-  const acquired = await redis.set(
-    \`processed:\${fingerprint}\`,
-    "1",
-    "NX",
-    "EX",
-    300
-  );
+## What We'd Tell the Next Team
 
-  if (!acquired) return; // Duplicate — already processed or in progress
-
-  await runConversationTurn(event);
-}
-\`\`\`
-
-## Parsing Bengali and Banglish
-
-Customer messages in social commerce are colloquial and informal. A real message looks like:
-
-> *"vai ei sneaker ta ki size 42 ache? cash on delivery hobe? dhaka te delivery koto din lagbe?"*
-
-Translation: *"bro is this sneaker available in size 42? can I pay cash on delivery? how many days will delivery take to Dhaka?"*
-
-There are three distinct questions packed into one casual message, written in a mix of Bengali script words and Bengali-language words written in Roman characters.
-
-We use a two-tier parsing approach. A fast regex and keyword engine handles structured data extraction: phone numbers, size numbers, city names, specific product codes. This runs in under 2ms. An LLM classifier handles intent categorization where casual phrasing and code-switching require genuine language understanding.
-
-## Flash Sale Traffic
-
-The real stress test came during a promotional campaign. Traffic spiked to roughly 15 times the baseline over a two-hour window. Because the ingestion layer is stateless and the queue absorbs the burst, the webhook endpoints stayed responsive. Workers processed the queue backlog over the following 20 minutes. Every message was processed. No duplicates were sent.
-
-The architecture didn't require any changes for this scenario because it was designed with this scenario in mind from the start. Most reliability problems in messaging systems aren't hard to solve — they just require thinking through the failure modes before you're in them.`,
+Single-process-first isn't a shortcut you apologize for — it's a legitimate starting point when your actual load doesn't yet justify the operational cost of a queue and a distributed buffer. The mistake isn't choosing it. The mistake is choosing it silently, so nobody knows it's there until two workers get deployed and debouncing quietly breaks. Say it once, in the code, in plain language, and the tradeoff stops being a hidden bug and starts being a decision someone made on purpose.`,
   },
   {
     slug: "rendering-katex-formulas-nextjs-server-components",

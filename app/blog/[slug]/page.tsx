@@ -86,9 +86,9 @@ const postKeywordsMap: Record<string, string[]> = {
   "conversational-commerce-webhook-architecture": [
     "SellerVai",
     "conversational commerce bot",
-    "FastAPI LangGraph",
-    "PGVector FastEmbed",
-    "Gemini Vision product search",
+    "FastAPI async debouncer",
+    "single-worker architecture",
+    "FastAPI BackgroundTasks",
     "message debouncer",
     "Banglish NLP",
     "Meta Graph API Messenger WhatsApp",
