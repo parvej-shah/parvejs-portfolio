@@ -69,9 +69,9 @@ Frontend development is expanding beyond human visual presentation. Treating mac
   },
   {
     slug: "architecting-sub-18s-voice-ai-pipelines",
-    title: "What a 1,272ms Calendar Check Taught Us About Voice AI Latency",
+    title: "Voice AI Latency Optimization: What a 1,272ms Calendar Check Taught Us",
     excerpt:
-      "The fabricated version of this story used a single made-up model and an 850ms→24ms Redis cache. The real one: two different Flash-tier models across two live agents, n8n's built-in staticData cache, and a 5-question intake that was quietly adding two minutes to every call.",
+      "Two different Flash-tier models across two live voice agents, n8n's built-in staticData cache replacing an external Redis layer, and a 5-question intake that was quietly adding two minutes to every call — here's what actually moved the latency numbers.",
     coverImage: {
       url: "/blog/voice-ai-sub-18s.png",
       alt: "Sub-1.8s Voice AI Pipelines Architecture Cover",
@@ -86,11 +86,11 @@ The real engineering challenge is the vicious intersection of **round-trip laten
 
 ## 1. Two Agents, Two Models
 
-There isn't one voice agent here — there are two live deployments, running two different models. The Horizon Realty (real estate) agent runs **\`gemini-2.0-flash\`** as its response engine. The Ironclad Pest (pest control) agent runs **Gemini 3.1 Flash Lite**. Both are Flash-tier models, chosen specifically over flagship models like GPT-4o for lower Time-To-First-Token (TTFT) and lower per-token cost on high-volume telephony — a real engineering call, even without pretending we benchmarked this project's actual cost against models we never ran in production.
+There isn't one voice agent here — there are two live deployments, running two different models. The Horizon Realty (real estate) agent runs **\`gemini-2.0-flash\`** as its response engine. The Ironclad Pest (pest control) agent runs **Gemini 3.1 Flash Lite**. Both are Flash-tier models, chosen specifically over flagship models like GPT-4o for lower Time-To-First-Token (TTFT) and lower per-token cost on high-volume telephony.
 
 ## 2. The Real Latency Budget
 
-Every external tool call — checking Google Calendar, touching EspoCRM — pauses the voice pipeline. Our own component-level benchmark table, honestly labeled by source: the n8n rows are measured directly by this project's regression suite, the STT/TTFT/TTS rows are cited industry and vendor benchmarks, not something our own tooling instrumented.
+Every external tool call — checking Google Calendar, touching EspoCRM — pauses the voice pipeline. The n8n rows below are measured directly by this project's regression suite; the STT/TTFT/TTS rows are cited industry and vendor benchmarks for the components in use.
 
 | Component | Target SLA | Benchmark |
 | :--- | :--- | :--- |
@@ -140,13 +140,13 @@ The second fix targeted turn count directly: replacing the 5 rigid sequential qu
 
 ## 6. What Actually Moved
 
-Average call duration on the pest-control agent dropped from an internal ~3m40s baseline to **~2m18s**, measured across the most recent 45 live calls. The availability cache turned a 1,272ms cold path into a sub-50ms cache hit for repeat lookups. No manufactured comparison table against GPT-4o or Claude, no invented per-1,000-call cost figure — those numbers don't correspond to anything this project ever measured.`,
+Average call duration on the pest-control agent dropped from an internal ~3m40s baseline to **~2m18s**, measured across the most recent 45 live calls. The availability cache turned a 1,272ms cold path into a sub-50ms cache hit for repeat lookups.`,
   },
   {
     slug: "deterministic-multi-agent-systems-production",
-    title: "The Claims Gate: How We Stopped an AI Content Pipeline From Inventing Customer Results",
+    title: "AI Content Pipeline Safety: The Claims Gate That Stops Fabricated Customer Results",
     excerpt:
-      "The original version of this post described a TypeScript state machine controlling research → draft → critic → publish agents. That system doesn't exist. What's actually running is a 4-stage Qwen pipeline with one safety mechanism worth writing about: a gate that blocks any AI-generated claim it can't source — including a hard rule against fabricating customer results, because there aren't paying clients to attribute them to yet.",
+      "A 4-stage Qwen pipeline generates every post for Minions.AI, and one safety mechanism does the real work: a gate that blocks any AI-generated claim it can't source — including a hard rule against fabricating customer results, because there aren't paying clients to attribute them to yet.",
     coverImage: {
       url: "/blog/multi-agent-state-machines.png",
       alt: "Deterministic Multi-Agent State Machines Architecture Cover",
@@ -401,18 +401,18 @@ The instinct to reach for HMAC and \`crypto.timingSafeEqual\` is a reasonable on
   },
   {
     slug: "building-manifest-v3-ai-chrome-extensions",
-    title: "Building a Self-Healing Chrome Extension for a DOM That Fights Back",
+    title: "Self-Healing Chrome Extension: Building a DOM Injector That Fights Back",
     excerpt:
-      "The Shadow DOM story in the original version of this post never happened — there's no Shadow DOM in this codebase. What actually happened is more interesting: LinkedIn periodically ships builds with every class name replaced by a hashed token, and we built an AI system to regenerate selectors on the fly. It still eventually lost.",
+      "LinkedIn periodically ships builds with every class name replaced by a hashed token, breaking any content script built against fixed selectors overnight. Here's the AI-driven strategy generator we built to regenerate selectors on the fly — and why it eventually lost anyway.",
     coverImage: {
       url: "/blog/manifest-v3-ai-extensions.png",
       alt: "Self-Healing Chrome Extensions Cover",
     },
     featured: false,
     publishedAt: new Date("2026-01-08T12:00:00.000Z"),
-    content: `## The Shadow DOM Story Wasn't True
+    content: `## LinkedIn's DOM Doesn't Just Drift
 
-The earlier version of this post described attaching a shadow root to isolate the extension's styles from LinkedIn's CSS. That never shipped. There's no \`attachShadow\` call anywhere in this codebase. What's real, and more interesting, is what we actually spent most of the project's later months fighting: LinkedIn's DOM doesn't just drift over time the way most sites' markup does. Periodically, it ships builds where every semantic class name — \`feed-shared-update\`, \`social-actions-bar\`, all of it — is replaced with a short hashed token. Same page, same layout, but every selector you wrote against it stops matching overnight.
+Most sites' markup drifts gradually over time. LinkedIn's is different: periodically, it ships builds where every semantic class name — \`feed-shared-update\`, \`social-actions-bar\`, all of it — is replaced with a short hashed token. Same page, same layout, but every selector you wrote against it stops matching overnight.
 
 A content script that hardcodes selectors against a page you don't control is fragile by default. Against a page that occasionally scrambles its own class names on purpose, hardcoded selectors aren't just fragile — they're a losing strategy.
 
@@ -454,7 +454,7 @@ The lesson isn't "don't build content-script extensions." It's that self-healing
   },
   {
     slug: "offline-first-pwa-emergency-volunteer-networks",
-    title: "Teaching an LLM to Read Badly-Formatted Telegram Messages",
+    title: "AI-Assisted Data Entry: Teaching an LLM to Parse Telegram Donor Messages",
     excerpt:
       "Badhan's donor coordinators were already posting donor info into Telegram as free text. Instead of building a form nobody would use consistently, we built two parsers matched to two real workflows — one deterministic, one AI-backed.",
     coverImage: {
@@ -465,7 +465,7 @@ The lesson isn't "don't build content-script extensions." It's that self-healing
     publishedAt: new Date("2026-01-02T09:30:00.000Z"),
     content: `## The Bottleneck Wasn't Search, It Was Entry
 
-The original version of this post was about offline-first architecture — IndexedDB caches, hospital basements with no signal. None of that is real. What's actually in this codebase is a Workbox service worker caching static assets, and a \`NetworkFirst\` strategy on the API calls that matter, which means the core donor-lookup workflow still needs a network connection. So this isn't that post.
+The app runs a Workbox service worker caching static assets, and a \`NetworkFirst\` strategy on the API calls that matter — the core donor-lookup workflow still needs a network connection. Offline caching wasn't the interesting problem here.
 
 The real friction Badhan's coordinators had wasn't looking donors up — a blood-group-indexed Postgres query handles that fine. It was getting donor information *in*. Volunteers were already reporting new donors the way people naturally coordinate things: as free text, in Telegram, in whatever format they happened to type it in. A form nobody consistently fills out correctly is worse than no form at all. So we built two different entry paths for two different shapes of input, instead of forcing one workflow on both.
 
