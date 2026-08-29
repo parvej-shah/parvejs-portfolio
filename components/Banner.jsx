@@ -10,11 +10,11 @@ import { cn } from "@/lib/utils";
 import { resolveSectionImage } from "@/lib/section-rendering";
 
 const defaultHero = {
-  eyebrow: "Full Stack Web Developer",
-  headlineLines: ["From idea", "to product", "to profit."],
+  eyebrow: "Software Engineer & AI Systems Developer",
+  headlineLines: ["From architecture", "to production", "to scale."],
   description:
-    "I design and build full-stack web products that load fast, feel effortless, and turn visitors into customers — from the first wireframe to the final deploy.",
-  primaryCta: { label: "Get a Free Quote", href: "#contact" },
+    "I design and build production AI voice pipelines, high-concurrency backend infrastructure, and full-stack web products that load fast and feel effortless.",
+  primaryCta: { label: "Start a Project", href: "#contact" },
   secondaryCta: { label: "View My Work", href: "#portfolio" },
   trustLabel: "Trusted by 12+ clients",
   trustStats: [
@@ -22,7 +22,7 @@ const defaultHero = {
     { value: "<24h", label: "response time" },
   ],
   portraitImage: "/assets/images/banner-cutout.webp",
-  portraitAlt: "Parvej Shah — Full Stack Web Developer",
+  portraitAlt: "Parvej Shah — Software Engineer & AI Systems Developer",
   experienceBadge: { value: "3+", label: "years experience" },
 };
 

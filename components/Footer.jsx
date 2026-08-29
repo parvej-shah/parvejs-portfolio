@@ -12,7 +12,7 @@ const quickLinks = [
 
 const defaultFooter = {
   tagline:
-    "High-performance web products, built with clarity, care, and code that's made to last.",
+    "Production AI systems and high-performance web products, built with precision, speed, and code made to last.",
   email: "parvejshahlabib007@gmail.com",
   location: "Dhaka, Bangladesh",
   newsletterHeading: "Let's stay in touch",
@@ -20,7 +20,7 @@ const defaultFooter = {
   ctaLabel: "Start a Project",
   ctaHref: "/#contact",
   copyrightName: "Parvej Shah Labib",
-  copyrightRole: "Full Stack Web Developer",
+  copyrightRole: "Software Engineer & AI Systems Developer",
 };
 
 export default async function Footer() {

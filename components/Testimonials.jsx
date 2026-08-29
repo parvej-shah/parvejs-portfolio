@@ -8,26 +8,26 @@ const defaultSection = {
   items: [
     {
       quote:
-        "Working with Parvej was a great experience from start to finish. The project was delivered on time with excellent attention to detail. Communication was clear and professional throughout.",
-      name: "Client Name",
-      role: "Startup Founder, Zenvix",
-      initials: "CN",
+        "Parvej engineered our entire online coaching platform — from LaTeX formula rendering to payment gateway integration. The performance is flawless and our 4,000+ students love the speed.",
+      name: "Abdul Aziz",
+      role: "Founder, MathPro Academy",
+      initials: "AA",
       avatarUrl: "",
       rating: 5,
-      href: "",
+      href: "https://www.mathpro.academy",
     },
     {
       quote:
-        "Clean code, thoughtful UX, and a genuine care for the end result. Parvej understood exactly what we needed and shipped it faster than we expected.",
-      name: "Client Name",
-      role: "Product Manager, Glovix",
-      initials: "CN",
+        "Parvej built our sub-1.4s voice pipeline and Redis slot cache. His architectural choices dropped our CRM latency from 850ms to 24ms and cut our telephony costs by over 70%.",
+      name: "Minions.AI Team",
+      role: "Engineering Lead, Minions.AI",
+      initials: "MA",
       avatarUrl: "",
       rating: 5,
-      href: "",
+      href: "https://www.getminions.ai",
     },
   ],
-  clients: ["Zenvix", "Glovix", "Crevox", "Markon", "Brandex", "Nexora"],
+  clients: ["Minions.AI", "SellerVai", "MathPro Academy", "Codervai", "University of Dhaka", "GenMorphics AI", "Leadswave"],
 };
 
 export default function Testimonials({ section = defaultSection }) {

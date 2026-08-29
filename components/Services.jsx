@@ -4,25 +4,25 @@ import { resolveServiceIcon } from "@/lib/section-rendering";
 
 const defaultSection = {
   eyebrow: "My Core Expertise",
-  heading: "I help founders and teams turn ideas into fast, scalable digital products.",
+  heading: "From high-concurrency backends to polished interfaces — engineered without bloat.",
   description:
-    "Every build is measured against three things: performance, clarity, and room to grow. No bloat, no shortcuts — just work that lasts.",
+    "Every build is measured against three things: latency, reliability, and room to grow. No bloat, no shortcuts — just work that lasts.",
   tagline: "Core Services Offered",
   items: [
     {
       icon: "Code2",
-      title: "Full Stack Development",
-      desc: "End-to-end web applications — clean architecture, modern stacks, and code that stays maintainable long after launch.",
+      title: "Full Stack Systems & Web Apps",
+      desc: "End-to-end web applications and high-concurrency backends — clean architecture, type-safe APIs, and code that stays maintainable long after launch.",
     },
     {
-      icon: "Palette",
-      title: "UI / UX Design",
-      desc: "Interfaces that feel effortless. Clarity-first layouts that guide every visitor toward action, not confusion.",
+      icon: "Sparkles",
+      title: "Voice AI & LLM Infrastructure",
+      desc: "Sub-second WebRTC voice pipelines, deterministic multi-agent state machines, and low-latency RAG systems tailored to business workflows.",
     },
     {
       icon: "Gauge",
-      title: "Performance & SEO",
-      desc: "Speed, Core Web Vitals, and search visibility tuned until the experience feels instant — because slow sites lose customers.",
+      title: "Performance & Data Architecture",
+      desc: "Zero-CLS rendering, sub-15ms vector search, Redis caching, and resilient database design — tuned until every interaction feels instant.",
     },
   ],
 };

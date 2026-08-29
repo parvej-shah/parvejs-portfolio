@@ -12,11 +12,11 @@ const defaultSection = {
   quote:
     "Great software isn't just shipped — it's considered. Every decision, from the database to the last pixel, should serve the people using it.",
   quoteAuthor: "Parvej Shah",
-  quoteRole: "Full Stack Web Developer, IIT DU",
+  quoteRole: "Software Engineer & AI Systems Developer, IIT DU",
   points: [
-    "Full-stack depth — React, Next.js, Node.js, Express & MongoDB",
+    "AI & Automation — Sub-second WebRTC voice pipelines, deterministic FSM orchestration",
+    "Full-stack depth — Next.js App Router, TypeScript, Python FastAPI, PostgreSQL & Redis",
     "Engineering foundation from IIT, University of Dhaka",
-    "Trusted partner to startups, businesses, and personal brands",
   ],
   badgeValue: "12+",
   badgeLabel: "people trust my work",
