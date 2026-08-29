@@ -24,7 +24,7 @@ export default function Portfolio({ projects = [] }) {
       <div className="mx-auto max-w-7xl px-5">
         <Reveal className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
-            <span className="eyebrow mb-4">Selected Projects</span>
+            <span className="eyebrow mb-4">Case Studies</span>
             <h2 className="max-w-xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
               Crafting scalable digital products that perform.
             </h2>
@@ -232,7 +232,7 @@ export default function Portfolio({ projects = [] }) {
                     href="/projects"
                     className="inline-flex h-12 w-fit shrink-0 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-[#05140b] transition-all hover:bg-brand-dark hover:shadow-[0_8px_30px_-6px_rgba(0,230,118,0.5)]"
                   >
-                    Browse All Projects
+                    Browse All Case Studies
                     <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                   </Link>
                 </div>

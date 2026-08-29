@@ -7,7 +7,7 @@ import { getPublishedProjects } from "@/lib/data/public";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const projectsTitle = "Projects & Case Studies | Parvej Shah";
+const projectsTitle = "Case Studies | Parvej Shah";
 const projectsDescription =
   "Real products, not concept decks — case studies covering the problem, the build approach, and the measurable outcomes behind each project.";
 
@@ -52,7 +52,7 @@ export default async function ProjectsPage() {
       <section className="border-b border-line py-14 lg:py-20">
         <div className="mx-auto max-w-7xl px-5">
           <Reveal className="flex flex-col gap-5">
-            <span className="eyebrow">Projects</span>
+            <span className="eyebrow">Case Studies</span>
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               <div>
                 <h1 className="max-w-3xl text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">

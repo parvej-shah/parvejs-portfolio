@@ -4,7 +4,7 @@ import { getSection } from "@/lib/data/public";
 const quickLinks = [
   { name: "Home", href: "/#top" },
   { name: "Services", href: "/#services" },
-  { name: "Portfolio", href: "/#portfolio" },
+  { name: "Case Studies", href: "/#portfolio" },
   { name: "About", href: "/#about" },
   { name: "Insights", href: "/#insights" },
   { name: "Contact", href: "/#contact" },
