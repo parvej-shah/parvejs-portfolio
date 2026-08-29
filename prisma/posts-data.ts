@@ -401,123 +401,56 @@ The instinct to reach for HMAC and \`crypto.timingSafeEqual\` is a reasonable on
   },
   {
     slug: "building-manifest-v3-ai-chrome-extensions",
-    title: "The Surprising Complexity of Injecting a UI into Someone Else's Web Page",
+    title: "Building a Self-Healing Chrome Extension for a DOM That Fights Back",
     excerpt:
-      "Building a Chrome extension that injects a UI component into LinkedIn's feed seems simple. It isn't. Shadow DOM isolation, Manifest V3 service worker constraints, and host page style conflicts all need deliberate solutions.",
+      "The Shadow DOM story in the original version of this post never happened — there's no Shadow DOM in this codebase. What actually happened is more interesting: LinkedIn periodically ships builds with every class name replaced by a hashed token, and we built an AI system to regenerate selectors on the fly. It still eventually lost.",
     coverImage: {
       url: "/blog/manifest-v3-ai-extensions.png",
-      alt: "Building Manifest V3 AI Extensions Cover",
+      alt: "Self-Healing Chrome Extensions Cover",
     },
     featured: false,
     publishedAt: new Date("2026-01-08T12:00:00.000Z"),
-    content: `When we started building **Leadswave** — a LinkedIn brand assistant Chrome extension — the plan seemed straightforward. Detect LinkedIn post elements in the feed, attach a small AI companion button to each one, let users generate engagement responses without leaving the page. A week's work, maybe two.
+    content: `## The Shadow DOM Story Wasn't True
 
-Three weeks later we were still fighting style collisions, service worker lifecycle bugs, and a Manifest V3 API constraint we hadn't anticipated. This is what we learned.
+The earlier version of this post described attaching a shadow root to isolate the extension's styles from LinkedIn's CSS. That never shipped. There's no \`attachShadow\` call anywhere in this codebase. What's real, and more interesting, is what we actually spent most of the project's later months fighting: LinkedIn's DOM doesn't just drift over time the way most sites' markup does. Periodically, it ships builds where every semantic class name — \`feed-shared-update\`, \`social-actions-bar\`, all of it — is replaced with a short hashed token. Same page, same layout, but every selector you wrote against it stops matching overnight.
 
-## Why Injecting into a Third-Party Page Is Complicated
+A content script that hardcodes selectors against a page you don't control is fragile by default. Against a page that occasionally scrambles its own class names on purpose, hardcoded selectors aren't just fragile — they're a losing strategy.
 
-When your content script injects HTML into LinkedIn's document, you're working inside a page you don't control, with styles you didn't write, against a DOM structure that changes in LinkedIn's deployments without your knowledge.
+## Building Something That Fixes Itself
 
-The first version of Leadswave simply appended a styled div to each post element and mounted a React component inside it. It worked locally. On the actual LinkedIn feed, our Tailwind utility classes either had no effect (because LinkedIn's CSS specificity was higher) or caused unintended effects in LinkedIn's own components (because our styles bled into their DOM nodes).
-
-The fix is Shadow DOM. Every modern browser supports the ability to attach a shadow root to a host element, creating an isolated DOM subtree that is completely separate from the main document's style cascade.
+Instead of chasing LinkedIn's markup by hand every time it changed, the extension eventually grew a self-healing layer: on load, it takes a snapshot of the feed DOM, sends it to an AI model, and asks for a fresh set of selectors.
 
 \`\`\`typescript
-function mountAssistantWidget(hostElement: HTMLElement): HTMLElement {
-  const container = document.createElement("div");
-  container.id = "lw-assistant-root";
+The snapshot isn't a raw DOM dump. It's pruned aggressively — ads, nav, and sidebars stripped out, tag depth capped, children per node capped, long hashed class names filtered out, and any leaf text content run through PII stripping before being included. The whole thing is budgeted to stay under roughly 3,000 tokens serialized. That's a deliberate choice: sending less data isn't just cheaper, it also means the model isn't accidentally handed a stranger's post content to reason about.
 
-  // Attach a shadow root — this creates the style isolation boundary
-  const shadow = container.attachShadow({ mode: "open" });
+The AI's job is narrow: look at this structural sketch of the page and return three CSS selectors — where posts live, where the post text is, where to inject a button — as JSON. That JSON becomes a "strategy," cached in \`chrome.storage.local\` and re-validated against the live DOM on every subsequent load before it's trusted again.
 
-  // Our styles live inside the shadow — they can't bleed out,
-  // and LinkedIn's styles can't bleed in
-  const styleSheet = document.createElement("link");
-  styleSheet.rel = "stylesheet";
-  styleSheet.href = chrome.runtime.getURL("content/styles.css");
-  shadow.appendChild(styleSheet);
+## The Fallback Chain
 
-  const mountPoint = document.createElement("div");
-  shadow.appendChild(mountPoint);
+A single AI call is not something you want standing between a user and a working feature, so the actual flow on every page load is five steps deep:
 
-  hostElement.appendChild(container);
-  return mountPoint;
-}
+\`\`\`javascript
+// 1. Load cached strategy, validate against live DOM
+// 2. If invalid/stale, regenerate via AI (rate-limited to 1 call / 30 min)
+// 3. If AI unavailable or fails, fall back to a bank of hardcoded selectors
+// 4. If that fails too, fall back to content.js's original 5-tier
+//    heuristic parser (text-content walking, data-view-name anchors)
+// 5. Log every outcome to a rolling debug buffer for the popup's debug panel
 \`\`\`
 
-## Manifest V3 Service Workers: Assume Nothing Persists
+The rate limit on AI regeneration (once per 30 minutes) exists because a validation failure loop without one would mean an AI call on every page load for every user whenever LinkedIn's DOM was in a bad state — expensive and pointless if the underlying cause won't resolve by calling again immediately.
 
-Manifest V2 allowed persistent background pages — JavaScript modules that stayed alive indefinitely and could hold state in memory. Manifest V3 replaced this with service workers. Service workers can be terminated by the browser at any point when they appear idle.
+## When LinkedIn Obfuscates on Purpose
 
-This is easy to forget when developing locally, because Chrome is less aggressive about terminating service workers during active development. In production, with a real user who opens LinkedIn once, reads through their feed over 20 minutes, and then triggers the assistant widget — the service worker has almost certainly been terminated in the interim.
+The specific failure mode this was built for shows up as a distinct code path: an \`isCorruptedDOM()\` check looks for a feed marked with \`data-view-name="feed-full-update"\` but with none of the expected semantic classes present — the signature of an obfuscated build. When that's detected, the extension stops trying to match classes entirely and instead walks the DOM by structural role: \`span[dir="ltr"]\` elements tend to survive obfuscation intact, and a \`TreeWalker\` heuristic can still locate the action bar by matching visible text content ("Like", "Comment", "Repost") rather than any class name at all.
 
-\`\`\`typescript
-// Don't rely on module-level variables for persistent state
-// This will be undefined after the service worker restarts:
-// let cachedApiKey: string | null = null; // BAD
+This is the part of the project I'm most proud of technically, and also the part that made it clear where the ceiling was. Text-content heuristics work until LinkedIn changes wording, adds another localization variant, or restructures the markup enough that even structural role stops being a reliable anchor. Every layer we added bought time, not permanence.
 
-// Instead, always read from storage:
-async function getApiKey(): Promise<string | null> {
-  const result = await chrome.storage.local.get(["apiKey"]);
-  return result.apiKey ?? null;
-}
+## Where It Ended Up
 
-async function saveUserSettings(settings: UserSettings): Promise<void> {
-  await chrome.storage.local.set({ userSettings: settings });
-}
-\`\`\`
+The extension is published and live on the Chrome Web Store today. But active development stopped after the self-healing system's last iteration. LinkedIn's anti-automation posture — DOM obfuscation, and behavior that reads as active bot detection rather than incidental markup churn — kept escalating faster than a side project could track, and at some point the honest call was to stop rather than keep building a more elaborate response to a page actively working against being scraped.
 
-For the assistant response generation — which requires sending post context to an API and streaming back a response — the content script makes the API call directly rather than routing through the service worker. This avoids the service worker lifecycle problem entirely for latency-sensitive operations.
-
-## Extracting Clean Context from LinkedIn's DOM
-
-The AI generation requires understanding the content of the LinkedIn post the user is looking at. Passing raw innerHTML is wasteful and noisy — LinkedIn embeds tracking attributes, SVG icon paths, interaction counters, and other noise that consumes tokens without contributing to useful context.
-
-\`\`\`typescript
-function extractPostContext(postElement: HTMLElement): PostContext {
-  const authorElement = postElement.querySelector(
-    ".update-components-actor__name"
-  );
-  const author = authorElement?.textContent?.trim() ?? "Unknown";
-
-  const bodyElement = postElement.querySelector(
-    ".update-components-text"
-  );
-
-  const bodyText = extractTextNodes(bodyElement)
-    .filter(text => text.trim().length > 0)
-    .join(" ")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  return { author, bodyText, extractedAt: Date.now() };
-}
-
-function extractTextNodes(el: Element | null): string[] {
-  if (!el) return [];
-  const texts: string[] = [];
-
-  el.childNodes.forEach(node => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      texts.push(node.textContent ?? "");
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      texts.push(...extractTextNodes(node as Element));
-    }
-  });
-
-  return texts;
-}
-\`\`\`
-
-The extracted context is typically 200 to 400 tokens — clean, structured, and representative of what the post actually says. This keeps API costs predictable and response generation fast.
-
-## The LinkedIn DOM Changes Problem
-
-There's no way to make a content script robustly stable against DOM changes in a host page you don't control. LinkedIn deploys frontend changes regularly, and CSS class names can shift.
-
-We partially mitigate this with attribute-based selectors where possible — data-* attributes tend to be more stable than utility class names — and by maintaining a small compatibility shim that detects structural changes and reports them. When the extension breaks on a LinkedIn update, we want to know within hours, not days.
-
-The real answer is humility: DOM scraping is inherently fragile, and the architecture needs to be designed with that fragility in mind rather than pretending it won't happen.`,
+The lesson isn't "don't build content-script extensions." It's that self-healing buys real resilience against ordinary drift, but it doesn't change the fundamental asymmetry: the host page can always change faster than you can adapt, and eventually that stops being a technical problem you can architect your way out of.`,
   },
   {
     slug: "offline-first-pwa-emergency-volunteer-networks",

@@ -333,7 +333,7 @@ For video, we deliberately didn't build a custom encoding pipeline. Editorial wa
       slug: "linkedin-brand-assistant",
       title: "LinkedIn Brand Assistant",
       summary:
-        "Manifest V3 Chrome extension that injects an AI writing companion directly into the LinkedIn feed. Shadow DOM isolation prevents style conflicts with LinkedIn's CSS. All state persists to chrome.storage.local — never lost when the Manifest V3 service worker terminates between interactions.",
+        "Manifest V3 Chrome extension that injects an AI comment assistant into the LinkedIn feed. Built and shipped a self-healing DOM injection system — an AI-driven strategy generator that re-derives selectors when LinkedIn's markup shifts — to survive LinkedIn's obfuscated, hashed-class DOM. Published to the Chrome Web Store; development is now paused after LinkedIn's anti-automation defenses outpaced what the self-healing system could keep up with.",
       status: "PUBLISHED" as const,
       featured: true,
       client: "Leadswave / Chrome Web Store",
@@ -345,31 +345,22 @@ For video, we deliberately didn't build a custom encoding pipeline. Editorial wa
         "Vite",
         "Chrome Extension API (Manifest V3)",
         "Tailwind CSS",
-        "Shadow DOM",
-        "OpenAI API",
+        "Google Gemini (via Supabase Edge Functions)",
+        "Supabase (auth, subscriptions, edge functions)",
       ],
       keyFeatures: [
-        "Closed Shadow DOM widget isolation: extension styles can't bleed into LinkedIn's DOM and LinkedIn's styles can't override the widget",
-        "Manifest V3 service worker state persisted to chrome.storage.local — never relies on in-memory module variables that reset on worker termination",
-        "DOM text extraction: strips tracking attributes, SVG icons, and navigation noise before sending context to the LLM — 200-400 tokens of clean post text",
-        "Tone-customizable generation: Insightful, Inquiring, and Supportive comment modes",
-        "Client-side API key configuration for private, secure token management without a backend",
+        "AI comment generation with tone selection (Insightful, Inquiring, Supportive), grounded in extracted post text",
+        "Manifest V3 service worker state persisted to chrome.storage.local — survives worker termination between interactions",
+        "Self-healing DOM injection: a privacy-pruned DOM snapshot (PII stripped, ~3,000-token budget) is sent to an AI strategy generator, which returns fresh CSS selectors when LinkedIn's markup changes",
+        "5-step fallback chain per page load: cached AI strategy → re-validate against live DOM → regenerate via AI (rate-limited to once per 30 min) → hardcoded fallback selector bank → legacy heuristic parser",
+        "Corrupted-DOM detection: LinkedIn periodically ships builds with every semantic class name replaced by a hashed token; the extension detects this and falls back to data-view-name attribute anchors and text-content heuristics",
+        "Full Supabase-backed account system: login, subscription tiers, and usage tracking — not a bring-your-own-API-key tool",
         "Published to the Chrome Web Store",
       ],
-      problem: `Active LinkedIn professionals spend meaningful time reading posts and composing thoughtful replies. The challenge is that composing a genuinely engaged response requires understanding the post's content, matching the appropriate tone, and writing something that adds rather than echoes. This friction interrupts reading flow.
-
-The technical challenge was injecting a usable UI into a third-party page without breaking it. LinkedIn's CSS is dense with high specificity. Naive injection of styled components causes either style collisions — where LinkedIn overrides your styles — or style leakage — where your styles break LinkedIn's layout.`,
-      approach: `Style isolation required Shadow DOM. Every widget mount attaches a shadow root to a host container element, creating a DOM boundary completely separate from the main document's style cascade. LinkedIn's CSS cannot enter the shadow tree, and the extension's styles cannot leak out. The React tree mounts inside the shadow, with its stylesheet loaded as a link element appended to the shadow root itself.
-
-Manifest V3's service worker lifecycle is aggressive — service workers terminate after short idle periods. Any state stored as module-level variables is lost on termination. All user settings, API keys, and authentication state are persisted to chrome.storage.local and read from storage on each use.
-
-Context extraction walks only text nodes in the post body element, stripping tracking attributes, SVG paths, and nested navigation content. The resulting context is 200–400 tokens of clean, representative post text.`,
-      solution: `The extension renders a compact AI companion button alongside each LinkedIn post in the feed. Clicking it opens a panel inside the Shadow DOM widget showing the extracted post summary and three tone-selectable comment drafts. Users can edit any draft before copying it to the LinkedIn comment box.
-
-The companion web app at lnbrandassistant.xyz provides onboarding, API key configuration, and usage documentation.`,
-      results: `Published to the Chrome Web Store with a clean, isolated UI that survives LinkedIn's frequent frontend deployments without breaking. The Shadow DOM architecture means LinkedIn's CSS updates don't affect the widget's appearance, and the extension's styles don't affect LinkedIn's layout.
-
-The Manifest V3 service worker implementation handles the browser's aggressive termination behavior correctly — state is never lost between user interactions regardless of how long the browser has been idle.`,
+      problem: `Active LinkedIn professionals spend meaningful time reading posts and composing thoughtful replies. Composing a genuinely engaged response takes understanding the post's content and matching an appropriate tone — friction that interrupts reading flow. The harder problem, though, wasn't the AI part. It was staying alive inside a page you don't control: LinkedIn's DOM structure shifts across deployments, and periodically ships fully obfuscated builds where every semantic class name is replaced with a hashed token, breaking any extension built against fixed selectors.`,
+      approach: `The extension renders an AI companion button next to each post, generating tone-selectable comment drafts from extracted post text. To survive LinkedIn's shifting DOM, later development moved from hardcoded selectors to a self-healing system: a background script periodically snapshots a pruned, privacy-safe representation of the feed DOM (PII stripped, structural attributes and short text previews only) and sends it to an AI model, which returns a JSON strategy describing where to find posts, post text, and the right injection point. That strategy is cached, validated against the live DOM on each load, and regenerated (rate-limited to avoid runaway calls) when validation fails. If the AI path is unavailable, the extension falls back to a bank of hardcoded selectors, and if that also fails, to text-content heuristics that specifically target LinkedIn's obfuscated-class builds.`,
+      solution: `A working self-healing Chrome extension: AI-driven selector generation as the primary defense against DOM changes, with two layers of deterministic fallback beneath it so a failed AI call never fully breaks injection. Authentication and AI calls run through a Supabase backend with real subscription tiers, not a client-managed API key.`,
+      results: `Shipped and published to the Chrome Web Store. The self-healing system is real, working engineering — but LinkedIn's DOM obfuscation and anti-automation measures kept escalating faster than a single-developer side project could track, and active development stopped after the last self-healing iteration landed. The extension remains live on the store; it isn't under active maintenance.`,
       liveUrl: "https://lnbrandassistant.xyz",
       githubUrl: "https://chromewebstore.google.com/detail/linkedin-brand-assistant/liicmnighkinlpgaagipbjbjkokknjhi",
       gallery: [
@@ -419,56 +410,6 @@ The Manifest V3 service worker implementation handles the browser's aggressive t
         { url: "/projects/badhan-home.png", alt: "Badhan Amar Ekushey Hall Unit Dashboard & Live Blood Group Breakdown" },
         { url: "/projects/badhan-search.png", alt: "Real-time Donor Search & Multi-criteria Eligibility Filter" },
         { url: "/projects/badhan-records.png", alt: "Donor Records & Unit Donation Logs" },
-      ],
-      order: 8,
-    },
-    {
-      slug: "linkedin-brand-assistant",
-      title: "LinkedIn Brand Assistant",
-      summary:
-        "Manifest V3 Chrome extension that injects an AI writing companion directly into the LinkedIn feed. Shadow DOM isolation prevents style conflicts with LinkedIn's CSS. All state persists to chrome.storage.local — never lost when the Manifest V3 service worker terminates between interactions.",
-      status: "PUBLISHED" as const,
-      featured: true,
-      client: "Leadswave / Chrome Web Store",
-      role: "Full-Stack & Chrome Extension Developer",
-      timeline: "2025 – 2026",
-      techStack: [
-        "React",
-        "TypeScript",
-        "Vite",
-        "Chrome Extension API (Manifest V3)",
-        "Tailwind CSS",
-        "Shadow DOM",
-        "OpenAI API",
-      ],
-      keyFeatures: [
-        "Closed Shadow DOM widget isolation: extension styles can't bleed into LinkedIn's DOM and LinkedIn's styles can't override the widget",
-        "Manifest V3 service worker state persisted to chrome.storage.local — never relies on in-memory module variables that reset on worker termination",
-        "DOM text extraction: strips tracking attributes, SVG icons, and navigation noise before sending context to the LLM — 200-400 tokens of clean post text",
-        "Tone-customizable generation: Insightful, Inquiring, and Supportive comment modes",
-        "Client-side API key configuration for private, secure token management without a backend",
-        "Published to the Chrome Web Store",
-      ],
-      problem: `Active LinkedIn professionals spend meaningful time reading posts and composing thoughtful replies. The challenge is that composing a genuinely engaged response requires understanding the post's content, matching the appropriate tone, and writing something that adds rather than echoes. This friction interrupts reading flow.
-
-The technical challenge was injecting a usable UI into a third-party page without breaking it. LinkedIn's CSS is dense with high specificity. Naive injection of styled components causes either style collisions — where LinkedIn overrides your styles — or style leakage — where your styles break LinkedIn's layout.`,
-      approach: `Style isolation required Shadow DOM. Every widget mount attaches a shadow root to a host container element, creating a DOM boundary completely separate from the main document's style cascade. LinkedIn's CSS cannot enter the shadow tree, and the extension's styles cannot leak out. The React tree mounts inside the shadow, with its stylesheet loaded as a link element appended to the shadow root itself.
-
-Manifest V3's service worker lifecycle is aggressive — service workers terminate after short idle periods. Any state stored as module-level variables is lost on termination. All user settings, API keys, and authentication state are persisted to chrome.storage.local and read from storage on each use.
-
-Context extraction walks only text nodes in the post body element, stripping tracking attributes, SVG paths, and nested navigation content. The resulting context is 200–400 tokens of clean, representative post text.`,
-      solution: `The extension renders a compact AI companion button alongside each LinkedIn post in the feed. Clicking it opens a panel inside the Shadow DOM widget showing the extracted post summary and three tone-selectable comment drafts. Users can edit any draft before copying it to the LinkedIn comment box.
-
-The companion web app at lnbrandassistant.xyz provides onboarding, API key configuration, and usage documentation.`,
-      results: `Published to the Chrome Web Store with a clean, isolated UI that survives LinkedIn's frequent frontend deployments without breaking. The Shadow DOM architecture means LinkedIn's CSS updates don't affect the widget's appearance, and the extension's styles don't affect LinkedIn's layout.
-
-The Manifest V3 service worker implementation handles the browser's aggressive termination behavior correctly — state is never lost between user interactions regardless of how long the browser has been idle.`,
-      liveUrl: "https://lnbrandassistant.xyz",
-      githubUrl: "https://chromewebstore.google.com/detail/linkedin-brand-assistant/liicmnighkinlpgaagipbjbjkokknjhi",
-      gallery: [
-        { url: "/projects/ln-assistant-home.png", alt: "LinkedIn Brand Assistant AI Companion Landing Page" },
-        { url: "/projects/ln-assistant-store.png", alt: "Chrome Web Store Published Extension" },
-        { url: "/projects/ln-assistant-features.png", alt: "AI Comment Tone Customization & Workflow Engine" },
       ],
       order: 8,
     },

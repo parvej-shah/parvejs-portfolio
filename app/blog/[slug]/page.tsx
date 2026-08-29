@@ -100,12 +100,12 @@ const postKeywordsMap: Record<string, string[]> = {
   ],
   "building-manifest-v3-ai-chrome-extensions": [
     "Chrome Extension Manifest V3",
-    "Shadow DOM isolation",
-    "CSS stylesheet bleed",
-    "service worker keep alive",
-    "long-lived port messaging",
+    "self-healing DOM injection",
+    "AI selector generation",
+    "LinkedIn DOM obfuscation",
+    "corrupted DOM detection",
     "LinkedIn AI assistant",
-    "content script React 19",
+    "content script fallback chain",
   ],
   "engineering-precision-data-platforms-sft-rlhf": [
     "GenMorphics AI",
