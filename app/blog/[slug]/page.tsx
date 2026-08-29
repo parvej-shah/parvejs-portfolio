@@ -361,7 +361,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
       {post.coverImage ? (
         <section className="border-b border-line py-12 lg:py-16">
           <div className="mx-auto max-w-6xl px-5">
-            <Reveal className="relative aspect-[16/8] overflow-hidden rounded-[1.8rem] border border-line bg-ink-2">
+            <Reveal className="relative aspect-square md:aspect-[16/8] overflow-hidden rounded-[1.8rem] border border-line bg-[#fff8f0]">
               <Image
                 src={post.coverImage.url}
                 alt={post.coverImage.alt || post.title}
@@ -369,7 +369,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
                 quality={100}
                 unoptimized
                 sizes="100vw"
-                className="object-cover"
+                className="object-contain"
                 priority
               />
             </Reveal>

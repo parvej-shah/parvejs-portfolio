@@ -63,7 +63,7 @@ export default async function BlogPage() {
             >
               <Link
                 href={`/blog/${featured.slug}`}
-                className="relative flex min-h-[16rem] items-end overflow-hidden rounded-[1.4rem] border border-line/60 bg-ink-2 sm:min-h-[22rem]"
+                className="relative flex aspect-square items-end overflow-hidden rounded-[1.4rem] border border-line/60 bg-[#fff8f0]"
               >
                 {featured.coverImage ? (
                   <Image
@@ -126,7 +126,7 @@ export default async function BlogPage() {
                     className="card-surface group flex flex-col overflow-hidden"
                   >
                     <Link href={`/blog/${post.slug}`} className="flex h-full flex-col">
-                      <div className="relative flex aspect-[16/10] items-end overflow-hidden bg-ink-2">
+                      <div className="relative flex aspect-square items-end overflow-hidden bg-[#fff8f0]">
                         {post.coverImage ? (
                           <Image
                             src={post.coverImage.url}
