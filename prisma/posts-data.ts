@@ -69,9 +69,9 @@ Frontend development is expanding beyond human visual presentation. Treating mac
   },
   {
     slug: "architecting-sub-18s-voice-ai-pipelines",
-    title: "Practical Voice AI Engineering: Sub-1.8s Latency, n8n Caching, and Slashing Cost with Gemini 2.0 Flash",
+    title: "What a 1,272ms Calendar Check Taught Us About Voice AI Latency",
     excerpt:
-      "How we engineered production voice dispatchers with Retell AI, n8n, EspoCRM, and Google Calendar — reducing CRM tool latency from 850ms to 24ms, cutting call duration from 3.5m to 1.1m, and slashing per-minute telephony costs.",
+      "The fabricated version of this story used a single made-up model and an 850ms→24ms Redis cache. The real one: two different Flash-tier models across two live agents, n8n's built-in staticData cache, and a 5-question intake that was quietly adding two minutes to every call.",
     coverImage: {
       url: "/blog/voice-ai-sub-18s.png",
       alt: "Sub-1.8s Voice AI Pipelines Architecture Cover",
@@ -80,254 +80,114 @@ Frontend development is expanding beyond human visual presentation. Treating mac
     publishedAt: new Date("2026-02-15T09:00:00.000Z"),
     content: `In the enterprise Voice AI space, there is a vast gulf between high-level architectural whitepapers and what actually runs on production telephony lines when real customers call in.
 
-When building conversational booking agents for service contractors using **Retell AI**, **n8n**, **EspoCRM**, and **Google Calendar**, the technical challenge is rarely about getting a model to understand English. 
+When building conversational booking agents for service contractors using **Retell AI**, **n8n**, **EspoCRM**, and **Google Calendar**, the technical challenge is rarely about getting a model to understand English.
 
-The real engineering challenge is the vicious intersection of **round-trip latency, external CRM tool execution overhead, and per-minute telephony economics**:
+The real engineering challenge is the vicious intersection of **round-trip latency, external CRM tool execution overhead, and per-minute telephony economics**. Here's what that actually looked like in production, and what it took to fix.
 
-1. **The Latency Trap:** Every external tool call (e.g., querying EspoCRM for an existing client or checking Google Calendar free/busy slots) pauses the voice pipeline. If your webhook handler in n8n takes 800ms to fetch CRM data and your LLM takes 1,200ms to generate the next sentence, the caller experiences a 2-second awkward silence.
-2. **The Turn Count Inflation:** Naive conversational prompts require 8 to 12 conversational turns ("What's your name?", "What's your phone number?", "What service do you need?", "What day works?", "What time on that day?"). On telephony providers like Retell AI (billed per minute), a 4-minute call costs $0.50–$0.80. At scale, this destroys unit economics.
-3. **The Heavy Model Tax:** Running flagship models (e.g., GPT-4o) for high-volume voice dispatch creates unnecessary cost and high Time-To-First-Token (TTFT) variance.
+## 1. Two Agents, Two Models
 
-Here is the exact production architecture we deployed to achieve **sub-1.4s real-world telephony round-trips, reduce tool call latency from 850ms to 24ms via n8n caching, and cut per-call duration from 3.5 minutes to 1.1 minutes using Gemini 2.0 Flash and minimal-turn slot filling**.
+There isn't one voice agent here — there are two live deployments, running two different models. The Horizon Realty (real estate) agent runs **\`gemini-2.0-flash\`** as its response engine. The Ironclad Pest (pest control) agent runs **Gemini 3.1 Flash Lite**. Both are Flash-tier models, chosen specifically over flagship models like GPT-4o for lower Time-To-First-Token (TTFT) and lower per-token cost on high-volume telephony — a real engineering call, even without pretending we benchmarked this project's actual cost against models we never ran in production.
 
-## 1. Model Economics & Latency: Why Gemini 2.0 Flash Won the Telephony Tier
+## 2. The Real Latency Budget
 
-In Voice AI telephony, your primary metric is **Time-To-First-Token (TTFT)**. The human brain tolerates conversational pauses under 600ms. If your LLM takes 1,200ms just to output its first token, audio synthesis cannot begin in time.
+Every external tool call — checking Google Calendar, touching EspoCRM — pauses the voice pipeline. Our own component-level benchmark table, honestly labeled by source: the n8n rows are measured directly by this project's regression suite, the STT/TTFT/TTS rows are cited industry and vendor benchmarks, not something our own tooling instrumented.
 
-| Model | Time-To-First-Token (p50) | Time-To-First-Token (p95) | Input / Output Cost (per 1M tokens) | Average Cost per 1,000 Calls |
-| :--- | :--- | :--- | :--- | :--- |
-| **GPT-4o** | 780ms | 1,450ms | $2.50 / $10.00 | $38.50 |
-| **Claude 3.5 Sonnet** | 690ms | 1,280ms | $3.00 / $15.00 | $42.00 |
-| **Gemini 2.0 Flash** | **210ms** | **340ms** | **$0.10 / $0.40** | **$1.45 (-96% cost)** |
+| Component | Target SLA | Benchmark |
+| :--- | :--- | :--- |
+| STT (Deepgram Nova-2) | < 180ms | ~140ms |
+| LLM TTFT (Gemini 2.0 Flash) | < 300ms | ~220ms |
+| TTS first packet (Cartesia Brian) | < 180ms | ~120ms |
+| n8n cache check | < 150ms | **92.5ms** (measured) |
+| n8n calendar booking | < 1000ms | **846.5ms** (measured) |
+| Total conversational turn | < 800ms | ~600ms |
 
-### Why Gemini 2.0 Flash is the Telephony Sweet Spot:
-* **Sub-250ms TTFT:** The model begins streaming text within 210ms of Retell's VAD end-of-turn signal. Combined with Retell's streaming text-to-speech, the caller hears the first word of the response in **~650ms**.
-* **96% Inference Cost Reduction:** Because voice telephony consumes tokens across multiple conversational turns, switching from GPT-4o to Gemini 2.0 Flash dropped monthly model spend from $420 to under $18 for the same call volume.
-* **Strict Tool-Calling Compliance:** Gemini 2.0 Flash executes structured JSON tool calling with 99.4% syntax adherence, eliminating failed n8n webhook triggers.
+## 3. The Actual Bottleneck Wasn't the Model
 
-## 2. Slashing n8n & CRM Tool Latency: From 850ms to 24ms via In-Memory Caching
+The pest-control agent's real production data told a different story than the latency table above. Reading the actual call transcripts, the problem wasn't model speed — it was conversation shape. The original Emergency Intake flow had **5 mandatory sequential nodes**, each asking exactly one question, regardless of what the caller had already said in their opening statement. Add fee disclosure, time preference, a live **1,272ms** Google Calendar round-trip for every single availability check, and confirmation, and a booking call needed 10-12 agent turns minimum — well past the 4-6 turns a well-designed intake needs.
 
-When a voice agent needs to know *"Is a technician available tomorrow at 2:00 PM?"*, naive implementations invoke an n8n webhook that:
-1. Connects to Google Calendar API to fetch event lists (350ms).
-2. Connects to EspoCRM REST API to check technician assigned territory (280ms).
-3. Evaluates conflicts in JavaScript (20ms).
-4. Formats response and returns (200ms).
+## 4. Caching Without Redis
 
-Total pause for the caller: **850ms of dead air**.
-
-### The Solution: Write-Through Pre-Warming in n8n & EspoCRM
-
-Instead of querying Google Calendar and EspoCRM synchronously on every voice turn, we configured n8n with an **n8n Static State / Calendar Cache**:
-* A background n8n cron workflow runs every 2 minutes, queries Google Calendar for the next 5 business days, and pre-computes available 2-hour appointment slots in Redis (\`SET slots:hvac:2026-08-28\`).
-* When Retell AI triggers the \`check_and_book_slot\` webhook during a live call, n8n reads from the pre-warmed state in **18ms** and returns immediately.
+The fix for the 1,272ms calendar round-trip wasn't an external cache service — it's n8n's own workflow state. Here's the actual deployed node, pulled directly from the live n8n instance:
 
 \`\`\`javascript
-// n8n Custom Code Node: Fast Cache Evaluator & Slot Matcher
-const dateRequested = items[0].json.body.date || new Date().toISOString().split('T')[0];
-const serviceType = items[0].json.body.serviceType || 'general';
-const cacheKey = 'slots:' + serviceType + ':' + dateRequested;
+// Actual deployed check_availability Code node (n8n)
+const staticData = $getWorkflowStaticData('global');
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const now = Date.now();
 
-// 1. Fetch pre-computed slots directly from n8n state cache (sub-5ms)
-const cachedSlotsRaw = await this.helpers.getWorkflowStaticData('global').get(cacheKey);
-
-if (cachedSlotsRaw) {
-  const availableSlots = JSON.parse(cachedSlotsRaw);
-  return {
-    json: {
-      success: true,
-      cached: true,
-      availableSlots: availableSlots.slice(0, 2),
-      suggestedPrompt: 'We have openings tomorrow at ' + availableSlots[0] + ' and ' + availableSlots[1] + '. Which works best for you?'
-    }
-  };
+if (
+  staticData.slotsCache &&
+  staticData.slotsCachedAt &&
+  (now - staticData.slotsCachedAt) < CACHE_TTL_MS
+) {
+  // Cache hit: <50ms, no Google Calendar call at all
+  const cachedSlots = staticData.slotsCache;
+  return [{ json: { available_slots: cachedSlots.slice(0, 5), cache_hit: true } }];
 }
 
-// 2. Fallback to live Google Calendar API only on cache miss
-const liveCalendarSlots = await queryGoogleCalendarLive(dateRequested);
-return { json: { success: true, cached: false, availableSlots: liveCalendarSlots } };
+// Cache miss: compute from live Google Calendar data, then store for next time
+const allFreeSlots = computeFreeSlotsFromCalendarEvents($input.all());
+staticData.slotsCache = allFreeSlots;
+staticData.slotsCachedAt = now;
+return [{ json: { available_slots: allFreeSlots.slice(0, 5), cache_hit: false } }];
 \`\`\`
 
-Tool-call latency dropped from **850ms to 24ms**.
+No Redis, no external cache service — just n8n's own \`staticData\` global object with a 5-minute TTL. A cold lookup (Google Calendar API round-trip) costs **1,272ms**; a cache hit inside that window costs **under 50ms**.
 
-## 3. Conversational Design: Slashing Call Duration from 3.5m to 1.1m
+## 5. Rebuilding the Intake as Multi-Slot Extraction
 
-Telephony billing on Retell AI is charged **per connected minute** ($0.07 to $0.12/min). A voice bot that asks one question at a time takes 8 turns and 3.5 minutes ($0.35+ per lead). A voice bot engineered with **Multi-Entity Slot Extraction** captures all required parameters in 3 turns and 1.1 minutes ($0.11 per lead).
+The second fix targeted turn count directly: replacing the 5 rigid sequential questions with a single extraction pass that reads what the caller already said and only asks for what's actually missing — "Got it — can I grab your name, phone, and address?" instead of five separate one-at-a-time prompts.
 
-### The Optimized 3-Turn Protocol:
-1. **Turn 1 (Greedy Extraction):** Caller states problem ("AC in Banani is leaking, need someone tomorrow"). Agent acknowledges in 1 sentence, triggers n8n cache tool in the *same* turn, and offers the 2 nearest slots immediately.
-2. **Turn 2 (Confirmation):** Caller selects slot ("2:00 PM works"). Agent confirms name and mobile number.
-3. **Turn 3 (Asynchronous Wrap-Up):** Agent confirms: *"You're all set for tomorrow at 2:00 PM. I've texted the details to your mobile. Have a great day!"* and terminates call in **68 seconds**.
+## 6. What Actually Moved
 
-## 4. Asynchronous EspoCRM & Google Calendar Fulfillment
-
-The voice agent does **NOT** block the live call waiting for EspoCRM to create a Contact, create an Opportunity, and insert a Google Calendar Event.
-
-The voice agent fires a single asynchronous webhook to n8n upon call completion. Inside n8n:
-* **Node 1:** Inserts/Updates Contact and Lead in **EspoCRM**.
-* **Node 2:** Creates the appointment event in **Google Calendar**.
-* **Node 3:** Sends an automated SMS confirmation to the customer's phone.
-* **Node 4:** Invalidates the booked slot in the n8n state cache.
-
-| Metric | Sequential (Naive) | Fast-Convergence (Optimized) | Improvement |
-| :--- | :--- | :--- | :--- |
-| **Average Call Duration** | 3m 28s | **1m 08s** | **-67.3%** |
-| **Turns to Book Appointment** | 8.4 turns | **3.2 turns** | **-61.9%** |
-| **Total Cost Per Booked Lead** | $0.42 | **$0.123** | **-70.7%** |
-| **Booking Completion Rate** | 68.2% | **84.6%** | **+16.4%** |`,
+Average call duration on the pest-control agent dropped from an internal ~3m40s baseline to **~2m18s**, measured across the most recent 45 live calls. The availability cache turned a 1,272ms cold path into a sub-50ms cache hit for repeat lookups. No manufactured comparison table against GPT-4o or Claude, no invented per-1,000-call cost figure — those numbers don't correspond to anything this project ever measured.`,
   },
   {
     slug: "deterministic-multi-agent-systems-production",
-    title: "Why We Stopped Using LLM Agents to Control LLM Agents",
+    title: "The Claims Gate: How We Stopped an AI Content Pipeline From Inventing Customer Results",
     excerpt:
-      "Open-ended multi-agent loops sound powerful in demos. In production, they produce inconsistent outputs, accumulate context garbage, and are nearly impossible to debug. Here's what we built instead.",
+      "The original version of this post described a TypeScript state machine controlling research → draft → critic → publish agents. That system doesn't exist. What's actually running is a 4-stage Qwen pipeline with one safety mechanism worth writing about: a gate that blocks any AI-generated claim it can't source — including a hard rule against fabricating customer results, because there aren't paying clients to attribute them to yet.",
     coverImage: {
       url: "/blog/multi-agent-state-machines.png",
       alt: "Deterministic Multi-Agent State Machines Architecture Cover",
     },
     featured: true,
     publishedAt: new Date("2026-02-10T10:30:00.000Z"),
-    content: `The demo worked perfectly. We had an "orchestrator" agent that would receive a blog topic, instruct a "researcher" agent to gather information, pass the findings to a "writer" agent, then route the draft to a "critic" agent for review. On stage, it produced a polished article in under 90 seconds.
+    content: `The interesting engineering problem in an automated content pipeline for **Minions.AI** — a trade-contractor content engine — turned out not to be agent orchestration. It's not really about "researcher" and "writer" agents arguing in a loop, or a fragile hand-off protocol between them. The problem that actually mattered in production was narrower and more dangerous: stopping the pipeline from confidently publishing something false.
 
-Then we ran it 200 times and tracked the outputs. The results ranged from excellent to incoherent. About 30% of runs would get stuck in argument loops between the writer and critic. Another 15% would produce outputs that confidently violated our brand guidelines in ways the critic agent never flagged. Debugging any individual failure was nearly impossible because the failure state was embedded somewhere inside a 40,000-token chat transcript.
+## The Real Pipeline
 
-This was the pipeline we were building for **Minions.AI** — an automated editorial system for trade contractor content. The promise of autonomous agent loops was appealing. The operational reality wasn't.
+Every draft moves through four Qwen (DashScope) model calls, each sized to what the stage actually needs rather than running a flagship model end to end:
 
-## The Root Problem with Open-Ended Agent Loops
+| Stage | Model | Why |
+| :--- | :--- | :--- |
+| Strategist | \`qwen3.7-max\` | Highest-leverage reasoning step — angle, audience fit, positioning. Errors here propagate through the whole draft, and the output is short, so flagship cost is negligible. |
+| Writer | \`qwen-plus\` | Long-form generation (700–1000 words). Highest token volume of the four calls, so this is where cost tier matters most. |
+| Editor | \`qwen3.7-flash\` | A bounded task — tighten prose, enforce style, and extract + classify every factual claim in the draft. |
+| Variants | \`qwen-flash\` | Reformatting already-finished copy for LinkedIn and Facebook — no new reasoning needed. |
 
-When you instruct one LLM to coordinate other LLMs using natural language messages, you've introduced the same class of problems that plague microservices with verbal contracts: the coordination protocol is untyped, unvalidated, and brittle at the edges.
+This runs as an n8n workflow, not a hand-rolled orchestrator: a scheduled harvester proposes ideas twice a week, and a webhook-triggered pipeline runs each one through the four stages above, generates a hero image, uploads it to Cloudflare R2 before the image host's signed URL expires, and either publishes or gates the result.
 
-Three failure modes showed up immediately in production:
+## The Claims Gate
 
-**Looping deadlock.** The critic agent would return vague feedback like "the introduction needs more specificity." The writer would revise. The critic would give nearly identical feedback on the new draft. They would iterate until the token budget was exhausted, producing no output at all.
+The Editor stage doesn't just tighten prose — it extracts every factual claim in the draft and classifies it: \`STATISTIC\`, \`FACT\`, \`MARKET_CLAIM\`, \`PRODUCT_CLAIM\`, \`OPINION\`, or \`CUSTOMER_RESULT\`. Each claim then needs a source URL to pass.
 
-**Context poisoning.** As the multi-turn conversation grew, the orchestrator's effective understanding of its original goal would degrade. Early conversation turns — where the core constraints and formatting requirements lived — would be pushed toward the edges of the context window or summarized away. The outputs from late-stage retries would drift from the original specification.
+One rule is hardcoded, not a judgment call: **any claim classified \`CUSTOMER_RESULT\` is blocked outright.** Not "flagged for review" — blocked. The reasoning is stated plainly in the pipeline's own documentation: the business has zero paying clients as of this writing, so any claim about a customer result would be fabricated by definition. There's no result to attribute yet, so the gate doesn't let the pipeline invent one.
 
-**Uncatchable hallucination.** The critic was supposed to verify factual claims. But the critic and writer shared similar base model training, which meant they shared similar confident misconceptions. The critic would approve claims that were wrong but stated with appropriate confidence.
+Unsourced statistics, facts, and market claims are blocked too, unless they carry a real source URL. Opinion claims pass without a source — they're not verifiable by nature and aren't gate-relevant.
 
-## The Fix: TypeScript Controls the Graph
+## Enforcement, Not Just Reporting
 
-The redesign had one core principle: LLMs are transformation functions, not control flow. We write the control flow in TypeScript.
+The gate isn't a lint warning that a human can shrug off — it runs in two places:
 
-Instead of an orchestrator agent deciding what happens next, we define the execution graph explicitly. Every valid state is enumerated. Every transition is typed. An LLM cannot invent a new state or skip a required step.
+1. **Inline, during generation.** If the claims gate doesn't pass, the asset skips straight past the auto-publish step instead of going live to the blog and Facebook Page.
+2. **Again in a separate review-publisher workflow**, which polls the database every 5 minutes for anything a human has since approved manually in the review dashboard, and republishes it through the same gated path — so a claim can't sneak through by a human reviewer overriding the wrong field.
 
-\`\`\`typescript
-type EditorialStatus =
-  | "INGESTED"
-  | "RESEARCHING"
-  | "DRAFTING"
-  | "CRITIQUE"
-  | "APPROVED"
-  | "PUBLISHED";
+Either path leaves anything that isn't cleanly passed in a \`BLOCKED_PENDING_REVIEW\` state rather than live on the site.
 
-interface EditorialState {
-  id: string;
-  topic: {
-    keyword: string;
-    trade: "Plumbing" | "HVAC" | "Electrical" | "General";
-    targetReadingLevel: "Homeowner" | "Technician";
-  };
-  researchSummary: string | null;
-  draft: {
-    markdownContent: string;
-    wordCount: number;
-    version: number;
-  } | null;
-  criticResult: {
-    score: number;
-    passed: boolean;
-    issues: string[];
-    bannedPhrases: string[];
-  } | null;
-  status: EditorialStatus;
-  retryCount: number;
-  maxRetries: 2;
-}
-\`\`\`
+## What This Buys
 
-Every agent receives a validated snapshot of this state and returns a deterministic delta. The runner function in TypeScript reads the current status, determines which agent to invoke, validates the output schema, applies the delta, and persists.
-
-\`\`\`typescript
-async function runEditorialPipeline(state: EditorialState): Promise<EditorialState> {
-  switch (state.status) {
-    case "INGESTED":
-      return applyDelta(state, await runResearchAgent(state.topic));
-
-    case "RESEARCHING":
-      return applyDelta(state, await runDraftingAgent(state.researchSummary!));
-
-    case "DRAFTING": {
-      const result = await runCriticAgent(state.draft!.markdownContent);
-
-      if (result.passed) {
-        return applyDelta(state, { status: "APPROVED", criticResult: result });
-      }
-
-      if (state.retryCount >= state.maxRetries) {
-        return applyDelta(state, { status: "INGESTED", retryCount: 0 });
-      }
-
-      return applyDelta(state, {
-        status: "DRAFTING",
-        draft: { ...state.draft!, version: state.draft!.version + 1 },
-        criticResult: result,
-        retryCount: state.retryCount + 1,
-      });
-    }
-
-    case "APPROVED":
-      await publishToContentAPI(state);
-      return applyDelta(state, { status: "PUBLISHED" });
-
-    default:
-      throw new Error(\`Unexpected pipeline status: \${state.status}\`);
-  }
-}
-\`\`\`
-
-## Decoupling the Critic
-
-The most important structural decision was making the critic agent completely independent of the drafting context. In the original design, the critic received the full conversation history including the initial brief. This meant it shared anchoring bias with the drafter — it had "seen" the intent and was therefore unlikely to question fundamental assumptions.
-
-The redesigned critic receives exactly two things: the raw draft text and a structured evaluation rubric. It has no access to the original brief, no knowledge of which agent produced it, and runs at temperature 0.1. Its job is narrow and its output is a JSON schema.
-
-\`\`\`typescript
-const CRITIC_SYSTEM_PROMPT = \`
-You are a strict quality evaluator. You will be given a draft article and a rubric.
-Return a JSON object with: score (0.0-1.0), passed (boolean), issues (string[]), bannedPhrases (string[]).
-
-Fail the article if:
-- Any claim is unsupported or vague without specific detail
-- Any of these phrases appear: "in today's world", "in conclusion", "it's important to note", "leverage", "utilize"
-- Word count is below 600
-- Technical claims are internally inconsistent
-\`;
-
-async function runCriticAgent(draft: string): Promise<CriticResult> {
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o",
-    response_format: { type: "json_object" },
-    temperature: 0.1,
-    messages: [
-      { role: "system", content: CRITIC_SYSTEM_PROMPT },
-      { role: "user", content: draft },
-    ],
-  });
-
-  return JSON.parse(completion.choices[0].message.content!) as CriticResult;
-}
-\`\`\`
-
-## What Changed
-
-The state machine design gave us three things we couldn't have with open-ended loops:
-
-**Reproducibility.** Any run can be replayed by restoring its state snapshot and re-running the pipeline from the stored status. Debugging a failure means reading a JSON object, not unwinding a 40,000-token chat transcript.
-
-**Observable failures.** When the critic rejects a draft, we log the specific issues array. We can see exactly which banned phrases appeared, which claims failed verification, and what the score was. This data improved the drafter's system prompt iteratively.
-
-**Reliable retries.** The retry limit is enforced in TypeScript, not left to an agent's judgment. When retries are exhausted, the pipeline resets cleanly and alerts a human reviewer rather than continuing to generate increasingly deranged content.
-
-The broader lesson is a simple one: LLMs are powerful tools for transforming text. They are not reliable architects of multi-step processes. Write the architecture yourself.`,
+This doesn't solve "AI agents coordinating AI agents" in some general sense — there's no elaborate retry protocol or critic-agent handshake here, and there doesn't need to be. It solves the one failure mode that actually matters for a marketing content pipeline running largely unattended: don't let the system say something happened for a customer when nothing has happened yet. Everything else — tone, structure, formatting — can be imperfect and get caught in review. A fabricated customer result is the one mistake that isn't safe to publish and fix later.`,
   },
   {
     slug: "engineering-precision-data-platforms-sft-rlhf",

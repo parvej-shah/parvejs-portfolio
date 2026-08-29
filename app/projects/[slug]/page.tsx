@@ -34,6 +34,8 @@ const projectMetaTitleMap: Record<string, string> = {
   "mathpro-academy": "MathPro Academy Case Study: EdTech Platform with KaTeX | Parvej Shah",
   "sellervai": "SellerVai Case Study: Conversational Commerce Platform | Parvej Shah",
   "codervai-cp": "Codervai CP Case Study: Competitive Programming Platform | Parvej Shah",
+  "minions-ai": "Minions.AI Voice Case Study: AI Voice Booking Agent | Parvej Shah",
+  "minions-content-engine": "Minions.AI Content Engine Case Study: AI Marketing Pipeline | Parvej Shah",
 };
 
 // The DB summary is written for the on-page intro paragraph and runs 300-400
@@ -50,6 +52,10 @@ const projectMetaDescriptionMap: Record<string, string> = {
     "Conversational commerce agent for Bangladeshi merchants: message debouncing, hybrid product search, intent scoring, and a merchant analytics dashboard.",
   "codervai-cp":
     "Competitive programming platform for 4,000+ students: atomic PostgreSQL streak upserts, admin-triggered chapter publishing, and CDN video walkthroughs.",
+  "minions-ai":
+    "AI voice receptionist for trade contractors: real EspoCRM + Calendar booking, a 5-minute availability cache, and a multi-slot intake that shortened average calls.",
+  "minions-content-engine":
+    "Automated content pipeline for trade contractors: a 4-stage Qwen workflow gated by a claims-checker that blocks fabricated customer-result claims before publish.",
 };
 
 const caseStudySections = [
@@ -64,12 +70,21 @@ const projectKeywordsMap: Record<string, string[]> = {
     "Voice AI telephony",
     "Retell AI",
     "n8n automation",
-    "Gemini 2.0 Flash",
+    "Gemini Flash voice agent",
     "EspoCRM",
     "Google Calendar integration",
     "WebRTC SIP pipeline",
     "trade contractor dispatch bot",
     "AI voice latency",
+  ],
+  "minions-content-engine": [
+    "AI content pipeline",
+    "Qwen DashScope",
+    "n8n workflow automation",
+    "claims verification gate",
+    "multi-tenant SaaS onboarding",
+    "Supabase Postgres Prisma",
+    "automated marketing content",
   ],
   "genmorphics-ai": [
     "AI data annotation platform",

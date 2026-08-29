@@ -27,9 +27,9 @@ async function seedProjects() {
   const projects = [
     {
       slug: "minions-ai",
-      title: "Minions.AI",
+      title: "Minions.AI Voice",
       summary:
-        "A 24/7 AI voice front office and content engine for trade and service contractors. Powered by Retell AI telephony, Gemini 2.0 Flash (sub-250ms TTFT, 96% cost reduction), n8n Redis slot caching (dropping CRM delay from 850ms to 24ms), and a deterministic multi-agent state machine.",
+        "AI voice receptionist for trade contractors, built on Retell AI + n8n. Books real appointments end-to-end (Google Calendar + EspoCRM), with a multi-slot conversational intake and an in-memory availability cache that replaced a 1,272ms cold Google Calendar lookup with a <50ms cache hit. Live for a pest-control client (Ironclad Pest Solutions) and a real-estate variant (Horizon Realty).",
       status: "PUBLISHED" as const,
       featured: true,
       client: "Minions.AI",
@@ -38,42 +38,71 @@ async function seedProjects() {
       techStack: [
         "Next.js (App Router)",
         "TypeScript",
-        "Retell AI (WebRTC / SIP)",
-        "Gemini 2.0 Flash",
-        "n8n Workflow Automation",
-        "Redis In-Memory Cache",
+        "Retell AI (Conversation Flow + WebRTC/SIP telephony)",
+        "Gemini 2.0 Flash / Gemini 3.1 Flash Lite",
+        "n8n Workflow Automation (self-hosted)",
         "EspoCRM & Google Calendar",
-        "Cloudflare R2",
-        "Supabase (PostgreSQL)",
       ],
       keyFeatures: [
-        "Sub-1.4s voice round-trip using Retell AI telephony runtime and Gemini 2.0 Flash streaming tokens in ~210ms TTFT",
-        "n8n Redis slot cache: background cron pre-computes 2-hour appointment openings, reducing live tool latency from 850ms to 24ms",
-        "Greedy 3-turn conversational protocol: captures intent, selects slot, and wraps up call in 68 seconds (cutting telephony cost by 70%)",
-        "Asynchronous post-call fulfillment in n8n: creates EspoCRM Contact/Lead, books Google Calendar event, and sends SMS confirmation",
-        "Deterministic FSM editorial pipeline: research → draft → critic → publish, with typed state contracts and hard retry limits",
-        "Mission control dashboard with per-agent telemetry, inference cost tracking, and conversation replay",
+        "Real end-to-end booking, not just a calendar write: one n8n workflow checks slot conflicts, creates the Google Calendar event, finds-or-creates the EspoCRM Contact, then creates a linked Opportunity (stage: 'Appointment Booked')",
+        "5-minute in-memory availability cache (n8n staticData, no external cache service): cuts the check-availability webhook from a ~1,272ms cold Google Calendar round-trip to a <50ms cache-hit response",
+        "Multi-slot conversational intake: redesigned from 5 rigid sequential questions to a single extraction pass that skips anything the caller already said, cutting average call length from ~3m40s to ~2m18s",
+        "Deployed for a real pest-control client (Ironclad Pest Solutions) with a parallel real-estate variant (Horizon Realty), unified under a shared Multi-Industry Demo Switchboard agent architecture",
+        "Real-estate variant adds automated lead scoring (0-100) and tier assignment (Tier 1 Hot / Tier 2 Warm) synced to EspoCRM on every showing booked",
+        "19/19 automated regression suite covering agent config, webhook latency, Calendar CRUD, and EspoCRM sync — run before every deploy",
       ],
-      problem: `Trade contractors — plumbers, HVAC technicians, electricians — lose up to 40% of inbound leads because they are on job sites and unable to answer calls. Traditional IVRs and naive chatbots introduce 2-second awkward pauses and take 8 to 12 conversational turns to book an appointment, driving up telephony costs.
+      problem: `Trade contractors miss inbound calls while on job sites, and an answering machine loses the lead. Early versions of the booking agent solved the "always answers" problem but introduced a new one: a five-question rigid intake and a live, uncached calendar lookup on every call made bookings slow enough (~3m40s average) that the automation cost more in call-minutes than it saved in staff time.`,
+      approach: `The agent runs on Retell AI's conversation-flow engine, wired to n8n over webhook tool calls for checking availability, booking, finding, modifying, and canceling appointments. The first version averaged 3m40s per call — a five-question rigid intake, plus a live 1,272ms Google Calendar round-trip on every single availability check. Two fixes addressed both: the intake was rebuilt as a single multi-slot extraction pass that only asks for information the caller hasn't already given, and n8n's own in-memory workflow state (staticData) now caches computed availability slots for 5 minutes, so most checks return in under 50ms instead of hitting the calendar cold.
 
-The second challenge was content: contractors need localized SEO content to rank, but lack staff to write it, while unconstrained LLM loops frequently oscillate between drafter and critic agents indefinitely.`,
-      approach: `The voice pipeline was architected around ultra-low-latency streaming primitives: Retell AI for WebRTC/SIP trunking paired with Gemini 2.0 Flash (slashing inference cost by 96% vs GPT-4o). To eliminate the 850ms pause of querying Google Calendar and EspoCRM synchronously during live calls, n8n pre-warms available slots into Redis every 2 minutes.
-
-For the editorial engine, all control flow was decoupled from LLMs and codified into deterministic TypeScript state machines with hard iteration bounds, eliminating context poisoning and tennis-match loops.`,
-      solution: `Minions.AI deploys voice agents that qualify caller inquiries, check pre-warmed calendar availability, and confirm bookings in under 3 turns without human involvement. Upon call termination, n8n asynchronously updates EspoCRM and dispatches SMS confirmations.
-
-The content pipeline harvests trade signals, produces structured drafts, validates them against strict anti-cliché rubrics, and publishes approved assets directly to Cloudflare R2.`,
-      results: `Contractors handle 100% of inbound calls 24/7 with zero added front-office headcount. Call duration dropped from 3.5 minutes to 1.1 minutes (-67%), while per-booked-lead telephony costs fell by 70.7%.
-
-The deterministic editorial FSM achieved a 99.2% automated completion rate across hundreds of scheduled runs with zero loop lockups.`,
+Booking itself does real CRM work inside one n8n workflow: check for slot conflicts, create the Calendar event, look up or create the EspoCRM Contact, then create an Opportunity linked to both. The same architecture now runs a second agent variant for a real-estate client (Horizon Realty), unified under a shared "Multi-Industry Demo Switchboard" Retell agent, with its own automated lead scoring and 19-test regression suite validating the Calendar/CRM integration end to end.`,
+      solution: `A Retell-based voice receptionist qualifies callers and books real appointments end-to-end — a Google Calendar event plus a linked EspoCRM Contact and Opportunity — through a cache-optimized, multi-slot intake flow. It's live for a real pest-control client (Ironclad Pest Solutions) and a parallel real-estate variant (Horizon Realty) with automated lead scoring, proving the same agent architecture generalizes across industries rather than being a single-purpose script.`,
+      results: `The multi-slot intake redesign cut average call length from ~3m40s to ~2m18s (measured across the most recent 45 live calls on the pest-control booking agent). The 5-minute in-memory cache turned the check-availability webhook's cold-path latency — a live 1,272ms Google Calendar round-trip — into a <50ms cache-hit response for repeat lookups within the same window; the real-estate variant's own regression suite independently confirms a 92.5ms cache-hit / 846.5ms cold-booking latency profile. Every completed booking creates a fully linked record — Calendar event, EspoCRM Contact, and EspoCRM Opportunity — with no manual re-entry required.`,
       liveUrl: "https://www.getminions.ai",
       gallery: [
         { url: "/projects/minions-landing.png", alt: "Minions.AI 24/7 AI Voice Dispatcher & Speed-to-Lead Platform" },
-        { url: "/projects/minions-cockpit.png", alt: "Minions.AI Multi-Agent Mission Control Cockpit & Telemetry" },
         { url: "/projects/minions-crew.png", alt: "Minions Digital Crew Members & Voice Pipeline Architecture" },
-        { url: "/projects/minions-blog.png", alt: "Autonomous Technical Content & Field Guide Engine" },
       ],
       order: 0,
+    },
+    {
+      slug: "minions-content-engine",
+      title: "Minions.AI Content Engine",
+      summary:
+        "Automated content pipeline for trade-contractor marketing: a 4-stage Qwen (DashScope) workflow drafts, edits, and reformats blog and social copy, gated by a claims-checking step before anything publishes. The gate blocks any unsourced claim outright — including a hardcoded rule against fabricating customer results, since there are no paying clients yet to attribute them to.",
+      status: "PUBLISHED" as const,
+      featured: true,
+      client: "Minions.AI",
+      role: "Full-Stack & AI Platform Engineer",
+      timeline: "2025 – Present",
+      techStack: [
+        "n8n Workflow Automation (self-hosted)",
+        "Qwen via DashScope (Alibaba Cloud)",
+        "Next.js (Minions Cockpit review dashboard)",
+        "TypeScript",
+        "Supabase (PostgreSQL) + Prisma ORM",
+        "Cloudflare R2",
+      ],
+      keyFeatures: [
+        "4-stage Qwen pipeline sized per task: Strategist (qwen3.7-max, flagship reasoning for angle/positioning) → Writer (qwen-plus, long-form draft) → Editor (qwen3.7-flash, tightens prose + extracts/classifies claims) → Variants (qwen-flash, reformats for LinkedIn/Facebook)",
+        "A claims gate classifies every extracted claim (STATISTIC/FACT/MARKET_CLAIM/PRODUCT_CLAIM/OPINION/CUSTOMER_RESULT) and checks it for a source URL before anything can publish",
+        "Hardcoded rule: any CUSTOMER_RESULT claim is blocked outright, since the business has zero paying clients as of writing and any such claim would be fabricated by definition",
+        "Enforcement runs in two places, not just at draft time: inline during generation (blocks immediate auto-publish) and again in a review-publisher workflow that catches anything a human approves later in the Cockpit",
+        "Self-serve multi-tenant onboarding: a 4-step wizard (company snapshot → LinkedIn voice connect → 3-question brand interview → review & launch) backed by a 16-model Prisma schema (Client, ClientChannel, ToneExample, Subscription, UsageEvent, etc.) with full per-tenant data isolation, tested end-to-end with a real second tenant",
+        "Real LinkedIn voice import on connect: pulls a tenant's actual recent post text via the LinkedIn API (OAuth token from Supabase Vault) into a ToneExample table used to calibrate the Writer stage's voice — with a graceful single-exemplar fallback if the read scope isn't granted",
+        "Every generated hero image is uploaded to Cloudflare R2 before its URL is stored anywhere permanent — the image-gen provider's signed URLs expire in ~24h and are never persisted directly",
+      ],
+      problem: `Trade contractors need a steady stream of local SEO content to rank, but have neither the staff to write it nor a reliable way to keep an automated writer from confidently publishing claims nobody can back up — the actual risk with unattended content generation isn't bad prose, it's a system that states a customer result or a statistic that was never true.`,
+      approach: `A scheduled harvester proposes content ideas twice a week from RSS and brand context. A webhook-triggered pipeline then runs each one through four Qwen model calls, each sized to the task rather than running a flagship model for everything — a flagship model only for the high-leverage strategy pass, progressively cheaper models for drafting, editing, and social reformatting. The Editor stage also extracts and classifies every factual claim in the draft. Before anything can publish, a claims gate checks each claim for a source: any claim it can't verify is blocked, and any claim that reports a customer result is blocked unconditionally, since the business doesn't have paying clients yet to attribute results to. The gate is enforced twice — once inline during generation, and again in a separate workflow that polls for anything a human approves later in the review dashboard — so a claim can't slip through either path.
+
+A new tenant onboards through a 4-step self-serve wizard: a company snapshot (URL + name, auto-inferred), a one-click LinkedIn OAuth connect that pulls real recent post text into a voice sample, a 3-question brand interview that runs one LLM call to draft brand directives, and a review-and-launch step that provisions the tenant's channels and fires the first content harvest in the background. Underneath it, the tenancy model is real: a 16-model Prisma schema (Client, ClientChannel, ToneExample, Subscription, UsageEvent, and others) with full per-tenant data isolation, tested end-to-end with a real second tenant.`,
+      solution: `A Qwen-powered content pipeline drafts, edits, and formats trade-specific marketing copy end to end, gated by a claims-checking step before anything publishes live to the blog or Facebook Page. Content that fails the gate — unsourced claims, or the customer-result claims the business can't yet make — stays behind human review in the Minions Cockpit dashboard rather than shipping automatically. It's the one part of the system built specifically to stop the AI from overstating what's actually been achieved.`,
+      results: `The claims gate enforces itself in production: it has already blocked assets carrying unsourced statistics and fabricated customer-result claims from auto-publishing, routing them to human review instead of letting them ship. The pipeline runs on a fixed schedule (twice weekly harvest) plus on-demand drafting, publishing approved posts to the blog and Facebook Page without manual formatting or re-entry. Onboarding a new tenant is designed as a fast, self-serve 4-step flow with real per-tenant data isolation, verified end to end against a real second tenant.`,
+      liveUrl: "https://minions.getminions.ai",
+      gallery: [
+        { url: "/projects/minions-cockpit.png", alt: "Minions.AI Multi-Agent Mission Control Cockpit & Telemetry" },
+        { url: "/projects/minions-blog.png", alt: "Autonomous Technical Content & Field Guide Engine" },
+      ],
+      order: 1,
     },
     {
       slug: "genmorphics-ai",
@@ -115,7 +144,7 @@ Access control isn't hardcoded into the app's role checks — permissions are ro
         { url: "/projects/genmorphics-overview.png", alt: "GenMorphics AI Expert Dashboard & Task Management" },
         { url: "/projects/genmorphics-skills.png", alt: "Granular Skill Matrix & Software Specialization Manager" },
       ],
-      order: 1,
+      order: 2,
     },
     {
       slug: "sellervai",
@@ -163,7 +192,7 @@ Underneath the live conversation, a scheduled analyzer classifies each idle conv
         { url: "/projects/sellervai-solutions.png", alt: "Omnichannel Support across WhatsApp, Messenger, Instagram & Telegram" },
         { url: "/projects/sellervai-pricing.png", alt: "SellerVai Merchant Subscription & Automation Packages" },
       ],
-      order: 2,
+      order: 3,
     },
     {
       slug: "mathpro-academy",
@@ -209,7 +238,7 @@ For payments, instead of trusting the webhook payload, every IPN triggers an act
         { url: "/projects/mathpro-courses.png", alt: "JSC, SSC & HSC Specialized Mathematics Course Tracks" },
         { url: "/projects/mathpro-features.png", alt: "Interactive Math Learning Features & Automated Checkout" },
       ],
-      order: 3,
+      order: 4,
     },
     {
       slug: "codervai-cp",
@@ -256,7 +285,7 @@ For video, we deliberately didn't build a custom encoding pipeline. Editorial wa
         { url: "/projects/codervai-mylearning.png", alt: "Enrolled Competitive Programming Courses & Course Bundles" },
         { url: "/projects/codervai-home.png", alt: "Codervai Competitive Programming Academy Homepage" },
       ],
-      order: 4,
+      order: 5,
     },
     {
       slug: "cprbd-du",
@@ -298,7 +327,7 @@ For video, we deliberately didn't build a custom encoding pipeline. Editorial wa
         { url: "/projects/cprbd-programs.png", alt: "National Executive Training Cohorts & Certificate Verification" },
         { url: "/projects/cprbd-researches.png", alt: "National Policy Research & Academic Publications Repository" },
       ],
-      order: 5,
+      order: 6,
     },
     {
       slug: "linkedin-brand-assistant",
@@ -348,7 +377,7 @@ The Manifest V3 service worker implementation handles the browser's aggressive t
         { url: "/projects/ln-assistant-store.png", alt: "Chrome Web Store Published Extension" },
         { url: "/projects/ln-assistant-features.png", alt: "AI Comment Tone Customization & Workflow Engine" },
       ],
-      order: 6,
+      order: 7,
     },
     {
       slug: "badhan-blood-network",
@@ -395,7 +424,7 @@ Zero cooldown violations across 590+ verified emergency donations, providing Ama
         { url: "/projects/badhan-search.png", alt: "Real-time Donor Search & Multi-criteria Eligibility Filter" },
         { url: "/projects/badhan-records.png", alt: "Donor Records & Unit Donation Logs" },
       ],
-      order: 7,
+      order: 8,
     },
     {
       slug: "linkedin-brand-assistant",
@@ -445,7 +474,7 @@ The Manifest V3 service worker implementation handles the browser's aggressive t
         { url: "/projects/ln-assistant-store.png", alt: "Chrome Web Store Published Extension" },
         { url: "/projects/ln-assistant-features.png", alt: "AI Comment Tone Customization & Workflow Engine" },
       ],
-      order: 6,
+      order: 8,
     },
     {
       slug: "luxeory",
@@ -478,7 +507,7 @@ The Manifest V3 service worker implementation handles the browser's aggressive t
         { url: "/projects/luxeory-preview.jpg", alt: "Luxeory Reservation & Property Management Overview" },
         { url: "/projects/luxeory-booking.jpg", alt: "Luxeory Guarded Checkout & Room Selection" },
       ],
-      order: 8,
+      order: 9,
     },
   ];
 
