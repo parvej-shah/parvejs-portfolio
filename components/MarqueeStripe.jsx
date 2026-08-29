@@ -21,7 +21,7 @@ export default function MarqueeStripe({ items = DEFAULT_ITEMS }) {
 
   return (
     <div
-      aria-hidden
+      aria-hidden="true"
       className="relative overflow-hidden bg-ink py-4"
     >
       {/* left fade */}
@@ -33,7 +33,7 @@ export default function MarqueeStripe({ items = DEFAULT_ITEMS }) {
         {track.map((item, i) => (
           <span
             key={i}
-            className="text-lg font-bold uppercase tracking-wide text-white/25 transition-colors hover:text-white/60 sm:text-xl"
+            className="text-lg font-bold uppercase tracking-wide text-white/45 transition-colors hover:text-white/75 sm:text-xl"
           >
             {item}
           </span>
