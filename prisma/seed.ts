@@ -418,7 +418,7 @@ For video, we deliberately didn't build a custom encoding pipeline. Editorial wa
       title: "Luxeory",
       summary:
         "Full-stack hotel and room booking platform with JWT authentication, date-range availability checking, and relational data modeling across properties, rooms, users, and reservations.",
-      status: "PUBLISHED" as const,
+      status: "DRAFT" as const,
       featured: false,
       client: "Independent Product",
       role: "Full-Stack Developer",
