@@ -383,7 +383,7 @@ The Manifest V3 service worker implementation handles the browser's aggressive t
       slug: "badhan-blood-network",
       title: "Badhan Blood Donation (Amar Ekushey Hall Unit)",
       summary:
-        "Digital emergency blood donation platform for Badhan at Amar Ekushey Hall, University of Dhaka. Transformed a 30-minute chaotic search across physical paper spiral ledgers into sub-10ms verified donor queries with automated 90-day cooldown enforcement and instant Telegram bot broadcasts across 590+ emergency donations.",
+        "AI-parsed Telegram bot for Badhan's student blood donor network at Amar Ekushey Hall, University of Dhaka. Coordinators post free-text donor submissions in a Telegram group; Gemini extracts structured records with a regex fallback, and a blood-group-indexed search surfaces eligible donors past their 4-month cooldown — 407 tracked donors, 599 logged donations.",
       status: "PUBLISHED" as const,
       featured: false,
       client: "Badhan — Amar Ekushey Hall Unit, University of Dhaka",
@@ -392,31 +392,27 @@ The Manifest V3 service worker implementation handles the browser's aggressive t
       techStack: [
         "Next.js (App Router)",
         "TypeScript",
-        "Prisma ORM",
+        "Prisma 7 (driver adapter)",
         "PostgreSQL (Supabase)",
+        "Google Gemini (gemini-flash-latest)",
         "Telegram Bot API (Webhooks)",
-        "IndexedDB Local Cache",
+        "next-pwa / Workbox",
         "Tailwind CSS",
-        "Workbox PWA",
       ],
       keyFeatures: [
-        "Replaced damaged paper spiral registers with instant sub-10ms indexed donor queries by blood group and hall room",
-        "Automated 90-day biological cooldown enforcement: prevents donors who donated recently from being contacted prematurely",
-        "Emergency broadcast generator: formats patient and hospital details into standard Telegram alerts with 1-click dispatch to volunteer groups",
-        "Offline-capable IndexedDB local cache for hospital basements (DMCH/BSMMU) where mobile networks drop",
-        "Comprehensive donation ledger: logged 590+ verified emergency donations and 400+ active student donors",
-        "Export functionality for volunteer coordinators to pull filtered donor lists for high-urgency multi-bag surgery dispatches",
+        "Two donor-entry paths for two different workflows: a Telegram bot that parses donor info posted straight into the group chat with a deterministic regex/pattern engine, and a web \"Submit\" page where messier freeform paste-ins go through a Gemini AI parser first",
+        "Telegram path: coordinators post donor info as free text (strict line format or comma-separated), the bot pattern-matches it into structured fields (name, blood group, phone, date, batch, hall) with zero AI dependency, and replies with a per-donor confirmation",
+        "Web path: a three-tier parser chain — Gemini AI first, a fixed-format block parser, then a plain regex parser — so a single point of failure never blocks a submission",
+        "Multi-key rotation with per-key cooldown (10 min) for the Gemini parser, so exhausted rate limits degrade to the fallback chain instead of failing outright",
+        "Batch submission support: multiple donor blocks in one message, separated by blank lines, each parsed and confirmed independently",
+        "Blood-group indexed donor search with a 4-month eligibility window computed at query time, sorted by longest-since-last-donation",
+        "Human-in-the-loop correction logging (UserFeedback + an internal review page) lets coordinators flag AI mis-parses for later review",
+        "Installable PWA with Workbox asset caching",
       ],
-      problem: `Historically, Badhan coordinators at Amar Ekushey Hall (University of Dhaka) tracked student donors in physical paper spiral ledgers. When an emergency call arrived at 2:30 AM for rare blood at Dhaka Medical College Hospital (DMCH), coordinators had to manually flip through hundreds of handwritten pages by room number, calculating in their heads whether donors had completed their 90-day cooldown. Paper ledgers got damaged, lost, or had illegible handwriting during critical emergencies.`,
-      approach: `We digitized the entire unit's operations:
-- Indexed database queries filter donors by blood group and hall room in under 10ms.
-- The 90-day biological cooldown rule is strictly enforced at query time, completely eliminating premature donor outreach.
-- An automated Telegram dispatch engine formats patient data and broadcasts urgent requests to active volunteer groups in seconds.
-- An offline-first local cache ensures coordinators can access donor contact numbers even in hospital basements with zero mobile signal.`,
-      solution: `The platform gives Badhan coordinators an instantaneous emergency tool on their mobile phones. When an emergency call arrives, coordinators select the blood group and hospital, view eligible candidates instantly sorted by longest time since last donation, and trigger group broadcasts with one click.`,
-      results: `Donor search time dropped from 25–35 minutes of paper flipping to under 10 milliseconds.
-
-Zero cooldown violations across 590+ verified emergency donations, providing Amar Ekushey Hall Unit with a permanent, tamper-proof donation history.`,
+      problem: `Historically, Badhan coordinators at Amar Ekushey Hall (University of Dhaka) tracked student donors in physical paper spiral ledgers, then in ad-hoc spreadsheets. Adding a new donor meant someone manually typing structured fields into a form — a bottleneck when submissions came in fast across Telegram threads full of unstructured donor info from multiple volunteers, and error-prone when done by hand.`,
+      approach: `We moved data entry into the tool volunteers already use: Telegram. A message posted in the group is scanned for donor-shaped text and parsed by a deterministic pattern engine — no AI call, no rate limit to worry about, no API cost per message. For the messier case (someone pasting a half-formatted list from a spreadsheet), a separate web "Submit" page runs the same text through Gemini first, with a fixed-block parser and a plain regex parser as fallbacks if the AI step has a bad moment. Search stays simple: an indexed lookup by blood group, filtered in-app to donors past a 4-month cooldown, sorted so the longest-idle eligible donor surfaces first.`,
+      solution: `Coordinators post donor details into Telegram exactly as they'd naturally write them — no app switching, no form. A deterministic parser turns that into a structured record, with an AI-backed web form available for messier paste-ins. Duplicate and validation errors are caught before they pollute the ledger. When someone needs a donor, blood-group search plus the cooldown filter surfaces exactly who's eligible right now.`,
+      results: `407 donors and 599 donation records tracked for the Amar Ekushey Hall Unit, entered almost entirely through Telegram messages rather than a form — the bot absorbed the actual workflow volunteers were already using instead of forcing a new one.`,
       liveUrl: "https://badhan.mathpro.academy",
       githubUrl: "https://github.com/parvej-shah/blood-update-badhan",
       gallery: [

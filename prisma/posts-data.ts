@@ -521,108 +521,79 @@ The real answer is humility: DOM scraping is inherently fragile, and the archite
   },
   {
     slug: "offline-first-pwa-emergency-volunteer-networks",
-    title: "Building Software for Places Where the Internet Doesn't Work",
+    title: "Teaching an LLM to Read Badly-Formatted Telegram Messages",
     excerpt:
-      "Badhan's blood donor platform for Amar Ekushey Hall needed to work in hospital basements, rural clinics, and emergency wards with no connectivity. Offline-first isn't a feature — it's an architecture decision made early.",
+      "Badhan's donor coordinators were already posting donor info into Telegram as free text. Instead of building a form nobody would use consistently, we built two parsers matched to two real workflows — one deterministic, one AI-backed.",
     coverImage: {
       url: "/blog/offline-first-pwa-networks.png",
-      alt: "Offline-First PWA Architecture Cover",
+      alt: "Badhan Donor Intake Parsing Architecture Cover",
     },
     featured: false,
     publishedAt: new Date("2026-01-02T09:30:00.000Z"),
-    content: `Blood donor matching is time-sensitive in a way most software problems aren't. When a patient needs a specific blood type during a critical procedure, the medical team is working with a narrow window. The volunteer coordinator needs to identify available donors, contact them, and arrange a donation quickly.
+    content: `## The Bottleneck Wasn't Search, It Was Entry
 
-**Badhan** is the blood donation organization of the Amar Ekushey Hall unit at the University of Dhaka, operating a volunteer donor network for the Dhaka Medical College Hospital. The donor management platform needed to be fast, usable by volunteers with varying technical experience, and — critically — functional in hospital environments where network connectivity is unreliable.
+The original version of this post was about offline-first architecture — IndexedDB caches, hospital basements with no signal. None of that is real. What's actually in this codebase is a Workbox service worker caching static assets, and a \`NetworkFirst\` strategy on the API calls that matter, which means the core donor-lookup workflow still needs a network connection. So this isn't that post.
 
-Anyone who has been inside a large hospital building knows the problem: thick concrete walls, basement floors, and dense building infrastructure create mobile dead zones. A web application that requires network connectivity to display a list of blood donors is simply not useful in these environments.
+The real friction Badhan's coordinators had wasn't looking donors up — a blood-group-indexed Postgres query handles that fine. It was getting donor information *in*. Volunteers were already reporting new donors the way people naturally coordinate things: as free text, in Telegram, in whatever format they happened to type it in. A form nobody consistently fills out correctly is worse than no form at all. So we built two different entry paths for two different shapes of input, instead of forcing one workflow on both.
 
-## Offline-First vs. Offline-Capable
+## Path One: Telegram, No AI Involved
 
-There's an important distinction between applications that are offline-capable and applications that are offline-first.
+Coordinators post donor info directly into a Telegram group. The bot detects donor-shaped messages with a keyword/pattern heuristic — blood group plus a phone number or date is usually enough — and hands the text to a deterministic parser: no LLM call, no API cost, no rate limit to worry about.
 
-An offline-capable application handles the absence of network connectivity gracefully — it shows a cached version of content it previously loaded, or displays a "you're offline" message without crashing. This is the baseline minimum.
+\`\`\`
+Parvej Shah
+B+
+IIT 23-24
+01516538054
+25-08-25
+Hasanur Rahman
+AEH Hall
+\`\`\`
 
-An offline-first application treats local storage as the primary data source. All reads come from local storage first. Network requests are used to synchronize local data with the server, not to serve the request. The application is fully functional without a network connection, not just tolerable.
+That's the expected shape: referrer name, donor name, then blood group / phone / date / batch / hall in any order, matched by what each token looks like rather than its position. A comma-separated single-line variant works too. Multiple donors in one message just need a blank line between blocks. The bot replies per donor — ✅ submitted, ⚠️ already exists, or ❌ with the specific validation error — so a bad phone number in donor 3 of 5 doesn't obscure that the other four went through fine.
 
-For Badhan's use case, offline-capable was insufficient. If a volunteer could only search the donor directory online, the application would fail exactly when it was needed most.
+This path is intentionally *not* AI. A Telegram group can get bursts of messages, and every one of them gets scanned for the donor-data pattern. Running an LLM call against every group message would be slow, costly, and unnecessary — the format volunteers actually use is regular enough that pattern matching gets it right without asking an API to guess.
 
-## The Data Synchronization Architecture
+## Path Two: The Web Submit Page, Where AI Earns Its Keep
 
-All donor records, blood group data, and volunteer contact information are stored in the browser's IndexedDB. When the application loads with a network connection, it syncs any changes from the server to local IndexedDB. When the volunteer searches for donors, the query runs against local IndexedDB with zero network involvement.
+There's a second entry point — a plain "paste your donor list" form on the web app — for the messier case: someone dumping a half-formatted list from a spreadsheet, a WhatsApp export, or a batch of records that don't line up with the strict positional format. That's where the AI parser actually lives, and it's built as a three-tier fallback, not a single point of failure:
 
 \`\`\`typescript
-interface LocalDonorRecord {
-  id: string;
-  name: string;
-  bloodGroup: "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-";
-  contactNumber: string;
-  lastDonationDate: Date | null;
-  isEligible: boolean;   // pre-computed flag
-  hallName: string;
-  roomNumber: string;
-  lastSyncedAt: Date;
+// 1. Attempt Gemini AI parsing (skipped if useAI is false)
+const aiDonors = useAI ? await parseWithGemini(trimmedText) : null;
+if (aiDonors && aiDonors.length > 0) {
+  return NextResponse.json({ donors: aiDonors, usedAI: true });
 }
 
-async function syncDonorRecords(): Promise<void> {
-  const lastSync = await getLastSyncTimestamp();
-  
-  const updates = await fetch(\`/api/donors?updatedSince=\${lastSync.toISOString()}\`)
-    .then(r => r.json());
+// 2. Try fixed-format block parser
+if (isFixedBlockFormat(trimmedText)) {
+  const fixedDonors = parseFixedFormatBlocks(trimmedText);
+  if (fixedDonors.length > 0) return NextResponse.json({ donors: fixedDonors, usedAI: false });
+}
 
-  const db = await openLocalDB();
-  const tx = db.transaction("donors", "readwrite");
+// 3. Fall back to regex parser
+const regexDonors = await parseBulkFormattedText(trimmedText);
+\`\`\`
 
-  for (const donor of updates) {
-    const isEligible = donor.lastDonationDate
-      ? daysSince(donor.lastDonationDate) >= 90
-      : true;
+Gemini gets a strict extraction prompt: blank-line-separated blocks, a fixed referrer/donor-name convention for the first two lines, and explicit field-identification rules — a blood-group token can be "B(+ve)" or "o+" or "AB(positive)" and should normalize to \`AB+\`; a date can be \`5-5-26\` or \`09/04/2026\` and should normalize to \`DD-MM-YYYY\`; a hall name like "AEH" or "Ae hall" should normalize to \`AE Hall\`. The model is told exactly what shape to return and nothing else — a bare JSON array, no markdown fences, no commentary.
 
-    await tx.store.put({ ...donor, isEligible, lastSyncedAt: new Date() });
-  }
+## Fallback Isn't Optional
 
-  await tx.done;
-  await setLastSyncTimestamp(new Date());
+Gemini calls fail for boring reasons: rate limits, transient errors, a malformed response the model didn't quite get right. The parser rotates across multiple API keys, and when a key gets a 429 it's marked as cooling down for 10 minutes and skipped on the next attempt rather than retried into more failures:
+
+\`\`\`typescript
+function markKeyCooledDown(keyState: KeyState): void {
+  keyState.cooledUntil = Date.now() + COOLDOWN_MS; // 10 minutes
 }
 \`\`\`
 
-We pre-compute the isEligible boolean flag on dataset sync. Blood donation guidelines require a minimum 90-day gap between donations. Pre-computing it means the calculation happens once at sync time, not on every search query, enabling instant filtering in the critical search flow.
+If every key is cooling down, or the response fails to parse as valid JSON, \`parseWithGemini\` returns \`null\` and the route falls through to the fixed-block parser, then the regex parser. A submission on the web form never just fails because the AI step had a bad moment — it degrades to a dumber but reliable path instead.
 
-## Service Worker Caching Strategy
+## What This Buys, and What It Doesn't
 
-Workbox handles the service worker layer, managing pre-caching for static assets and runtime caching strategies for API responses.
+The honest version of this feature: two intake paths matched to two real usage patterns, a fallback chain that treats the AI step as an enhancement rather than a dependency, and a \`UserFeedback\` table plus an internal review page where coordinators can flag a bad parse for someone to look at later. That last part is a correction log, not a self-improving system — the extraction prompt doesn't change itself based on feedback, and there's no active training loop running today. It's a place mistakes get recorded, not a model that gets smarter on its own.
 
-\`\`\`javascript
-import { precacheAndRoute } from "workbox-precaching";
-import { registerRoute } from "workbox-routing";
-import { NetworkFirst } from "workbox-strategies";
-import { ExpirationPlugin } from "workbox-expiration";
-
-precacheAndRoute(self.__WB_MANIFEST);
-
-registerRoute(
-  ({ url }) => url.pathname.startsWith("/api/donors"),
-  new NetworkFirst({
-    cacheName: "donor-api-cache",
-    networkTimeoutSeconds: 4,
-    plugins: [
-      new ExpirationPlugin({
-        maxEntries: 100,
-        maxAgeSeconds: 24 * 60 * 60,
-      }),
-    ],
-  })
-);
-\`\`\`
-
-The NetworkFirst strategy with a 4-second timeout means: try the network first. If the network responds within 4 seconds, use that response and update the cache. If not, serve the cached response. This gives volunteers fresh data when the network is marginal but usable, and cached data when it's completely unavailable.
-
-## The Offline-First Side Effect: Speed
-
-The most practical aspect of the offline-first approach turned out to be speed rather than connectivity. IndexedDB queries for blood group filtering across hundreds of records return in under 10 milliseconds consistently. This is faster than any network request and faster than most server-side database queries when you account for round-trip time.
-
-The offline-first architecture that we built for connectivity resilience also produced a noticeably snappier search experience under normal conditions.
-
-That's usually how it works: designing for the hard constraint improves performance under the easy conditions too.`,
+What it produced: 407 donors and 599 donation records for the Amar Ekushey Hall Unit, most of them entered as Telegram messages typed the way people already type, not through a form built assuming they'd type differently.`,
   },
   {
     slug: "scaling-competitive-programming-lms-architectures",

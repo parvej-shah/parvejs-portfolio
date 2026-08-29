@@ -107,10 +107,10 @@ const projectKeywordsMap: Record<string, string[]> = {
   "badhan-blood-network": [
     "Badhan blood donation network",
     "Amar Ekushey Hall University of Dhaka",
-    "emergency blood transfusion",
-    "donor eligibility cooldown",
-    "Telegram bot emergency alert",
-    "IndexedDB PWA",
+    "Telegram bot donor intake",
+    "Gemini AI parsing",
+    "donor eligibility search",
+    "Workbox PWA caching",
   ],
   "sellervai": [
     "SellerVai",
