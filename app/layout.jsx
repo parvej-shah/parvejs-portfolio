@@ -14,7 +14,7 @@ const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 const defaultSeo = {
   title: "Parvej Shah — Software Engineer & AI Systems Developer | University of Dhaka",
   description:
-    "Software Engineer & AI Systems Developer based at University of Dhaka, Bangladesh. I build production AI voice pipelines, high-concurrency webhook infrastructure, and full-stack systems in Next.js and TypeScript — including real-time telephony, payment webhooks, and deterministic multi-agent architectures.",
+    "Software Engineer & AI Systems Developer based at University of Dhaka, Bangladesh. I build production AI voice pipelines, high-concurrency webhook infrastructure, and full-stack systems in Next.js and TypeScript — including real-time telephony, payment webhooks, and automated workflow orchestration.",
   ogImage: "/og.jpg",
   siteUrl: "https://parvejshah.com",
 };
@@ -96,9 +96,9 @@ export default async function RootLayout({ children }) {
       "Real-Time Telephony",
       "WebRTC",
       "SIP Protocol",
-      "Deterministic Multi-Agent Systems",
+      "Retell AI Voice Agents",
       "LLM Orchestration",
-      "TypeScript Finite State Machines",
+      "n8n Workflow Automation",
       "Full-Stack Web Development",
       "React",
       "Next.js",
@@ -199,7 +199,7 @@ export default async function RootLayout({ children }) {
         name: "What is Parvej Shah known for technically?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Parvej Shah is known for engineering AI voice response pipelines under 1.8 seconds using neural VAD, streaming STT/TTS, and WebRTC/SIP; designing deterministic multi-agent FSMs to replace non-deterministic LLM orchestration; and building idempotent payment webhook systems for bKash and Nagad at production scale.",
+          text: "Parvej Shah is known for building production voice AI agents on Retell AI and n8n workflow automation, with real-time calendar and CRM booking integrations and sub-100ms cached availability lookups; designing automated multi-stage content pipelines with built-in claims-verification gates; and building idempotent payment webhook systems for bKash and Nagad at production scale.",
         },
       },
       {

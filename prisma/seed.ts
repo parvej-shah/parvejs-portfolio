@@ -612,7 +612,7 @@ const sectionContent: Record<SectionKey, unknown> = {
       {
         icon: "Sparkles",
         title: "Voice AI & LLM Infrastructure",
-        desc: "Sub-second WebRTC voice pipelines, deterministic multi-agent state machines, and low-latency RAG systems tailored to business workflows.",
+        desc: "Retell AI voice agents with n8n workflow orchestration, automated multi-stage content pipelines, and low-latency RAG systems tailored to business workflows.",
       },
       {
         icon: "Gauge",
@@ -671,7 +671,7 @@ const sectionContent: Record<SectionKey, unknown> = {
     quoteAuthor: "Parvej Shah",
     quoteRole: "Software Engineer & AI Systems Developer, IIT DU",
     points: [
-      "AI & Automation — Sub-second WebRTC voice pipelines, deterministic FSM orchestration",
+      "AI & Automation — Retell AI voice agents, n8n workflow orchestration, automated content pipelines",
       "Full-stack depth — Next.js App Router, TypeScript, Python FastAPI, PostgreSQL & Redis",
       "Engineering foundation from IIT, University of Dhaka",
     ],
