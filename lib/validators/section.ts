@@ -34,7 +34,7 @@ const statsSchema = z.object({
   items: z.array(
     z.object({
       value: z.string().min(1),
-      suffix: z.string().min(1),
+      suffix: z.string(),
       label: z.string().min(1),
     })
   ),

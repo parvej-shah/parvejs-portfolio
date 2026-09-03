@@ -2,8 +2,8 @@ import Reveal from "./Reveal";
 
 const defaultSection = {
   items: [
-    { value: "3", suffix: "+", label: "Years of hands-on full-stack development experience" },
-    { value: "20", suffix: "+", label: "Products & websites designed, built, and shipped" },
+    { value: "2", suffix: "+", label: "Years of hands-on full-stack development experience" },
+    { value: "12", suffix: "", label: "Products & websites designed, built, and shipped" },
     { value: "10", suffix: "+", label: "Technologies mastered across the modern stack" },
     { value: "100", suffix: "%", label: "On-time delivery — and clients who come back" },
   ],

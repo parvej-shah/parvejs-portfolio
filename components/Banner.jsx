@@ -16,14 +16,14 @@ const defaultHero = {
     "I design and build production AI voice pipelines, high-concurrency backend infrastructure, and full-stack web products that load fast and feel effortless.",
   primaryCta: { label: "Start a Project", href: "#contact" },
   secondaryCta: { label: "View My Work", href: "#portfolio" },
-  trustLabel: "Trusted by 12+ clients",
+  trustLabel: "Trusted by 5 clients",
   trustStats: [
-    { value: "20+", label: "projects shipped" },
+    { value: "12", label: "projects shipped" },
     { value: "<24h", label: "response time" },
   ],
   portraitImage: "/assets/images/banner-cutout.webp",
   portraitAlt: "Parvej Shah — Software Engineer & AI Systems Developer",
-  experienceBadge: { value: "3+", label: "years experience" },
+  experienceBadge: { value: "2+", label: "years experience" },
 };
 
 export default function HeroSection({ section = defaultHero, socialLinks = [] }) {

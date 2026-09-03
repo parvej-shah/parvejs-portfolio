@@ -16,16 +16,6 @@ const defaultSection = {
       rating: 5,
       href: "https://www.mathpro.academy",
     },
-    {
-      quote:
-        "Parvej built our sub-1.4s voice pipeline and Redis slot cache. His architectural choices dropped our CRM latency from 850ms to 24ms and cut our telephony costs by over 70%.",
-      name: "Minions.AI Team",
-      role: "Engineering Lead, Minions.AI",
-      initials: "MA",
-      avatarUrl: "",
-      rating: 5,
-      href: "https://www.getminions.ai",
-    },
   ],
   clients: ["Minions.AI", "SellerVai", "MathPro Academy", "Codervai", "University of Dhaka", "GenMorphics AI", "Leadswave"],
 };

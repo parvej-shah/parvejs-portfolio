@@ -17,12 +17,12 @@ const defaultSection = {
     {
       icon: "Sparkles",
       title: "Voice AI & LLM Infrastructure",
-      desc: "Sub-second WebRTC voice pipelines, deterministic multi-agent state machines, and low-latency RAG systems tailored to business workflows.",
+      desc: "Retell AI voice agents with n8n workflow orchestration, automated multi-stage content pipelines, and low-latency RAG systems tailored to business workflows.",
     },
     {
       icon: "Gauge",
       title: "Performance & Data Architecture",
-      desc: "Zero-CLS rendering, sub-15ms vector search, Redis caching, and resilient database design — tuned until every interaction feels instant.",
+      desc: "Zero-CLS rendering, PGVector semantic search, Redis caching, and resilient database design — tuned until every interaction feels instant.",
     },
   ],
 };

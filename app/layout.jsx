@@ -161,7 +161,7 @@ export default async function RootLayout({ children }) {
     "@type": "ProfessionalService",
     name: "Parvej Shah — Engineering Services",
     description:
-      "Software engineering services specialising in AI voice pipelines, high-concurrency full-stack systems, Next.js/TypeScript platforms, payment webhook infrastructure, and offline-first PWAs.",
+      "Software engineering services specialising in AI voice pipelines, high-concurrency full-stack systems, Next.js/TypeScript platforms, payment webhook infrastructure, and installable PWAs.",
     url: seo.siteUrl,
     provider: {
       "@type": "Person",

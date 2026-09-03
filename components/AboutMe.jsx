@@ -14,11 +14,11 @@ const defaultSection = {
   quoteAuthor: "Parvej Shah",
   quoteRole: "Software Engineer & AI Systems Developer, IIT DU",
   points: [
-    "AI & Automation — Sub-second WebRTC voice pipelines, deterministic FSM orchestration",
+    "AI & Automation — Retell AI voice agents, n8n workflow orchestration, automated content pipelines",
     "Full-stack depth — Next.js App Router, TypeScript, Python FastAPI, PostgreSQL & Redis",
     "Engineering foundation from IIT, University of Dhaka",
   ],
-  badgeValue: "12+",
+  badgeValue: "5",
   badgeLabel: "people trust my work",
   ctaLabel: "Let's Work Together",
   ctaHref: "#contact",
