@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { resolveSectionImage } from "@/lib/section-rendering";
 
 const defaultHero = {
-  eyebrow: "Production AI & Full-Stack Engineering",
+  eyebrow: "Software Engineer & AI Systems Developer",
   headlineLines: ["We Build AI Systems", "That Actually Run", "in Production."],
   description:
     "We turn ambitious AI ideas into production-ready software — from 24/7 AI voice agents and automated workflows to high-scale SaaS platforms without agency bloat or fragile prototypes.",
