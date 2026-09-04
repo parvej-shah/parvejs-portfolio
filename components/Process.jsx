@@ -2,34 +2,34 @@ import Reveal from "./Reveal";
 import { resolveProcessIcon } from "@/lib/section-rendering";
 
 const defaultSection = {
-  eyebrow: "How I Work",
-  heading: "A clear path from first idea to launched product.",
+  eyebrow: "How It Works",
+  heading: "A de-risked process with defined deliverables at every step.",
   description:
-    "A focused process keeps the work calm, fast, and measurable: first we clarify what matters, then we design, build, and launch without losing sight of the business goal.",
+    "We eliminate perceived risk and scope creep. You always know what is being built, when it will be delivered, and what concrete artifacts you will receive at each milestone.",
   steps: [
     {
       icon: "Search",
       title: "Discover",
-      description: "Define the audience, product goal, must-have flows, and the smallest scope worth launching.",
-      deliverable: "Scope & roadmap",
+      description: "Turn your business idea into a buildable, de-risked plan with validated architecture and clear scope.",
+      deliverable: "Architecture & Roadmap",
     },
     {
       icon: "LayoutGrid",
       title: "Design",
-      description: "Shape the experience with clear content hierarchy, conversion paths, and responsive interface details.",
-      deliverable: "UI & prototype",
+      description: "Know exactly what we're building before expensive development begins with high-fidelity UI and flows.",
+      deliverable: "Interactive UI Prototype",
     },
     {
       icon: "Code2",
       title: "Build",
-      description: "Develop the product with maintainable architecture, fast pages, and practical admin workflows.",
-      deliverable: "Production code",
+      description: "Production development with clean TypeScript, deterministic AI guardrails, and automated tests.",
+      deliverable: "Production Code & Staging",
     },
     {
       icon: "Rocket",
       title: "Launch",
-      description: "Ship with QA, deployment support, performance checks, and a clear plan for the next iteration.",
-      deliverable: "Live product",
+      description: "Zero-downtime deployment, telemetry monitoring, load testing, and a 30-day post-launch warranty.",
+      deliverable: "Live Deployment & 100% IP",
     },
   ],
 };
@@ -102,11 +102,11 @@ export default function Process({ section = defaultSection }) {
                     <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">{description}</p>
 
                     {deliverable && (
-                      <div className="mt-6 flex items-center gap-2 border-t border-line pt-4">
+                      <div className="mt-6 flex flex-col gap-2 border-t border-line pt-4">
                         <span className="text-[0.65rem] font-medium uppercase tracking-[0.14em] text-muted-foreground/70">
                           Deliverable
                         </span>
-                        <span className="ml-auto rounded-full border border-brand/20 bg-brand/[0.07] px-2.5 py-1 text-xs font-medium text-brand">
+                        <span className="self-start whitespace-nowrap rounded-full border border-brand/20 bg-brand/[0.07] px-2.5 py-1 text-xs font-medium text-brand">
                           {deliverable}
                         </span>
                       </div>

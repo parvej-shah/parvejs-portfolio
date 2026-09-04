@@ -135,7 +135,7 @@ const postKeywordsMap: Record<string, string[]> = {
   ],
   "craft-of-high-velocity-software-delivery": [
     "modern web stack",
-    "PostgreSQL Prisma Redis",
+    "PostgreSQL Prisma TypeScript",
     "Next.js App Router",
     "boring technology",
     "developer velocity",

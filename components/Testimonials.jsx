@@ -3,12 +3,13 @@ import { Quote, Star } from "lucide-react";
 import Reveal from "./Reveal";
 
 const defaultSection = {
-  eyebrow: "Client Feedback",
-  heading: "Kind words from the people I've built with.",
+  eyebrow: "Client Proof & Impact",
+  heading: "Measurable outcomes from the founders we've built with.",
   items: [
     {
+      metric: "4,000+ Active Students & 100% Uptime",
       quote:
-        "Parvej engineered our entire online coaching platform — from LaTeX formula rendering to payment gateway integration. The performance is flawless and our 4,000+ students love the speed.",
+        "Parvej engineered our entire online learning platform — from LaTeX mathematical formula rendering to automated payment gateway integration. The performance is flawless and our 4,000+ students love the speed during peak exam surges.",
       name: "Abdul Aziz",
       role: "Founder, MathPro Academy",
       initials: "AA",
@@ -34,7 +35,7 @@ export default function Testimonials({ section = defaultSection }) {
           </h2>
         </Reveal>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-2">
+        <div className={`mt-12 grid gap-6 ${content.items.length > 1 ? "md:grid-cols-2" : "max-w-3xl"}`}>
           {content.items.map((t, i) => {
             const rating = Math.min(5, Math.max(1, t.rating || 5));
             const CardTag = t.href ? "a" : "div";
@@ -53,7 +54,12 @@ export default function Testimonials({ section = defaultSection }) {
                       ))}
                     </div>
                   </div>
-                  <p className="mt-4 text-sm leading-relaxed text-white/90 sm:text-base">{t.quote}</p>
+                  {t.metric && (
+                    <div className="mt-4 inline-flex items-center rounded-lg border border-brand/25 bg-brand/10 px-3 py-1 text-xs font-bold text-brand">
+                      {t.metric}
+                    </div>
+                  )}
+                  <p className="mt-3 text-sm leading-relaxed text-white/90 sm:text-base">{t.quote}</p>
                   <div className="mt-6 flex items-center gap-3">
                     {t.avatarUrl ? (
                       <Image

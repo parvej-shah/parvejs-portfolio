@@ -74,7 +74,7 @@ Frontend development is expanding beyond human visual presentation. Treating mac
       "Two different Flash-tier models across two live voice agents, n8n's built-in staticData cache replacing an external Redis layer, and a 5-question intake that was quietly adding two minutes to every call — here's what actually moved the latency numbers.",
     coverImage: {
       url: "/blog/voice-ai-sub-18s.png",
-      alt: "Sub-1.8s Voice AI Pipelines Architecture Cover",
+      alt: "Voice AI Latency Optimization Architecture Cover",
     },
     featured: true,
     publishedAt: new Date("2026-02-15T09:00:00.000Z"),
@@ -149,7 +149,7 @@ Average call duration on the pest-control agent dropped from an internal ~3m40s 
       "A 4-stage Qwen pipeline generates every post for Minions.AI, and one safety mechanism does the real work: a gate that blocks any AI-generated claim it can't source — including a hard rule against fabricating customer results, because there aren't paying clients to attribute them to yet.",
     coverImage: {
       url: "/blog/multi-agent-state-machines.png",
-      alt: "Deterministic Multi-Agent State Machines Architecture Cover",
+      alt: "AI Content Pipeline Safety and Claims Gate Cover",
     },
     featured: true,
     publishedAt: new Date("2026-02-10T10:30:00.000Z"),
@@ -630,7 +630,7 @@ The streak upsert design held up exactly as built — it's still the atomic, sin
       "CPRBD at the University of Dhaka needed employers and embassies to verify that a professional certificate was real. The actual solution was less exotic than the platform's own docs once claimed: a structured certificate ID, a plain database lookup, and rate limiting.",
     coverImage: {
       url: "/blog/cryptographic-credential-verification.png",
-      alt: "Cryptographic Credential Verification Cover",
+      alt: "Academic Certificate Verification Cover",
     },
     featured: false,
     publishedAt: new Date("2025-12-18T10:00:00.000Z"),

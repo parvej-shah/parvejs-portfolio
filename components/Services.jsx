@@ -4,25 +4,25 @@ import { resolveServiceIcon } from "@/lib/section-rendering";
 
 const defaultSection = {
   eyebrow: "My Core Expertise",
-  heading: "From high-concurrency backends to polished interfaces — engineered without bloat.",
+  heading: "From architecture to production, without the usual excuses.",
   description:
-    "Every build is measured against three things: latency, reliability, and room to grow. No bloat, no shortcuts — just work that lasts.",
+    "Every build is measured against three things: does it hold up under real usage, can it be trusted with real money and data, and can it grow without a rewrite. No bloat, no shortcuts, just work that lasts.",
   tagline: "Core Services Offered",
   items: [
     {
       icon: "Code2",
       title: "Full Stack Systems & Web Apps",
-      desc: "End-to-end web applications and high-concurrency backends — clean architecture, type-safe APIs, and code that stays maintainable long after launch.",
+      desc: "Software that works the first time and every time. From payment flows to permission systems and admin tooling, I build backend architecture engineered to hold up under real usage — not just in the demo.",
     },
     {
       icon: "Sparkles",
       title: "Voice AI & LLM Infrastructure",
-      desc: "Retell AI voice agents with n8n workflow orchestration, automated multi-stage content pipelines, and low-latency RAG systems tailored to business workflows.",
+      desc: "AI that does real work, not party tricks. Voice agents that book real appointments, and automated pipelines built with hard limits so the AI never states something that isn't true.",
     },
     {
       icon: "Gauge",
       title: "Performance & Data Architecture",
-      desc: "Zero-CLS rendering, PGVector semantic search, Redis caching, and resilient database design — tuned until every interaction feels instant.",
+      desc: "Speed people actually feel. Pages that load instantly and stay steady, search that understands intent instead of just keywords, and data systems built to hold up under real-world load.",
     },
   ],
 };

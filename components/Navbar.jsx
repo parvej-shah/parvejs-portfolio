@@ -8,11 +8,11 @@ import { buttonVariants } from "./ui/button";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
-  { name: "About Me", link: "/#about" },
-  { name: "Services", link: "/#services" },
-  { name: "Case Studies", link: "/projects" },
-  { name: "Insights", link: "/blog" },
-  { name: "Contact", link: "/#contact" },
+  { name: "Solutions", link: "/#solutions" },
+  { name: "Proof", link: "/#portfolio" },
+  { name: "Why Us", link: "/#why-us" },
+  { name: "Process", link: "/#process" },
+  { name: "FAQ", link: "/#faq" },
 ];
 
 export default function Navbar() {
@@ -54,7 +54,7 @@ export default function Navbar() {
               "hidden h-10 rounded-full bg-brand px-5 text-sm font-semibold text-[#05140b] hover:bg-brand-dark sm:inline-flex [&_svg]:size-4"
             )}
           >
-            Start a Project
+            Tell Us What You're Building
             <ArrowUpRight />
           </Link>
 
@@ -91,7 +91,7 @@ export default function Navbar() {
                 "mt-2 h-11 rounded-full bg-brand font-semibold text-[#05140b] hover:bg-brand-dark"
               )}
             >
-              Start a Project
+              Tell Us What You're Building
             </Link>
           </nav>
         </div>

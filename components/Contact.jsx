@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { ArrowUpRight, CalendarPlus, Mail, MessageSquare } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { ArrowUpRight, CalendarPlus, Mail, MessageSquare, CheckCircle2 } from "lucide-react";
 import emailjs from "@emailjs/browser";
 import Reveal from "./Reveal";
 import SocialLinks from "./SocialLinks";
@@ -11,19 +11,19 @@ import { Button } from "./ui/button";
 import { resolveContactIcon } from "@/lib/section-rendering";
 
 const defaultContactSection = {
-  eyebrow: "Let's Work Together",
-  heading: "Let's turn your idea into something real.",
+  eyebrow: "Start Your Project",
+  heading: "Tell us what you're building.",
   description:
-    "Tell me a little about what you're building — scope, timeline, or just the rough shape of it — and I'll reply within 24 hours with clear next steps.",
+    "No polished brief or formal RFP required. Just tell us your idea, what's currently stopping you, and your target launch date. We'll reply within 24 hours with a comprehensive technical assessment.",
   info: [
     {
       icon: "Mail",
-      label: "Email",
+      label: "Direct Email",
       value: "parvejshahlabib007@gmail.com",
       href: "mailto:parvejshahlabib007@gmail.com",
     },
-    { icon: "MapPin", label: "Location", value: "Dhaka, Bangladesh", href: null },
-    { icon: "Clock", label: "Response time", value: "Within 24 hours", href: null },
+    { icon: "Clock", label: "Guaranteed Response", value: "Within 24 hours", href: null },
+    { icon: "MapPin", label: "Location", value: "Dhaka, Bangladesh · Remote Worldwide", href: null },
   ],
 };
 
@@ -62,8 +62,19 @@ function buildGoogleCalendarUrl({ topic, date, time, durationLabel }) {
 function ContactForm({ content }) {
   const form = useRef();
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [category, setCategory] = useState("AI Automation & Voice");
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "" });
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.detail?.category) {
+        setCategory(e.detail.category);
+      }
+    };
+    window.addEventListener("select-project-category", handler);
+    return () => window.removeEventListener("select-project-category", handler);
+  }, []);
 
   const handleInputChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -79,7 +90,7 @@ function ContactForm({ content }) {
       return false;
     }
     if (formData.message.trim().length < 10) {
-      setStatus({ type: "error", message: "Message must be at least 10 characters long." });
+      setStatus({ type: "error", message: "Please describe what you are building (at least 10 characters)." });
       return false;
     }
     return true;
@@ -94,7 +105,7 @@ function ContactForm({ content }) {
     const templateParams = {
       name: formData.name,
       email: formData.email,
-      message: formData.message,
+      message: `[Category: ${category}]\n\n${formData.message}`,
       time: new Date().toLocaleString(),
     };
 
@@ -102,12 +113,15 @@ function ContactForm({ content }) {
       .send("service_rfz5bb9", "template_o9ck4y9", templateParams, "8LIpWTqX7mHlzgWsK")
       .then(
         () => {
-          setStatus({ type: "success", message: "Message sent! I'll get back to you soon." });
+          setStatus({
+            type: "success",
+            message: "Assessment request received! I will review and reply within 24 hours.",
+          });
           setFormData({ name: "", email: "", message: "" });
           setIsLoading(false);
         },
         (error) => {
-          setStatus({ type: "error", message: "Failed to send message. Please try again." });
+          setStatus({ type: "error", message: "Failed to send message. Please try again or email directly." });
           console.log("FAILED...", error?.text);
           setIsLoading(false);
         }
@@ -117,13 +131,18 @@ function ContactForm({ content }) {
   return (
     <>
       <div className="relative flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center sm:gap-4">
-        <h3 className="text-xl font-semibold text-white">Send a message</h3>
+        <div>
+          <h3 className="text-xl font-semibold text-white">Get a Free Technical Assessment</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Initial feasibility review, recommended architecture & scope estimate
+          </p>
+        </div>
         <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-3 py-1 text-xs font-medium text-brand">
           <span className="relative flex size-1.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-75" />
             <span className="relative inline-flex size-1.5 rounded-full bg-brand" />
           </span>
-          Available for work
+          Available for Q1/Q2 Sprints
         </span>
       </div>
 
@@ -140,6 +159,29 @@ function ContactForm({ content }) {
       )}
 
       <form ref={form} onSubmit={sendEmail} className="relative mt-6 flex flex-1 flex-col gap-4">
+        {/* Project category pills */}
+        <div className="space-y-2">
+          <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            What are you trying to build?
+          </label>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            {["AI Automation & Voice", "SaaS / Web Product", "Existing System & Scale"].map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setCategory(cat)}
+                className={`rounded-xl border px-3 py-2.5 text-xs font-semibold transition-all text-center cursor-pointer ${
+                  category === cat
+                    ? "border-brand bg-brand/15 text-brand shadow-[0_0_15px_-3px_rgba(0,230,118,0.25)]"
+                    : "border-line bg-ink-2 text-muted-foreground hover:border-line-strong hover:text-white"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="grid gap-4 sm:grid-cols-2">
           <Input
             type="text"
@@ -154,7 +196,7 @@ function ContactForm({ content }) {
           <Input
             type="email"
             name="email"
-            placeholder="Your email"
+            placeholder="Work email"
             value={formData.email}
             onChange={handleInputChange}
             required
@@ -162,41 +204,34 @@ function ContactForm({ content }) {
             className="h-12 rounded-xl bg-ink-2 px-4 transition-colors focus-visible:border-brand/50 focus-visible:ring-brand/20"
           />
         </div>
+
         <Textarea
           name="message"
-          placeholder="Tell me about your project..."
+          placeholder="Tell us what you're trying to build, what's currently stopping you, and your target launch date..."
           value={formData.message}
           onChange={handleInputChange}
           required
           disabled={isLoading}
-          rows={6}
-          className="min-h-36 flex-1 rounded-xl bg-ink-2 px-4 py-3 transition-colors focus-visible:border-brand/50 focus-visible:ring-brand/20"
+          rows={5}
+          className="min-h-32 flex-1 rounded-xl bg-ink-2 px-4 py-3 transition-colors focus-visible:border-brand/50 focus-visible:ring-brand/20"
         />
+
         <Button
           type="submit"
           disabled={isLoading}
-          className="group/send h-12 w-full rounded-full bg-brand text-sm font-semibold text-[#05140b] transition-all hover:bg-brand-dark hover:shadow-[0_8px_30px_-6px_rgba(0,230,118,0.5)] disabled:opacity-60 [&_svg]:size-4"
+          className="group/send h-12 w-full rounded-full bg-brand text-sm font-semibold text-[#05140b] transition-all hover:bg-brand-dark hover:shadow-[0_8px_30px_-6px_rgba(0,230,118,0.5)] disabled:opacity-60 [&_svg]:size-4 cursor-pointer"
         >
           {isLoading ? (
-            <span className="inline-flex">
-              {"Sending".split("").map((c, i) => (
-                <span key={i} className="animate-wave" style={{ animationDelay: `${i * 0.1}s` }}>
-                  {c}
-                </span>
-              ))}
-              <span className="animate-wave" style={{ animationDelay: "0.8s" }}>.</span>
-              <span className="animate-wave" style={{ animationDelay: "0.9s" }}>.</span>
-              <span className="animate-wave" style={{ animationDelay: "1s" }}>.</span>
-            </span>
+            <span>Analyzing & Sending Request...</span>
           ) : (
             <>
-              Send Message
+              Get Free Technical Assessment
               <ArrowUpRight className="transition-transform duration-300 group-hover/send:-translate-y-0.5 group-hover/send:translate-x-0.5" />
             </>
           )}
         </Button>
         <p className="text-center text-xs text-muted-foreground">
-          Direct, human replies — no newsletters, no spam, ever.
+          ✓ Guaranteed response within 24 hours · 100% confidential · Zero sales pressure
         </p>
       </form>
     </>
@@ -397,6 +432,32 @@ export default function Contact({ section = defaultContactSection, meetingSectio
             <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
               {content.description}
             </p>
+
+            {activeTab === "message" && (
+              <div className="mt-6 rounded-2xl border border-brand/25 bg-brand/[0.04] p-5 max-w-md">
+                <p className="text-xs font-bold uppercase tracking-wider text-brand">
+                  What you receive within 24 hours (Free)
+                </p>
+                <ul className="mt-3 space-y-2 text-xs sm:text-sm text-white/90">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="size-4 shrink-0 text-brand mt-0.5" />
+                    <span><strong>Technical Feasibility:</strong> Architecture & edge cases</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="size-4 shrink-0 text-brand mt-0.5" />
+                    <span><strong>Recommended Stack:</strong> Optimal AI models, DB & tooling</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="size-4 shrink-0 text-brand mt-0.5" />
+                    <span><strong>Scope & Milestones:</strong> Realistic weeks to launch</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="size-4 shrink-0 text-brand mt-0.5" />
+                    <span><strong>Immediate Next Step:</strong> Actionable next step, zero pressure</span>
+                  </li>
+                </ul>
+              </div>
+            )}
 
             {activeTab === "message" ? (
               <div className="mt-8 space-y-4">

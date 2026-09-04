@@ -2,23 +2,14 @@ import Reveal from "./Reveal";
 import { resolveSkillIcon } from "@/lib/section-rendering";
 
 const defaultSection = {
-  eyebrow: "Tech Stack",
-  heading: "A battle-tested stack for production systems.",
   items: [
-    { name: "Next.js", icon: "SiNextdotjs" },
+    { name: "Next.js 16", icon: "SiNextdotjs" },
     { name: "TypeScript", icon: "SiTypescript" },
-    { name: "React", icon: "FaReact" },
     { name: "Python", icon: "SiPython" },
-    { name: "Node.js", icon: "FaNodeJs" },
     { name: "PostgreSQL", icon: "SiPostgresql" },
-    { name: "Prisma", icon: "SiPrisma" },
     { name: "Redis", icon: "SiRedis" },
-    { name: "Tailwind CSS", icon: "SiTailwindcss" },
-    { name: "shadcn/ui", icon: "SiShadcnui" },
     { name: "Docker", icon: "SiDocker" },
-    { name: "Vercel", icon: "SiVercel" },
-    { name: "Git", icon: "FaGit" },
-    { name: "Figma", icon: "FaFigma" },
+    { name: "Prisma ORM", icon: "SiPrisma" },
   ],
 };
 
@@ -26,32 +17,25 @@ export default function Skills({ section = defaultSection }) {
   const content = { ...defaultSection, ...section };
 
   return (
-    <section id="skills" className="border-b border-line py-20 lg:py-28">
+    <section id="skills" className="border-b border-line py-10">
       <div className="mx-auto max-w-7xl px-5">
-        <Reveal className="mb-12 max-w-xl">
-          <span className="eyebrow mb-4">{content.eyebrow}</span>
-          <h2 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
-            {content.heading}
-          </h2>
-        </Reveal>
-
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
-          {content.items.map((s, i) => {
+        <Reveal className="flex flex-wrap items-center gap-3">
+          <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70 mr-1">
+            Built with
+          </span>
+          {content.items.map((s) => {
             const Icon = resolveSkillIcon(s.icon);
             return (
-              <Reveal
+              <span
                 key={s.name}
-                delay={(i % 7) * 60}
-                className="card-surface flex flex-col items-center gap-3 p-4 text-center sm:p-5"
+                className="inline-flex items-center gap-1.5 rounded-full border border-line bg-ink-2 px-3 py-1.5 text-xs font-medium text-white/80"
               >
-                <span className="text-3xl text-brand">
-                  <Icon />
-                </span>
-                <span className="text-sm font-medium text-white/90">{s.name}</span>
-              </Reveal>
+                <Icon className="size-3.5 text-brand" />
+                {s.name}
+              </span>
             );
           })}
-        </div>
+        </Reveal>
       </div>
     </section>
   );

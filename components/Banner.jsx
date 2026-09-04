@@ -10,12 +10,12 @@ import { cn } from "@/lib/utils";
 import { resolveSectionImage } from "@/lib/section-rendering";
 
 const defaultHero = {
-  eyebrow: "Software Engineer & AI Systems Developer",
-  headlineLines: ["From architecture", "to production", "to scale."],
+  eyebrow: "Production AI & Full-Stack Engineering",
+  headlineLines: ["We Build AI Systems", "That Actually Run", "in Production."],
   description:
-    "I design and build production AI voice pipelines, high-concurrency backend infrastructure, and full-stack web products that load fast and feel effortless.",
-  primaryCta: { label: "Start a Project", href: "#contact" },
-  secondaryCta: { label: "View My Work", href: "#portfolio" },
+    "We turn ambitious AI ideas into production-ready software — from 24/7 AI voice agents and automated workflows to high-scale SaaS platforms without agency bloat or fragile prototypes.",
+  primaryCta: { label: "Tell Us What You're Building", href: "#contact" },
+  secondaryCta: { label: "See What We've Built", href: "#portfolio" },
   trustLabel: "Trusted by 5 clients",
   trustStats: [
     { value: "12", label: "projects shipped" },
@@ -23,7 +23,7 @@ const defaultHero = {
   ],
   portraitImage: "/assets/images/banner-cutout.webp",
   portraitAlt: "Parvej Shah — Software Engineer & AI Systems Developer",
-  experienceBadge: { value: "2+", label: "years experience" },
+  experienceBadge: { value: "12+", label: "projects shipped" },
 };
 
 export default function HeroSection({ section = defaultHero, socialLinks = [] }) {
@@ -166,6 +166,7 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
 
             {/* inner ring, brightens to brand on hover */}
             <div className="pointer-events-none absolute inset-0 rounded-[2rem] ring-1 ring-inset ring-white/5 transition-colors duration-500 group-hover:ring-brand/25" />
+
 
             {/* experience chip — drifts up gently on hover */}
             <div className="absolute right-3 top-3 rounded-2xl border border-line bg-ink/85 px-3 py-2 transition-transform duration-500 ease-out group-hover:-translate-y-1 sm:right-4 sm:top-4 sm:px-4 sm:py-2.5">

@@ -12,9 +12,23 @@ function proofLine(results) {
     .find((line) => line.length > 0);
   if (!firstLine) return null;
   const sentence = firstLine.split(/(?<=[.!?])\s/)[0];
-  return sentence.length > 120 ? `${sentence.slice(0, 117)}…` : sentence;
+  if (sentence.length <= 130) return sentence;
+  const truncated = sentence.slice(0, 127);
+  const lastSpace = truncated.lastIndexOf(" ");
+  return lastSpace > 80 ? `${truncated.slice(0, lastSpace)}…` : `${truncated}…`;
 }
 
+// Clip a plain-text summary at a word boundary for supporting cards.
+function summaryClip(text, max = 120) {
+  if (!text || text.length <= max) return text;
+  const truncated = text.slice(0, max);
+  const lastSpace = truncated.lastIndexOf(" ");
+  return lastSpace > 70 ? `${truncated.slice(0, lastSpace)}…` : `${truncated}…`;
+}
+
+/**
+ * @param {{ projects?: Array<any> }} props
+ */
 export default function Portfolio({ projects = [] }) {
   // Projects arrive ordered (featured → order → recency), so the first is the flagship.
   const [flagship, ...supportingProjects] = projects;
@@ -25,13 +39,13 @@ export default function Portfolio({ projects = [] }) {
         <Reveal className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
             <span className="eyebrow mb-4">Case Studies</span>
-            <h2 className="max-w-xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
-              Crafting scalable digital products that perform.
+            <h2 className="max-w-xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl text-white">
+              Built for real businesses. Measured in real outcomes.
             </h2>
           </div>
           <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-            Real products with real users — each one pairing thoughtful UX with
-            production-grade engineering that holds up in the wild.
+            No toy projects or weekend prototypes. Systems deployed in production holding up under real users,
+            real money, and measurable efficiency gains.
           </p>
         </Reveal>
 
@@ -66,7 +80,7 @@ export default function Portfolio({ projects = [] }) {
 
             <div className="flex flex-col justify-center gap-6 p-2 sm:p-5">
               <div className="flex flex-wrap gap-2">
-                {flagship.techStack.slice(0, 6).map((tech) => (
+                {flagship.techStack?.slice(0, 6).map((tech) => (
                   <span
                     key={tech}
                     className="rounded-full border border-line bg-ink-2 px-3 py-1 text-xs text-muted-foreground"
@@ -117,7 +131,7 @@ export default function Portfolio({ projects = [] }) {
                 href={`/projects/${flagship.slug}`}
                 className="mt-1 inline-flex h-11 w-fit items-center gap-2 rounded-full bg-brand px-5 text-sm font-semibold text-[#05140b] transition-all hover:bg-brand-dark hover:shadow-[0_8px_30px_-6px_rgba(0,230,118,0.5)]"
               >
-                Read case study
+                Read full case study
                 <ArrowUpRight className="size-4" />
               </Link>
             </div>
@@ -169,7 +183,7 @@ export default function Portfolio({ projects = [] }) {
                       <ArrowUpRight className="size-4 transition-transform duration-300 group-hover/live:-translate-y-0.5 group-hover/live:translate-x-0.5" />
                     </Link>
                   </div>
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{project.summary}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{summaryClip(project.summary)}</p>
                   {proofLine(project.results) ? (
                     <p className="mt-3 flex items-start gap-2 text-sm font-medium text-white">
                       <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-brand" />
@@ -177,7 +191,7 @@ export default function Portfolio({ projects = [] }) {
                     </p>
                   ) : null}
                   <div className="mt-5 flex flex-wrap gap-2 border-t border-line pt-5">
-                    {project.techStack.map((tech) => (
+                    {project.techStack?.map((tech) => (
                       <span
                         key={tech}
                         className="rounded-full border border-line bg-ink-2 px-3 py-1 text-xs text-muted-foreground transition-colors duration-300 hover:border-brand/40 hover:text-white"

@@ -14,7 +14,7 @@ const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 const defaultSeo = {
   title: "Parvej Shah — Software Engineer & AI Systems Developer | University of Dhaka",
   description:
-    "Software Engineer & AI Systems Developer based at University of Dhaka, Bangladesh. I build production AI voice pipelines, high-concurrency webhook infrastructure, and full-stack systems in Next.js and TypeScript — including real-time telephony, payment webhooks, and automated workflow orchestration.",
+    "Software Engineer & AI Systems Developer based at University of Dhaka, Bangladesh. I build production AI voice pipelines, reliable payment webhook infrastructure, and full-stack systems in Next.js and TypeScript, including real-time telephony and automated workflow orchestration.",
   ogImage: "/og.jpg",
   siteUrl: "https://parvejshah.com",
 };
@@ -116,8 +116,7 @@ export default async function RootLayout({ children }) {
       "bKash Payment Integration",
       "Nagad Payment Integration",
       "Idempotent Webhook Design",
-      "Offline-First PWA",
-      "IndexedDB",
+      "Installable PWA",
       "Workbox Service Workers",
       "Cloudflare R2",
       "Vercel Edge Network",
@@ -161,7 +160,7 @@ export default async function RootLayout({ children }) {
     "@type": "ProfessionalService",
     name: "Parvej Shah — Engineering Services",
     description:
-      "Software engineering services specialising in AI voice pipelines, high-concurrency full-stack systems, Next.js/TypeScript platforms, payment webhook infrastructure, and installable PWAs.",
+      "Software engineering services specialising in AI voice pipelines, production-grade full-stack systems, Next.js/TypeScript platforms, payment webhook infrastructure, and installable PWAs.",
     url: seo.siteUrl,
     provider: {
       "@type": "Person",
@@ -176,7 +175,7 @@ export default async function RootLayout({ children }) {
         { "@type": "Offer", itemOffered: { "@type": "Service", name: "AI Voice Pipeline Engineering" } },
         { "@type": "Offer", itemOffered: { "@type": "Service", name: "Full-Stack Next.js Platform Development" } },
         { "@type": "Offer", itemOffered: { "@type": "Service", name: "Payment Webhook & Infrastructure Engineering" } },
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "Offline-First PWA Development" } },
+        { "@type": "Offer", itemOffered: { "@type": "Service", name: "Installable PWA Development" } },
         { "@type": "Offer", itemOffered: { "@type": "Service", name: "LLM & Multi-Agent System Architecture" } },
       ],
     },
@@ -191,7 +190,7 @@ export default async function RootLayout({ children }) {
         name: "Who is Parvej Shah?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Parvej Shah is a Software Engineer & AI Systems Developer based at the University of Dhaka, Bangladesh. He builds production AI voice pipelines, high-concurrency full-stack systems, and real-time infrastructure, currently working with CoderVai.",
+          text: "Parvej Shah is a Software Engineer & AI Systems Developer based at the University of Dhaka, Bangladesh. He builds production AI voice pipelines, reliable full-stack systems, and real-time infrastructure, currently working with CoderVai.",
         },
       },
       {

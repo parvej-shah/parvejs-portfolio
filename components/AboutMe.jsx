@@ -5,22 +5,23 @@ import Reveal from "./Reveal";
 import { resolveSectionImage } from "@/lib/section-rendering";
 
 const defaultSection = {
-  eyebrow: "About Me",
-  heading: "Developer driven by purpose and precision.",
+  eyebrow: "Founder & Lead Engineer",
+  heading: "The engineering philosophy behind every build.",
   image: "/assets/images/aboutme.webp",
   imageAlt: "Parvej Shah",
   quote:
-    "Great software isn't just shipped — it's considered. Every decision, from the database to the last pixel, should serve the people using it.",
+    "Great software isn't just shipped — it's engineered to survive production. Every decision, from the database query index to the user conversion flow, should serve the business outcome.",
   quoteAuthor: "Parvej Shah",
-  quoteRole: "Software Engineer & AI Systems Developer, IIT DU",
+  quoteRole: "Software Engineer & Platform Architect · IIT, University of Dhaka",
   points: [
-    "AI & Automation — Retell AI voice agents, n8n workflow orchestration, automated content pipelines",
-    "Full-stack depth — Next.js App Router, TypeScript, Python FastAPI, PostgreSQL & Redis",
-    "Engineering foundation from IIT, University of Dhaka",
+    "Formal Software Engineering foundation from IIT, University of Dhaka",
+    "Production AI & Voice — Retell AI pipelines, n8n workflow orchestration, deterministic guardrails",
+    "Full-stack architecture — Next.js 16 App Router, TypeScript, Python, PostgreSQL & Redis",
+    "Direct senior partnership — no junior developer handoffs or bloated agency overhead",
   ],
   badgeValue: "5",
   badgeLabel: "people trust my work",
-  ctaLabel: "Let's Work Together",
+  ctaLabel: "Discuss Your Project",
   ctaHref: "#contact",
 };
 
