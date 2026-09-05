@@ -134,7 +134,7 @@ export default function Testimonials({ section = defaultSection }) {
                       href="https://www.mathpro.academy"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs font-medium text-brand hover:underline"
+                      className="shrink-0 whitespace-nowrap text-xs font-semibold text-brand hover:underline"
                     >
                       Visit Platform ↗
                     </a>
@@ -159,9 +159,9 @@ export default function Testimonials({ section = defaultSection }) {
                   href="https://www.linkedin.com/in/md-seam-ali-ahammod-pramaniq/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs font-medium text-brand hover:underline"
+                  className="shrink-0 whitespace-nowrap text-xs font-semibold text-brand hover:underline"
                 >
-                  Verified LinkedIn Recommendation ↗
+                  LinkedIn Review ↗
                 </a>
               </div>
 
