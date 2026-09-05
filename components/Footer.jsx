@@ -14,12 +14,12 @@ const defaultFooter = {
   tagline:
     "Production AI systems and high-performance web products, built with precision, speed, and code made to last.",
   email: "parvejshahlabib007@gmail.com",
-  location: "Dhaka, Bangladesh",
+  location: "Worldwide · Remote",
   newsletterHeading: "Let's stay in touch",
   newsletterDescription: "Got an idea worth building? One message starts it — I reply within 24 hours.",
   ctaLabel: "Start a Project",
   ctaHref: "/#contact",
-  copyrightName: "Parvej Shah Labib",
+  copyrightName: "Parvej Shah",
   copyrightRole: "Software Engineer & AI Systems Developer",
 };
 

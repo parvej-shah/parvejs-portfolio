@@ -12,9 +12,9 @@ import { getSection } from "@/lib/data/public";
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const defaultSeo = {
-  title: "Parvej Shah — Software Engineer & AI Systems Developer | University of Dhaka",
+  title: "Parvej Shah — Software Engineer & AI Systems Developer",
   description:
-    "Software Engineer & AI Systems Developer based at University of Dhaka, Bangladesh. I build production AI voice pipelines, reliable payment webhook infrastructure, and full-stack systems in Next.js and TypeScript, including real-time telephony and automated workflow orchestration.",
+    "Software Engineer & AI Systems Developer. I build production AI voice pipelines, reliable payment webhook infrastructure, and full-stack systems in Next.js and TypeScript, including real-time telephony and automated workflow orchestration.",
   ogImage: "/og.jpg",
   siteUrl: "https://parvejshah.com",
 };
@@ -65,28 +65,9 @@ export default async function RootLayout({ children }) {
       name: "CoderVai",
       url: "https://www.codervai.com",
     },
-    affiliation: [
-      {
-        "@type": "EducationalOrganization",
-        name: "University of Dhaka",
-        sameAs: "https://www.du.ac.bd/",
-      },
-      {
-        "@type": "Organization",
-        name: "CoderVai",
-        url: "https://www.codervai.com",
-      },
-    ],
-    alumniOf: {
-      "@type": "EducationalOrganization",
-      name: "University of Dhaka",
-      sameAs: "https://www.du.ac.bd/",
-    },
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Dhaka",
-      addressRegion: "Dhaka Division",
-      addressCountry: "BD",
+    workLocation: {
+      "@type": "Place",
+      name: "Worldwide · Remote",
     },
     email: "parvejshahlabib007@gmail.com",
     knowsAbout: [
@@ -151,7 +132,6 @@ export default async function RootLayout({ children }) {
     author: {
       "@type": "Person",
       name: "Parvej Shah",
-      affiliation: "University of Dhaka",
     },
   };
 
@@ -165,7 +145,6 @@ export default async function RootLayout({ children }) {
     provider: {
       "@type": "Person",
       name: "Parvej Shah",
-      affiliation: "University of Dhaka",
     },
     areaServed: "Worldwide",
     hasOfferCatalog: {
@@ -190,7 +169,7 @@ export default async function RootLayout({ children }) {
         name: "Who is Parvej Shah?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Parvej Shah is a Software Engineer & AI Systems Developer based at the University of Dhaka, Bangladesh. He builds production AI voice pipelines, reliable full-stack systems, and real-time infrastructure, currently working with CoderVai.",
+          text: "Parvej Shah is a Software Engineer & AI Systems Developer. He builds production AI voice pipelines, reliable full-stack systems, and real-time infrastructure, currently working with CoderVai.",
         },
       },
       {
@@ -206,7 +185,7 @@ export default async function RootLayout({ children }) {
         name: "Where is Parvej Shah based and is he available for remote work?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Parvej Shah is based in Dhaka, Bangladesh and is a software engineering student at the University of Dhaka. He is available for remote engineering contracts and collaborations worldwide.",
+          text: "Parvej Shah works remotely with clients worldwide across US, European, and global timezones. He is available for remote engineering contracts and collaborations.",
         },
       },
       {
@@ -214,7 +193,7 @@ export default async function RootLayout({ children }) {
         name: "What companies has Parvej Shah worked with?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Parvej Shah has worked on production systems for CoderVai (competitive programming LMS), Minions.AI (AI voice telephony), GenMorphics AI (enterprise workforce management), MathPro Academy (EdTech platform), SellerVai (conversational commerce), Badhan Blood Network (emergency donor PWA), and CPRBD at University of Dhaka.",
+          text: "Parvej Shah has worked on production systems for CoderVai (competitive programming LMS), Minions.AI (AI voice telephony), GenMorphics AI (enterprise workforce management), MathPro Academy (EdTech platform), SellerVai (conversational commerce), and Badhan Blood Network (emergency donor PWA).",
         },
       },
     ],

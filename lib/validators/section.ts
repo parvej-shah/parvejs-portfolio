@@ -80,6 +80,7 @@ const testimonialsSchema = z.object({
   heading: z.string().min(1),
   items: z.array(
     z.object({
+      metric: z.string().optional(),
       quote: z.string().min(1),
       name: z.string().min(1),
       role: z.string().min(1),

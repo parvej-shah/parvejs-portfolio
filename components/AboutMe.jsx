@@ -12,9 +12,9 @@ const defaultSection = {
   quote:
     "Great software isn't just shipped — it's engineered to survive production. Every decision, from the database query index to the user conversion flow, should serve the business outcome.",
   quoteAuthor: "Parvej Shah",
-  quoteRole: "Software Engineer & Platform Architect · IIT, University of Dhaka",
+  quoteRole: "Software Engineer & AI Systems Developer · Worldwide Remote",
   points: [
-    "Formal Software Engineering foundation from IIT, University of Dhaka",
+    "Formal Software Engineering foundation in high-scale distributed architecture",
     "Production AI & Voice — Retell AI pipelines, n8n workflow orchestration, deterministic guardrails",
     "Full-stack architecture — Next.js 16 App Router, TypeScript, Python, PostgreSQL & Redis",
     "Direct senior partnership — no junior developer handoffs or bloated agency overhead",

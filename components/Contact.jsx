@@ -23,7 +23,7 @@ const defaultContactSection = {
       href: "mailto:parvejshahlabib007@gmail.com",
     },
     { icon: "Clock", label: "Guaranteed Response", value: "Within 24 hours", href: null },
-    { icon: "MapPin", label: "Location", value: "Dhaka, Bangladesh · Remote Worldwide", href: null },
+    { icon: "MapPin", label: "Location", value: "Worldwide · Remote", href: null },
   ],
 };
 
@@ -34,7 +34,7 @@ const defaultMeetingSection = {
     "Propose a date and time that works for you and I'll confirm by email. Once confirmed, you can add it straight to your Google Calendar.",
   durationLabel: "30 min call",
   notes: [
-    "I'm based in Dhaka, Bangladesh (GMT+6) — mention your timezone if different.",
+    "Available for calls across US, European, and global timezones.",
     "I'll reply within 8 hours to confirm or suggest another time.",
   ],
 };

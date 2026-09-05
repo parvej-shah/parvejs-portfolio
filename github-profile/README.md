@@ -1,9 +1,9 @@
 # Parvej Shah
 
-**Software Engineer & AI Systems Developer** · Dhaka, Bangladesh  
+**Software Engineer & AI Systems Developer** · Worldwide · Remote  
 Building production AI systems, real-time infrastructure, and full-stack platforms.
 
-📍 University of Dhaka · CoderVai  
+📍 Worldwide · Remote · CoderVai  
 🌐 [parvejshah.com](https://parvejshah.com) · 📝 [dev.to/parvejshah](https://dev.to/parvejshah) · 💼 [LinkedIn](https://www.linkedin.com/in/parvej-shah) · 🐦 [X](https://twitter.com/parvejshah)
 
 ---

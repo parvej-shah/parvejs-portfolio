@@ -239,6 +239,7 @@ export const sectionEditorConfig: { [K in SectionKey]: SectionEditorDefinition<K
         label: "Testimonials",
         itemLabel: "Testimonial",
         fields: {
+          metric: { kind: "text", label: "Metric badge (optional)" },
           quote: { kind: "textarea", label: "Quote" },
           name: { kind: "text", label: "Name" },
           role: { kind: "text", label: "Role (e.g. Founder, Acme Inc.)" },

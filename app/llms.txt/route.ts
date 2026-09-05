@@ -15,13 +15,13 @@ export async function GET() {
 
   let content = `# Parvej Shah — Software Engineer & AI Systems Developer
 
-> Parvej Shah is a software engineer and AI systems developer based in Dhaka, Bangladesh (University of Dhaka · CoderVai). He builds production AI voice pipelines, high-concurrency webhook infrastructure, local-first web applications, and full-stack systems with Next.js, TypeScript, PostgreSQL, and Redis.
+> Parvej Shah is a software engineer and AI systems developer. He builds production AI voice pipelines, high-concurrency webhook infrastructure, local-first web applications, and full-stack systems with Next.js, TypeScript, PostgreSQL, and Redis.
 
 ## Professional Summary
-- **Name**: Parvej Shah (Parvej Shah Labib)
+- **Name**: Parvej Shah
 - **Title**: Software Engineer & AI Systems Developer
-- **Organization / Affiliation**: CoderVai · University of Dhaka (DU)
-- **Location**: Dhaka, Bangladesh
+- **Organization / Affiliation**: CoderVai
+- **Location**: Worldwide · Remote
 - **Email**: parvejshahlabib007@gmail.com
 - **Website**: ${siteUrl}
 - **Core Stack**: Next.js (App Router, RSC, Turbopack), React 19, TypeScript, Node.js, Python, PostgreSQL, Prisma ORM, PGVector, Supabase RLS, Redis, BullMQ, Retell AI, n8n, Cloudflare R2, WebRTC/SIP.

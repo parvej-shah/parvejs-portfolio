@@ -178,7 +178,7 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
             <div className="absolute inset-x-3 bottom-3 flex flex-col items-start gap-2 rounded-2xl border border-line bg-ink/85 px-4 py-3 transition-transform duration-500 ease-out group-hover:translate-y-1 min-[420px]:inset-x-4 min-[420px]:bottom-4 min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between">
               <div>
                 <p className="text-sm font-semibold text-white">Available for work</p>
-                <p className="text-xs text-muted-foreground">Dhaka, Bangladesh · Remote</p>
+                <p className="text-xs text-muted-foreground">Worldwide · Remote</p>
               </div>
               <span className="relative flex size-3">
                 <span className="soft-pulse absolute inline-flex h-full w-full rounded-full bg-brand" />

@@ -12,7 +12,7 @@ const DEFAULT_ITEMS = [
   "MathPro Academy",
   "CoderVAI",
   "Genmorphics AI",
-  "University of Dhaka",
+  "XpeedLab",
 ];
 
 export default function MarqueeStripe({ items = DEFAULT_ITEMS }) {

@@ -1,6 +1,6 @@
 # Parvej Shah — Personal Portfolio
 
-This is the source code for my personal portfolio, blog, and case study showcase. It highlights my work as a Full-Stack Web Developer based in Dhaka, Bangladesh.
+This is the source code for my personal portfolio, blog, and case study showcase. It highlights my work as a Software Engineer & AI Systems Developer available worldwide · remote.
 
 [![Portfolio Live](https://img.shields.io/badge/Live_Site-parvejshah.vercel.app-00E676?style=for-the-badge&logo=vercel)](https://parvejshah.vercel.app)
 

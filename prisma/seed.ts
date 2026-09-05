@@ -636,17 +636,29 @@ const sectionContent: Record<SectionKey, unknown> = {
     heading: "Measurable outcomes from the founders we've built with.",
     items: [
       {
+        metric: "100% On-Time · Over-Delivers on Scope",
         quote:
-          "Parvej engineered our entire online learning platform — from LaTeX mathematical formula rendering to automated payment gateway integration. The performance is flawless and our 4,000+ students love the speed during peak exam surges.",
+          "Parvej doesn't just build websites — he genuinely thinks about cost-efficiency from the client's perspective. Two things stand out: he always over-delivers beyond what he commits to, and he delivers ahead of schedule. For non-technical founders looking for someone you can 100% trust with your platform, I highly recommend Parvej.",
         name: "Abdul Aziz",
-        role: "Founder, MathPro Academy",
+        role: "Founder & Head Instructor, MathPro Academy (11+ Years in EdTech)",
         initials: "AA",
         avatarUrl: "",
         rating: 5,
         href: "https://www.mathpro.academy",
       },
+      {
+        metric: "Technical Capability & Responsibility · CPRBD Website",
+        quote:
+          "I had the opportunity to work with Parvej and the website team during the development of the CPRBD website. Parvej was professional, responsive, and committed throughout the process. He and the team were receptive to feedback, handled website requirements effectively, and worked collaboratively to turn our ideas into a functional and professional web presence. What I particularly appreciated was their willingness to understand the programme’s needs and make improvements accordingly. Parvej was reliable in communication and contributed positively to the overall development process. I would gladly recommend him to anyone looking for someone who combines technical capability with a strong sense of teamwork and responsibility.",
+        name: "Md. Seam Ali Ahammod Pramaniq",
+        role: "Project Assistant at CPRBD, University of Dhaka",
+        initials: "SA",
+        avatarUrl: "/testimonials/seam-ali.jpg",
+        rating: 5,
+        href: "https://www.linkedin.com/in/md-seam-ali-ahammod-pramaniq/",
+      },
     ],
-    clients: ["Minions.AI", "SellerVai", "MathPro Academy", "Codervai", "University of Dhaka", "GenMorphics AI", "Leadswave"],
+    clients: ["CPRBD", "Minions.AI", "SellerVai", "MathPro Academy", "Codervai", "University of Dhaka", "GenMorphics AI", "Leadswave"],
   },
   cta: {
     rating: "4.9",
@@ -670,7 +682,7 @@ const sectionContent: Record<SectionKey, unknown> = {
         href: "mailto:parvejshahlabib007@gmail.com",
       },
       { icon: "Clock", label: "Guaranteed Response", value: "Within 24 hours", href: null },
-      { icon: "MapPin", label: "Location", value: "Dhaka, Bangladesh · Remote Worldwide", href: null },
+      { icon: "MapPin", label: "Location", value: "Worldwide · Remote", href: null },
     ],
   },
   meeting: {
@@ -680,7 +692,7 @@ const sectionContent: Record<SectionKey, unknown> = {
       "Propose a date and time that works for you and I'll confirm by email. Once confirmed, you can add it straight to your Google Calendar.",
     durationLabel: "30 min call",
     notes: [
-      "I'm based in Dhaka, Bangladesh (GMT+6) — mention your timezone if different.",
+      "Available for calls across US, European, and global timezones.",
       "I'll reply within 8 hours to confirm or suggest another time.",
     ],
   },
@@ -703,18 +715,18 @@ const sectionContent: Record<SectionKey, unknown> = {
     tagline:
       "Production AI systems and high-performance web products, built with precision, speed, and code made to last.",
     email: "parvejshahlabib007@gmail.com",
-    location: "Dhaka, Bangladesh",
+    location: "Worldwide · Remote",
     newsletterHeading: "Let's stay in touch",
     newsletterDescription: "Got an idea worth building? One message starts it — I reply within 24 hours.",
     ctaLabel: "Start a Project",
     ctaHref: "/#contact",
-    copyrightName: "Parvej Shah Labib",
+    copyrightName: "Parvej Shah",
     copyrightRole: "Software Engineer & AI Systems Developer",
   },
   seo: {
     title: "Parvej Shah — Software Engineer & AI Systems Developer",
     description:
-      "Software Engineer & AI Systems Developer based at University of Dhaka, Bangladesh. I build production AI voice pipelines, reliable payment webhook infrastructure, and full-stack systems.",
+      "Software Engineer & AI Systems Developer. I build production AI voice pipelines, reliable payment webhook infrastructure, and full-stack systems.",
     ogImage: "/og.jpg",
     siteUrl: "https://parvejshah.com",
   },
