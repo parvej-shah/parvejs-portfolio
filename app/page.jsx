@@ -44,40 +44,38 @@ export default async function Home() {
       {/* 1. Hero: Clear outcome-first value proposition */}
       <HeroSection section={heroSection ?? undefined} socialLinks={socialSection?.links} />
 
-      {/* 2. Results: numbers land early, as credibility before the pitch */}
+      {/* 2. Stats & Brands */}
       <Stats section={statsSection ?? undefined} />
-
-      {/* Dynamic tech marquee strip */}
       <MarqueeStripe />
 
-      {/* 3. Proof of Work: Outcome-first flagship & supporting case studies */}
+      {/* 3. Case Studies: Outcome-first flagship & supporting projects */}
       <Portfolio projects={featuredProjects} />
 
-      {/* 4. Buyer Classification: "What are you trying to build?" */}
+      {/* Buyer Classification (hidden) */}
       {/* <BuyerSegments /> */}
 
-      {/* 5. Statement: Breathing break between density */}
-      <BigStatement />
-
-      {/* 6. Why Us: Production engineering vs. fragile demos */}
+      {/* Why Us (hidden) */}
       {/* <WhyUs /> */}
 
-      {/* 7. Testimonials: Case study proof & client logo marquee */}
+      {/* 4. Testimonials: Case study proof & client recommendations */}
       <Testimonials section={testimonialsSection ?? undefined} />
 
-      {/* 8. Large Action Banner: High-contrast conversion driver */}
-      <LargeCtaBanner />
-
-      {/* 9. How It Works: Defined deliverables per milestone */}
+      {/* 5. Process: Defined deliverables per milestone */}
       <Process section={processSection ?? undefined} />
 
-      {/* 10. Founder Authority: IIT DU & engineering philosophy */}
+      {/* 6. CTA: High-impact conversion driver */}
+      <LargeCtaBanner />
+
+      {/* 7. Big Statement: Production conviction */}
+      <BigStatement />
+
+      {/* 8. About: Founder authority & engineering philosophy */}
       <AboutMe section={aboutSection ?? undefined} />
 
-      {/* 11. FAQ: Killing objections before contact */}
+      {/* 9. FAQ: Killing objections before contact */}
       <Faq />
 
-      {/* 12. Low-Friction Final CTA: Free 24h technical assessment */}
+      {/* 10. Contact: Free 24h technical assessment */}
       <Contact
         section={contactSection ?? undefined}
         meetingSection={meetingSection ?? undefined}
