@@ -199,7 +199,8 @@ export default function Testimonials({ section = defaultSection }) {
         </div>
       </div>
 
-      {/* logo marquee */}
+      {/* logo marquee (hidden) */}
+      {/*
       <div aria-hidden="true" className="relative mt-16 overflow-hidden">
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-ink to-transparent sm:w-24" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-ink to-transparent sm:w-24" />
@@ -214,6 +215,7 @@ export default function Testimonials({ section = defaultSection }) {
           ))}
         </div>
       </div>
+      */}
     </section>
   );
 }
