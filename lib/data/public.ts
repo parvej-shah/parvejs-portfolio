@@ -14,6 +14,8 @@ const publishedProjectSelect = {
   approach: true,
   solution: true,
   results: true,
+  outcome: true,
+  outcomeContext: true,
   client: true,
   role: true,
   timeline: true,

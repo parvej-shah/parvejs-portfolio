@@ -37,7 +37,7 @@ export default async function AiAutomationLandingPage() {
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
             Deploy 24/7 AI voice receptionists, deterministic workflow pipelines, and automated CRM sync
-            built around the way your business actually operates. Zero added headcount, zero hallucinations.
+            built around the way your business actually operates. Zero added headcount, with guardrails that block unsourced answers and hand off to a human when the agent isn't sure.
           </p>
 
           <div className="mt-9 flex flex-col sm:flex-row items-center justify-center gap-4">

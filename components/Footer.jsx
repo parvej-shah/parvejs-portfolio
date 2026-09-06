@@ -3,10 +3,10 @@ import { getSection } from "@/lib/data/public";
 
 const quickLinks = [
   { name: "Home", href: "/#top" },
-  { name: "Services", href: "/#services" },
+  { name: "Services", href: "/#solutions" },
   { name: "Case Studies", href: "/#portfolio" },
   { name: "About", href: "/#about" },
-  { name: "Insights", href: "/#insights" },
+  { name: "Insights", href: "/blog" },
   { name: "Contact", href: "/#contact" },
 ];
 

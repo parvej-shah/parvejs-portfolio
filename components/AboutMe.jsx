@@ -6,21 +6,21 @@ import { resolveSectionImage } from "@/lib/section-rendering";
 
 const defaultSection = {
   eyebrow: "Founder & Lead Engineer",
-  heading: "The engineering philosophy behind every build.",
+  heading: "An engineering partner who thinks beyond launch.",
   image: "/assets/images/aboutme.webp",
   imageAlt: "Parvej Shah",
   quote:
-    "Great software isn't just shipped — it's engineered to survive production. Every decision, from the database query index to the user conversion flow, should serve the business outcome.",
+    "I care about what happens after launch: whether your team can use the product confidently, whether it can adapt as the business grows, and whether the technology earns its place in the workflow.",
   quoteAuthor: "Parvej Shah",
-  quoteRole: "Software Engineer & AI Systems Developer · Worldwide Remote",
+  quoteRole: "Software Engineer & Platform Architect · University of Dhaka",
   points: [
     "Formal Software Engineering foundation in high-scale distributed architecture",
     "Production AI & Voice — Retell AI pipelines, n8n workflow orchestration, deterministic guardrails",
     "Full-stack architecture — Next.js 16 App Router, TypeScript, Python, PostgreSQL & Redis",
-    "Direct senior partnership — no junior developer handoffs or bloated agency overhead",
+    "Direct senior partnership — Parvej leads your build with a small senior team behind him, never a junior handoff",
   ],
   badgeValue: "5",
-  badgeLabel: "people trust my work",
+  badgeLabel: "clients trust our work",
   ctaLabel: "Discuss Your Project",
   ctaHref: "#contact",
 };

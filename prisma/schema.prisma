@@ -34,6 +34,12 @@ model Project {
   solution String?
   results  String?
 
+  // Short, card-safe outcome. `results` is long-form prose that truncates badly
+  // in listings, so cards render `outcome` (one complete claim) with
+  // `outcomeContext` carrying the measurement basis that keeps it honest.
+  outcome        String?
+  outcomeContext String?
+
   client      String?
   role        String?
   timeline    String?

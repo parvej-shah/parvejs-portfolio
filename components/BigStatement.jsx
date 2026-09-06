@@ -13,7 +13,8 @@ export default function BigStatement() {
             12+ production systems <span className="text-brand">shipped.</span>
           </p>
           <p className="mt-6 max-w-lg text-base text-muted-foreground leading-relaxed sm:text-lg">
-            Not demos. Not prototypes. Live systems with real users, real money, and real SLAs.
+            From customer calls and payments to everyday operations, these products are built to
+            stay reliable when your business depends on them.
           </p>
         </Reveal>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowUpRight, Star } from "lucide-react";
+import { ArrowUpRight, CheckCircle2 } from "lucide-react";
 import bannerImg from "../assets/images/banner-cutout.webp";
 import SocialLinks from "./SocialLinks";
 import ParticleField from "./ParticleField";
@@ -11,12 +11,12 @@ import { resolveSectionImage } from "@/lib/section-rendering";
 
 const defaultHero = {
   eyebrow: "Software Engineer & AI Systems Developer",
-  headlineLines: ["We Build AI Systems", "That Actually Run", "in Production."],
+  headlineLines: ["AI Automation and", "Web Products", "Built Around Your Business."],
   description:
-    "We turn ambitious AI ideas into production-ready software — from 24/7 AI voice agents and automated workflows to high-scale SaaS platforms without agency bloat or fragile prototypes.",
-  primaryCta: { label: "Tell Us What You're Building", href: "#contact" },
-  secondaryCta: { label: "See What We've Built", href: "#portfolio" },
-  trustLabel: "Trusted by 5 clients",
+    "Work directly with Parvej to automate customer workflows, launch a product, or improve an existing platform — from planning through launch, built to hold up in production.",
+  primaryCta: { label: "Discuss Your Project", href: "#contact" },
+  secondaryCta: { label: "Explore Client Work", href: "#portfolio" },
+  trustLabel: "Trusted by 5 clients worldwide",
   trustStats: [
     { value: "12", label: "projects shipped" },
     { value: "<24h", label: "response time" },
@@ -106,11 +106,7 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
             style={{ "--rise-delay": "540ms" }}
           >
             <div className="flex items-center gap-2">
-              <div className="flex text-brand">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="size-3.5 fill-brand" />
-                ))}
-              </div>
+              <CheckCircle2 className="size-4 shrink-0 text-brand" />
               <span className="text-xs text-muted-foreground">{content.trustLabel}</span>
             </div>
             <div className="hidden h-8 w-px bg-line sm:block" />

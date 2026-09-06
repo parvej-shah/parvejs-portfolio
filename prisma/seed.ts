@@ -57,6 +57,8 @@ async function seedProjects() {
 Booking itself does real CRM work inside one n8n workflow: check for slot conflicts, create the Calendar event, look up or create the EspoCRM Contact, then create an Opportunity linked to both. The same architecture now runs a second agent variant for a real-estate client (Horizon Realty), unified under a shared "Multi-Industry Demo Switchboard" Retell agent, with its own automated lead scoring and 19-test regression suite validating the Calendar/CRM integration end to end.`,
       solution: `A Retell-based voice receptionist qualifies callers and books real appointments end-to-end — a Google Calendar event plus a linked EspoCRM Contact and Opportunity — through a cache-optimized, multi-slot intake flow. It's live for a real pest-control client (Ironclad Pest Solutions) and a parallel real-estate variant (Horizon Realty) with automated lead scoring, proving the same agent architecture generalizes across industries rather than being a single-purpose script.`,
       results: `The multi-slot intake redesign cut average call length from ~3m40s to ~2m18s (measured across the most recent 45 live calls on the pest-control booking agent). The 5-minute in-memory cache turned the check-availability webhook's cold-path latency — a live 1,272ms Google Calendar round-trip — into a <50ms cache-hit response for repeat lookups within the same window; the real-estate variant's own regression suite independently confirms a 92.5ms cache-hit / 846.5ms cold-booking latency profile. Every completed booking creates a fully linked record — Calendar event, EspoCRM Contact, and EspoCRM Opportunity — with no manual re-entry required.`,
+      outcome: `Average booking call cut from ~3m40s to ~2m18s.`,
+      outcomeContext: `Measured across the 45 most recent live calls on the pest-control booking agent. Each booking writes a linked Calendar event, EspoCRM Contact and Opportunity.`,
       liveUrl: "https://www.getminions.ai",
       gallery: [
         { url: "/projects/minions-landing.png", alt: "Minions.AI 24/7 AI Voice Dispatcher & Speed-to-Lead Platform" },
@@ -97,6 +99,8 @@ Booking itself does real CRM work inside one n8n workflow: check for slot confli
 A new tenant onboards through a 4-step self-serve wizard: a company snapshot (URL + name, auto-inferred), a one-click LinkedIn OAuth connect that pulls real recent post text into a voice sample, a 3-question brand interview that runs one LLM call to draft brand directives, and a review-and-launch step that provisions the tenant's channels and fires the first content harvest in the background. Underneath it, the tenancy model is real: a 16-model Prisma schema (Client, ClientChannel, ToneExample, Subscription, UsageEvent, and others) with full per-tenant data isolation, tested end-to-end with a real second tenant.`,
       solution: `A Qwen-powered content pipeline drafts, edits, and formats trade-specific marketing copy end to end, gated by a claims-checking step before anything publishes live to the blog or Facebook Page. Content that fails the gate — unsourced claims, or the customer-result claims the business can't yet make — stays behind human review in the Minions Cockpit dashboard rather than shipping automatically. It's the one part of the system built specifically to stop the AI from overstating what's actually been achieved.`,
       results: `The claims gate enforces itself in production: it has already blocked assets carrying unsourced statistics and fabricated customer-result claims from auto-publishing, routing them to human review instead of letting them ship. The pipeline runs on a fixed schedule (twice weekly harvest) plus on-demand drafting, publishing approved posts to the blog and Facebook Page without manual formatting or re-entry. Onboarding a new tenant is designed as a fast, self-serve 4-step flow with real per-tenant data isolation, verified end to end against a real second tenant.`,
+      outcome: `Claims gate blocks unsourced stats from auto-publishing.`,
+      outcomeContext: `Running in production on a twice-weekly harvest plus on-demand drafting; flagged assets route to human review instead of shipping.`,
       liveUrl: "https://minions.getminions.ai",
       gallery: [
         { url: "/projects/minions-cockpit.png", alt: "Minions.AI Multi-Agent Mission Control Cockpit & Telemetry" },
@@ -138,6 +142,8 @@ A new tenant onboards through a 4-step self-serve wizard: a company snapshot (UR
 Access control isn't hardcoded into the app's role checks — permissions are rows in the database, so the org's structure can change without a code change. Payroll rules were built to match how GenMorphics actually pays people: hourly for operational work, salaried with hourly fallback for managerial roles.`,
       solution: `GenMorphics AI operates as the operating system for its entire contractor workforce. Enterprise clients get task batches worked by specialists who've cleared skill and NDA gates for that specific engagement. Admins manage roles and permissions as data, review and bulk-action NDA instances at scale, and run payroll from the same platform that tracks the work.`,
       results: `GenMorphics moved from ad hoc spreadsheets and manual paperwork to one platform governing the full contractor lifecycle — skill-scoped task routing, a system-enforced NDA gate instead of a trust-based process, role and permission changes that ship as data instead of deploys, and payroll generated from the same records as the work itself.`,
+      outcome: `Replaced spreadsheet-run contractor ops with one system of record.`,
+      outcomeContext: `Covers onboarding, skill-scoped task routing, a system-enforced NDA gate, and payroll generated from the same records as the work.`,
       liveUrl: "https://app.genmorphicsai.com",
       gallery: [
         { url: "/projects/genmorphics-app.png", alt: "GenMorphics AI Secure Google & Microsoft Enterprise SSO Sign In" },
@@ -186,6 +192,8 @@ Separately, merchants had no visibility into why conversations weren't convertin
 Underneath the live conversation, a scheduled analyzer classifies each idle conversation for the merchant dashboard — but only the ambiguous outcomes go through an LLM; whether an order actually converted is read straight from the database, not inferred. That feeds a real insights dashboard (funnel, lost-reasons, demand gaps, stockout cost) and a staged follow-up system that nudges quiet-but-interested customers back, respecting each platform's own messaging-window rules.`,
       solution: `SellerVai runs as a single AI salesperson across a merchant's Messenger, Instagram, WhatsApp, and Telegram, replying with price, stock, and delivery info from an evolving product catalog and knowledge base. Merchants get a dashboard that explains why conversations are being lost, not just how many closed, and a follow-up system that re-engages the ones that went quiet without crossing platform messaging policies.`,
       results: `Rapid-fire message bursts get one coherent reply instead of several duplicate ones, by construction — the debouncer makes duplicate bot replies structurally impossible, not just less frequent. Merchants get lost-reason, demand-gap, and stockout-cost visibility they didn't have before, computed from real order and conversation data rather than guesswork. The follow-up system re-engages buying-intent conversations that went quiet, without violating Messenger's 24-hour messaging window.`,
+      outcome: `Duplicate bot replies made structurally impossible.`,
+      outcomeContext: `A per-conversation debouncer collapses rapid-fire message bursts into one reply, with lost-reason and stockout-cost analytics from real order data.`,
       liveUrl: "https://www.sellervai.com",
       gallery: [
         { url: "/projects/sellervai-home.png", alt: "SellerVai AI Social Commerce Salesperson & Multichannel Platform" },
@@ -232,6 +240,8 @@ Separately, mobile financial service payments in Bangladesh (bKash, Nagad via SS
 For payments, instead of trusting the webhook payload, every IPN triggers an active server-to-server query back to SSLCommerz's own validation API, cross-checked against the amount recorded at checkout and SSLCommerz's own risk score, with every attempt logged to an audit table for reconciliation.`,
       solution: `Students get formula rendering that degrades gracefully across a decade of content history instead of requiring a one-time content migration. Payments are enrolled exactly once per real transaction, with a paper trail for every webhook delivery whether it succeeded or not. On the admin side, coordinators and partner instructors operate within a permission system scoped to the courses they actually own, plus tooling built for people running cohorts day to day, not just engineers.`,
       results: `4,000+ students across JSC, SSC, and HSC tracks use the platform. Payment fulfillment has produced zero duplicate enrollments in production — caught by SSLCommerz's own validation-status check plus a duplicate-safe enrollment write, not a custom signature scheme SSLCommerz doesn't require.`,
+      outcome: `4,000+ students enrolled with zero duplicate enrollments.`,
+      outcomeContext: `Payment fulfillment is guarded by SSLCommerz validation-status checks plus a duplicate-safe enrollment write, across JSC, SSC and HSC tracks.`,
       liveUrl: "https://www.mathpro.academy",
       gallery: [
         { url: "/projects/mathpro-home.png", alt: "MathPro Academy Mathematics Coaching & Founder Overview" },
@@ -278,6 +288,8 @@ The streak concurrency problem required moving all logic to the database level. 
 For video, we deliberately didn't build a custom encoding pipeline. Editorial walkthroughs are delivered through BunnyCDN Stream (HLS) or plain YouTube embeds — proven infrastructure for the actual problem, rather than an in-house transcoding stack that would mostly duplicate what a CDN already does well.`,
       solution: `The platform runs as a structured curriculum with a live problem bank and an admin-controlled publishing flow: students get access to a chapter the moment an instructor marks it live, with an immediate notification. Each module pairs curated problems with in-depth video editorial walkthroughs — delivered via a CDN, not custom video infrastructure — that explain reasoning and trade-offs rather than just showing the accepted solution. A cohort leaderboard, driven by the same streak-tracking data, gives students a live sense of where they stand.`,
       results: `The platform has enrolled 4,000+ students across training cohorts, working through a bank of 300+ curated algorithmic problems. Streak tracking runs correctly under concurrent midnight submissions without duplicate increments or missed streaks — the atomic SQL implementation handles concurrency transparently at the database level, with same-day idempotency and anti-backdating guards built into the query itself.`,
+      outcome: `4,000+ students across 300+ curated algorithmic problems.`,
+      outcomeContext: `Streak tracking stays correct under concurrent midnight submissions via atomic SQL, with same-day idempotency and anti-backdating guards.`,
       liveUrl: "https://cpnew.codervai.com",
       gallery: [
         { url: "/projects/codervai-courses.png", alt: "Codervai All Courses & Bundle Catalog" },
@@ -321,6 +333,8 @@ For video, we deliberately didn't build a custom encoding pipeline. Editorial wa
       approach: `We built a single institutional platform spanning tuition, credentialing, and public-facing content. Tuition runs through a structured SSLCommerz installment gateway that tracks each payment against the batch fee. Certificates are generated from an admin-configured visual template — coordinates for name, course, and QR placement — rendered server-side as a PDF, and issued in bulk once a student's payment status is complete. Each issued certificate gets a structured, sequential ID that resolves at a public, rate-limited verification URL. Separately, program pages, cohort announcements, and institutional news are all editable by CPRBD staff through purpose-built admin screens, not code changes.`,
       solution: `CPRBD operates the platform end-to-end: coordinators manage cohorts and tuition, the certificate engine replaces manual design work, employers and embassies verify credentials via a public URL, and non-technical staff maintain program pages, cohort communication, and the research/news sections without engineering involvement.`,
       results: `Certificate generation moved from a manual, per-student Canva workflow to a templated, bulk, payment-gated issuance flow. Every issued certificate is publicly and instantly verifiable by ID. Program-page updates, cohort announcements, and institutional news no longer require a developer in the loop.`,
+      outcome: `Bulk certificate issuance, each one publicly verifiable by ID.`,
+      outcomeContext: `Replaced a manual per-student Canva workflow with templated, payment-gated issuance; program pages update without a developer in the loop.`,
       liveUrl: "https://cprbddu.org",
       gallery: [
         { url: "/projects/cprbd-home.png", alt: "Center for Policy Research on Business and Development Portal" },
@@ -361,6 +375,8 @@ For video, we deliberately didn't build a custom encoding pipeline. Editorial wa
       approach: `The extension renders an AI companion button next to each post, generating tone-selectable comment drafts from extracted post text. To survive LinkedIn's shifting DOM, later development moved from hardcoded selectors to a self-healing system: a background script periodically snapshots a pruned, privacy-safe representation of the feed DOM (PII stripped, structural attributes and short text previews only) and sends it to an AI model, which returns a JSON strategy describing where to find posts, post text, and the right injection point. That strategy is cached, validated against the live DOM on each load, and regenerated (rate-limited to avoid runaway calls) when validation fails. If the AI path is unavailable, the extension falls back to a bank of hardcoded selectors, and if that also fails, to text-content heuristics that specifically target LinkedIn's obfuscated-class builds.`,
       solution: `A working self-healing Chrome extension: AI-driven selector generation as the primary defense against DOM changes, with two layers of deterministic fallback beneath it so a failed AI call never fully breaks injection. Authentication and AI calls run through a Supabase backend with real subscription tiers, not a client-managed API key.`,
       results: `Shipped and published to the Chrome Web Store. The self-healing system is real, working engineering — but LinkedIn's DOM obfuscation and anti-automation measures kept escalating faster than a single-developer side project could track, and active development stopped after the last self-healing iteration landed. The extension remains live on the store; it isn't under active maintenance.`,
+      outcome: `Shipped and published to the Chrome Web Store.`,
+      outcomeContext: `Self-healing DOM injection re-derives selectors when LinkedIn's markup shifts. Live on the store, but no longer under active maintenance.`,
       liveUrl: "https://lnbrandassistant.xyz",
       githubUrl: "https://chromewebstore.google.com/detail/linkedin-brand-assistant/liicmnighkinlpgaagipbjbjkokknjhi",
       gallery: [
@@ -404,6 +420,8 @@ For video, we deliberately didn't build a custom encoding pipeline. Editorial wa
       approach: `We moved data entry into the tool volunteers already use: Telegram. A message posted in the group is scanned for donor-shaped text and parsed by a deterministic pattern engine — no AI call, no rate limit to worry about, no API cost per message. For the messier case (someone pasting a half-formatted list from a spreadsheet), a separate web "Submit" page runs the same text through Gemini first, with a fixed-block parser and a plain regex parser as fallbacks if the AI step has a bad moment. Search stays simple: an indexed lookup by blood group, filtered in-app to donors past a 4-month cooldown, sorted so the longest-idle eligible donor surfaces first.`,
       solution: `Coordinators post donor details into Telegram exactly as they'd naturally write them — no app switching, no form. A deterministic parser turns that into a structured record, with an AI-backed web form available for messier paste-ins. Duplicate and validation errors are caught before they pollute the ledger. When someone needs a donor, blood-group search plus the cooldown filter surfaces exactly who's eligible right now.`,
       results: `407 donors and 599 donation records tracked for the Amar Ekushey Hall Unit, entered almost entirely through Telegram messages rather than a form — the bot absorbed the actual workflow volunteers were already using instead of forcing a new one.`,
+      outcome: `407 donors and 599 donation records tracked via Telegram.`,
+      outcomeContext: `Gemini parses free-text coordinator messages into structured records, absorbing the workflow volunteers already used instead of imposing a form.`,
       liveUrl: "https://badhan.mathpro.academy",
       githubUrl: "https://github.com/parvej-shah/blood-update-badhan",
       gallery: [
@@ -520,12 +538,12 @@ async function seedPosts() {
 const sectionContent: Record<SectionKey, unknown> = {
   hero: {
     eyebrow: "Software Engineer & AI Systems Developer",
-    headlineLines: ["We Build AI Systems", "That Actually Run", "in Production."],
+    headlineLines: ["AI Automation and", "Web Products", "Built Around Your Business."],
     description:
-      "We turn ambitious AI ideas into production-ready software — from 24/7 AI voice agents and automated workflows to high-scale SaaS platforms without agency bloat or fragile prototypes.",
-    primaryCta: { label: "Tell Us What You're Building", href: "#contact" },
-    secondaryCta: { label: "See What We've Built", href: "#portfolio" },
-    trustLabel: "Trusted by 5 clients",
+      "Work directly with Parvej to automate customer workflows, launch a product, or improve an existing platform — from planning through launch, built to hold up in production.",
+    primaryCta: { label: "Discuss Your Project", href: "#contact" },
+    secondaryCta: { label: "Explore Client Work", href: "#portfolio" },
+    trustLabel: "Trusted by 5 clients worldwide",
     trustStats: [
       { value: "12", label: "projects shipped" },
       { value: "<24h", label: "response time" },
@@ -600,11 +618,11 @@ const sectionContent: Record<SectionKey, unknown> = {
   },
   about: {
     eyebrow: "Founder & Lead Engineer",
-    heading: "The engineering philosophy behind every build.",
+    heading: "An engineering partner who thinks beyond launch.",
     image: "/assets/images/aboutme.webp",
     imageAlt: "Parvej Shah",
     quote:
-      "Great software isn't just shipped — it's engineered to survive production. Every decision, from the database query index to the user conversion flow, should serve the business outcome.",
+      "I care about what happens after launch: whether your team can use the product confidently, whether it can adapt as the business grows, and whether the technology earns its place in the workflow.",
     quoteAuthor: "Parvej Shah",
     quoteRole: "Software Engineer & Platform Architect · IIT, University of Dhaka",
     points: [
@@ -673,7 +691,7 @@ const sectionContent: Record<SectionKey, unknown> = {
     eyebrow: "Start Your Project",
     heading: "Tell us what you're building.",
     description:
-      "No polished brief or formal RFP required. Just tell us your idea, what's currently stopping you, and your target launch date. We'll reply within 24 hours with a comprehensive technical assessment.",
+      "No polished brief or formal RFP required. Just tell us your idea, what's currently stopping you, and your target launch date. We'll reply within 24 hours with an initial feasibility read, the questions we'd need answered, and a suggested next step.",
     info: [
       {
         icon: "Mail",
@@ -681,7 +699,7 @@ const sectionContent: Record<SectionKey, unknown> = {
         value: "parvejshahlabib007@gmail.com",
         href: "mailto:parvejshahlabib007@gmail.com",
       },
-      { icon: "Clock", label: "Guaranteed Response", value: "Within 24 hours", href: null },
+      { icon: "Clock", label: "Response Time", value: "Within 24 hours", href: null },
       { icon: "MapPin", label: "Location", value: "Worldwide · Remote", href: null },
     ],
   },
@@ -693,7 +711,7 @@ const sectionContent: Record<SectionKey, unknown> = {
     durationLabel: "30 min call",
     notes: [
       "Available for calls across US, European, and global timezones.",
-      "I'll reply within 8 hours to confirm or suggest another time.",
+      "I'll reply within 24 hours to confirm or suggest another time.",
     ],
   },
   social: {

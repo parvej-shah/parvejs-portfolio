@@ -4,25 +4,25 @@ import { resolveServiceIcon } from "@/lib/section-rendering";
 
 const defaultSection = {
   eyebrow: "My Core Expertise",
-  heading: "From architecture to production, without the usual excuses.",
+  heading: "From architecture to production, with a clear path forward.",
   description:
-    "Every build is measured against three things: does it hold up under real usage, can it be trusted with real money and data, and can it grow without a rewrite. No bloat, no shortcuts, just work that lasts.",
+    "Every build is measured against three things: dependable everyday use, safe handling of money and data, and room to grow without a rewrite.",
   tagline: "Core Services Offered",
   items: [
     {
       icon: "Code2",
       title: "Full Stack Systems & Web Apps",
-      desc: "Software that works the first time and every time. From payment flows to permission systems and admin tooling, I build backend architecture engineered to hold up under real usage — not just in the demo.",
+      desc: "From payment flows to permission systems and admin tooling, I build backend architecture that stays dependable as usage grows.",
     },
     {
       icon: "Sparkles",
       title: "Voice AI & LLM Infrastructure",
-      desc: "AI that does real work, not party tricks. Voice agents that book real appointments, and automated pipelines built with hard limits so the AI never states something that isn't true.",
+      desc: "AI that handles useful work: voice agents that book appointments and automated pipelines with clear limits and human review when needed.",
     },
     {
       icon: "Gauge",
       title: "Performance & Data Architecture",
-      desc: "Speed people actually feel. Pages that load instantly and stay steady, search that understands intent instead of just keywords, and data systems built to hold up under real-world load.",
+      desc: "Fast, steady experiences with search that understands intent and data systems designed for growing workloads.",
     },
   ],
 };

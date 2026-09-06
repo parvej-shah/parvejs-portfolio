@@ -3,8 +3,15 @@ import { ArrowUpRight, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import Reveal from "./Reveal";
 
+// Prefer the authored `outcome` — one complete claim that never truncates.
+// Falls back to deriving a line from `results` for projects without one.
+function proofLine(project) {
+  if (project?.outcome) return project.outcome;
+  return derivedProofLine(project?.results);
+}
+
 // Pull a short, plain-text proof line from a project's markdown `results` field.
-function proofLine(results) {
+function derivedProofLine(results) {
   if (!results) return null;
   const firstLine = results
     .split("\n")
@@ -57,8 +64,8 @@ export default function Portfolio({ projects = [] }) {
             </h2>
           </div>
           <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-            No toy projects or weekend prototypes. Systems deployed in production holding up under real users,
-            real money, and measurable efficiency gains.
+            Selected work across AI automation, customer platforms, and internal operations — with the outcomes and
+            delivery details to help you judge whether we are a good fit.
           </p>
         </Reveal>
 
@@ -112,10 +119,17 @@ export default function Portfolio({ projects = [] }) {
                 </p>
               </div>
 
-              {proofLine(flagship.results) ? (
-                <div className="flex items-center gap-2.5 rounded-xl border border-brand/20 bg-brand/5 px-3.5 py-2.5">
-                  <CheckCircle2 className="size-4 shrink-0 text-brand" />
-                  <span className="line-clamp-1 text-xs font-medium text-white/95 sm:text-sm">{proofLine(flagship.results)}</span>
+              {proofLine(flagship) ? (
+                <div className="flex items-start gap-2.5 rounded-xl border border-brand/20 bg-brand/5 px-3.5 py-2.5">
+                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-brand" />
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-white sm:text-sm">{proofLine(flagship)}</p>
+                    {flagship.outcomeContext ? (
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        {flagship.outcomeContext}
+                      </p>
+                    ) : null}
+                  </div>
                 </div>
               ) : null}
 
@@ -186,10 +200,10 @@ export default function Portfolio({ projects = [] }) {
                       {project.summary}
                     </p>
 
-                    {proofLine(project.results) ? (
-                      <div className="mt-3.5 flex items-center gap-2 text-xs font-medium text-white/90">
-                        <CheckCircle2 className="size-3.5 shrink-0 text-brand" />
-                        <span className="line-clamp-1">{proofLine(project.results)}</span>
+                    {proofLine(project) ? (
+                      <div className="mt-3.5 flex items-start gap-2 text-xs font-medium text-white/90">
+                        <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-brand" />
+                        <span className="line-clamp-2">{proofLine(project)}</span>
                       </div>
                     ) : null}
                   </div>
@@ -247,10 +261,10 @@ export default function Portfolio({ projects = [] }) {
                     </p>
                   </div>
                   <Link
-                    href="/projects"
+                    href="/#contact"
                     className="inline-flex h-12 w-fit shrink-0 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-[#05140b] transition-all hover:bg-brand-dark hover:shadow-[0_8px_30px_-6px_rgba(0,230,118,0.5)]"
                   >
-                    Browse All Case Studies
+                    Start the Conversation
                     <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                   </Link>
                 </div>

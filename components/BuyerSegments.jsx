@@ -2,6 +2,7 @@
 
 import { ArrowUpRight, Bot, Rocket, Cpu } from "lucide-react";
 import Reveal from "./Reveal";
+import { SELECT_CATEGORY_EVENT } from "@/lib/project-categories";
 
 const segments = [
   {
@@ -12,9 +13,9 @@ const segments = [
     description:
       "Deploy 24/7 AI voice receptionists and n8n pipelines that qualify leads, book appointments, and sync your CRM — with zero added headcount.",
     outcome: "24/7 lead capture. Zero manual intake overhead.",
-    cta: "See AI work",
-    href: "#portfolio",
-    categoryParam: "AI Automation & Voice Agents",
+    cta: "Discuss an automation",
+    href: "#contact",
+    categoryId: "ai-automation",
   },
   {
     id: "saas-product",
@@ -24,9 +25,9 @@ const segments = [
     description:
       "Turn your concept into a launch-ready platform. Full-stack Next.js 16 + TypeScript, clean SQL schemas, payment flows, and high-conversion UI.",
     outcome: "Production MVP shipped in 3–6 weeks.",
-    cta: "See product work",
-    href: "#portfolio",
-    categoryParam: "SaaS / Web Product",
+    cta: "Discuss a product build",
+    href: "#contact",
+    categoryId: "saas-product",
   },
   {
     id: "scale-optimize",
@@ -38,15 +39,15 @@ const segments = [
     outcome: "Sub-50ms cache hits. Zero-downtime rewrites.",
     cta: "Fix my system",
     href: "#contact",
-    categoryParam: "Existing System & Scaling",
+    categoryId: "scale-optimize",
   },
 ];
 
 export default function BuyerSegments() {
-  const handleSelectTrack = (categoryParam) => {
+  const handleSelectTrack = (categoryId) => {
     if (typeof window !== "undefined") {
-      const event = new CustomEvent("select-project-category", {
-        detail: { category: categoryParam },
+      const event = new CustomEvent(SELECT_CATEGORY_EVENT, {
+        detail: { categoryId },
       });
       window.dispatchEvent(event);
     }
@@ -102,7 +103,7 @@ export default function BuyerSegments() {
                 <div className="mt-8 pt-4 border-t border-line/60">
                   <a
                     href={seg.href}
-                    onClick={() => handleSelectTrack(seg.categoryParam)}
+                    onClick={() => handleSelectTrack(seg.categoryId)}
                     className="inline-flex items-center gap-2 text-sm font-semibold text-brand transition-all group-hover:text-white"
                   >
                     <span>{seg.cta}</span>

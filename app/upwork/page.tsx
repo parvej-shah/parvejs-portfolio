@@ -35,8 +35,8 @@ export default async function UpworkLandingPage() {
             <span className="text-brand">Actually Ship the System.</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
-            Stop losing weeks to junior freelancers and inflated agency quotes. From production AI voice agents
-            to high-concurrency SaaS applications, I engineer systems designed to survive real user traffic and scale.
+            Work directly with a senior engineer who can take ownership from architecture through launch. From
+            production AI voice agents to high-concurrency SaaS applications, I build for real usage and steady growth.
           </p>
 
           <div className="mt-9 flex flex-col sm:flex-row items-center justify-center gap-4">

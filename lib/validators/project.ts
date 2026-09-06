@@ -15,6 +15,10 @@ export const projectSchema = z.object({
   solution: z.string().nullable().optional(),
   results: z.string().nullable().optional(),
 
+  // Card-safe outcome line + the measurement basis behind it.
+  outcome: z.string().max(140).nullable().optional(),
+  outcomeContext: z.string().max(200).nullable().optional(),
+
   client: z.string().nullable().optional(),
   role: z.string().nullable().optional(),
   timeline: z.string().nullable().optional(),

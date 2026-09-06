@@ -4,8 +4,8 @@ import Reveal from "./Reveal";
 const advantages = [
   {
     icon: Shield,
-    tag: "Zero Fragile Demos",
-    title: "Production Engineering, Not Prototypes",
+    tag: "Reliable by Design",
+    title: "Ready for the Work Ahead",
     description:
       "Deterministic guardrails, multi-stage claims gates, in-memory caching. Built to handle real edge cases under real customer traffic.",
   },
@@ -19,9 +19,9 @@ const advantages = [
   {
     icon: UserCheck,
     tag: "Direct Senior Partnership",
-    title: "One Senior Partner from Idea to Scale",
+    title: "A Senior Lead Who Stays on Your Project",
     description:
-      "No junior handoffs, no project managers playing telephone. You work directly with the engineer who owns discovery, code, and deployment.",
+      "Parvej leads every engagement end to end, backed by a small senior team. You talk to the engineer who owns discovery, code, and deployment — no junior handoffs, no project managers playing telephone.",
   },
   {
     icon: Target,
@@ -39,10 +39,10 @@ export default function WhyUs() {
         <Reveal className="max-w-3xl">
           <span className="eyebrow mb-4">The Difference</span>
           <h2 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl text-white">
-            We don&apos;t ship AI demos.
+            Built for the moment your product goes live.
           </h2>
           <p className="mt-4 text-base text-muted-foreground leading-relaxed">
-            We ship systems that survive real users, real traffic, and real business operations.
+            Your software should keep working as customers arrive, workflows grow, and the business changes.
           </p>
         </Reveal>
 

@@ -16,7 +16,7 @@ const outcomes = [
     badge: "Speed to Market",
     title: "Launch Production MVPs Faster",
     description:
-      "Avoid bloated agency timelines and junior handoffs. Move from validated architecture to a live, production-grade web application with real users in weeks — not quarters.",
+      "Move from validated architecture to a live, production-grade web application with a focused scope, clear milestones, and direct senior ownership.",
   },
   {
     icon: DollarSign,

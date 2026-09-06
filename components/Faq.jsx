@@ -8,7 +8,7 @@ const faqs = [
   {
     question: "How do you charge for projects? (Fixed price vs. Retainer)",
     answer:
-      "For defined projects like an MVP launch or an AI voice agent deployment, we work on transparent, fixed-price milestones — you know the exact cost and scope before we write a line of code. For ongoing platform development or system scaling, we offer dedicated weekly sprint retainers with zero long-term lock-in.",
+      "For defined projects like an MVP launch or an AI voice agent deployment, we work on transparent, fixed-price milestones — you know the exact cost and scope before development begins. For ongoing platform development or system scaling, we offer dedicated weekly sprint retainers with flexible renewal.",
   },
   {
     question: "How fast can we launch an MVP or AI Voice Agent?",
@@ -23,12 +23,12 @@ const faqs = [
   {
     question: "What stops the AI from hallucinating or making mistakes?",
     answer:
-      "We do not rely on naive, open-ended prompt templates. We engineer deterministic finite state machines, multi-slot entity extraction, and automated claims-validation gates that hard-block unsourced statements or invalid calendar bookings before they ever reach a user.",
+      "We combine structured conversation flows, multi-slot entity extraction, and claims-validation gates. Unsourced statements and invalid calendar bookings are blocked before they reach a user, with human review available when the system is uncertain.",
   },
   {
     question: "Do I own 100% of the code and intellectual property?",
     answer:
-      "Yes, completely. All source code, database architectures, API integrations, and AI workflow blueprints belong 100% to you. We set up everything in your own GitHub, AWS/Cloudflare, and Supabase/Neon accounts with zero proprietary lock-in.",
+      "Yes. All source code, database architectures, API integrations, and AI workflow blueprints belong to you. We can set up the project in your own GitHub and cloud accounts so your team retains control of the infrastructure.",
   },
   {
     question: "What happens after launch? Do you offer post-launch support?",

@@ -2,16 +2,15 @@ import HeroSection from "../components/Banner";
 import MarqueeStripe from "../components/MarqueeStripe";
 import BuyerSegments from "../components/BuyerSegments";
 import Portfolio from "../components/Portfolio";
-import Stats from "../components/Stats";
 import BigStatement from "../components/BigStatement";
+import Stats from "../components/Stats";
 import WhyUs from "../components/WhyUs";
 import Process from "../components/Process";
 import Testimonials from "../components/Testimonials";
 import AboutMe from "../components/AboutMe";
 import Faq from "../components/Faq";
-import Insights from "../components/Insights";
 import Contact from "../components/Contact";
-import { getPublishedPosts, getPublishedProjects, getSection } from "@/lib/data/public";
+import { getPublishedProjects, getSection } from "@/lib/data/public";
 
 export default async function Home() {
   const [
@@ -24,7 +23,6 @@ export default async function Home() {
     contactSection,
     socialSection,
     projects,
-    posts,
   ] = await Promise.all([
     getSection("hero"),
     getSection("stats"),
@@ -35,12 +33,10 @@ export default async function Home() {
     getSection("contact"),
     getSection("social"),
     getPublishedProjects(),
-    getPublishedPosts(),
   ]);
 
-  // Homepage shows only featured items: up to 5 projects and 6 blog posts.
+  // Homepage shows only featured items: up to 5 projects.
   const featuredProjects = projects.filter((project) => project.featured).slice(0, 5);
-  const featuredPosts = posts.filter((post) => post.featured).slice(0, 6);
 
   return (
     <main>
@@ -50,14 +46,14 @@ export default async function Home() {
       {/* Dynamic tech marquee strip */}
       <MarqueeStripe />
 
-      {/* 2. Buyer Classification: "What are you trying to build?" */}
+      {/* 2. Results: numbers land early, as credibility before the pitch */}
+      <Stats section={statsSection ?? undefined} />
+
+      {/* 3. Buyer Classification: "What are you trying to build?" */}
       <BuyerSegments />
 
-      {/* 3. Proof of Work: Outcome-first flagship & supporting case studies */}
+      {/* 4. Proof of Work: Outcome-first flagship & supporting case studies */}
       <Portfolio projects={featuredProjects} />
-
-      {/* 4. Results: Big impact numbers & benchmarks */}
-      <Stats section={statsSection ?? undefined} />
 
       {/* 5. Statement: Breathing break between density */}
       <BigStatement />
@@ -77,10 +73,7 @@ export default async function Home() {
       {/* 10. FAQ: Killing objections before contact */}
       <Faq />
 
-      {/* 11. Engineering Insights: Technical articles */}
-      {featuredPosts.length > 0 && <Insights posts={featuredPosts} />}
-
-      {/* 13. Low-Friction Final CTA: Free 24h technical assessment */}
+      {/* 11. Low-Friction Final CTA: Free 24h technical assessment */}
       <Contact
         section={contactSection ?? undefined}
         meetingSection={meetingSection ?? undefined}
