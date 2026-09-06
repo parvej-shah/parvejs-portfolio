@@ -66,14 +66,14 @@ export default async function Home() {
       {/* 6. CTA: High-impact conversion driver */}
       <LargeCtaBanner />
 
-      {/* 7. Big Statement: Production conviction */}
-      <BigStatement />
-
-      {/* 8. About: Founder authority & engineering philosophy */}
+      {/* 7. About: Founder authority & engineering philosophy */}
       <AboutMe section={aboutSection ?? undefined} />
 
-      {/* 9. FAQ: Killing objections before contact */}
+      {/* 8. FAQ: Killing objections before contact */}
       <Faq />
+
+      {/* 9. Big Statement: Production conviction */}
+      <BigStatement />
 
       {/* 10. Contact: Free 24h technical assessment */}
       <Contact
