@@ -7,6 +7,7 @@ import Stats from "../components/Stats";
 import WhyUs from "../components/WhyUs";
 import Process from "../components/Process";
 import Testimonials from "../components/Testimonials";
+import LargeCtaBanner from "../components/LargeCtaBanner";
 import AboutMe from "../components/AboutMe";
 import Faq from "../components/Faq";
 import Contact from "../components/Contact";
@@ -43,37 +44,40 @@ export default async function Home() {
       {/* 1. Hero: Clear outcome-first value proposition */}
       <HeroSection section={heroSection ?? undefined} socialLinks={socialSection?.links} />
 
-      {/* Dynamic tech marquee strip */}
-      <MarqueeStripe />
-
       {/* 2. Results: numbers land early, as credibility before the pitch */}
       <Stats section={statsSection ?? undefined} />
 
-      {/* 3. Buyer Classification: "What are you trying to build?" */}
-      <BuyerSegments />
+      {/* Dynamic tech marquee strip */}
+      <MarqueeStripe />
 
-      {/* 4. Proof of Work: Outcome-first flagship & supporting case studies */}
+      {/* 3. Proof of Work: Outcome-first flagship & supporting case studies */}
       <Portfolio projects={featuredProjects} />
+
+      {/* 4. Buyer Classification: "What are you trying to build?" */}
+      {/* <BuyerSegments /> */}
 
       {/* 5. Statement: Breathing break between density */}
       <BigStatement />
 
       {/* 6. Why Us: Production engineering vs. fragile demos */}
-      <WhyUs />
+      {/* <WhyUs /> */}
 
-      {/* 7. How It Works: Defined deliverables per milestone */}
-      <Process section={processSection ?? undefined} />
-
-      {/* 8. Testimonials: Case study proof & client logo marquee */}
+      {/* 7. Testimonials: Case study proof & client logo marquee */}
       <Testimonials section={testimonialsSection ?? undefined} />
 
-      {/* 9. Founder Authority: IIT DU & engineering philosophy */}
+      {/* 8. Large Action Banner: High-contrast conversion driver */}
+      <LargeCtaBanner />
+
+      {/* 9. How It Works: Defined deliverables per milestone */}
+      <Process section={processSection ?? undefined} />
+
+      {/* 10. Founder Authority: IIT DU & engineering philosophy */}
       <AboutMe section={aboutSection ?? undefined} />
 
-      {/* 10. FAQ: Killing objections before contact */}
+      {/* 11. FAQ: Killing objections before contact */}
       <Faq />
 
-      {/* 11. Low-Friction Final CTA: Free 24h technical assessment */}
+      {/* 12. Low-Friction Final CTA: Free 24h technical assessment */}
       <Contact
         section={contactSection ?? undefined}
         meetingSection={meetingSection ?? undefined}
