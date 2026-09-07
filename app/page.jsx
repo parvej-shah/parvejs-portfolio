@@ -60,14 +60,14 @@ export default async function Home() {
       {/* 4. Testimonials: Case study proof & client recommendations */}
       <Testimonials section={testimonialsSection ?? undefined} />
 
-      {/* 5. Process: Defined deliverables per milestone */}
-      <Process section={processSection ?? undefined} />
-
-      {/* 6. CTA: High-impact conversion driver */}
+      {/* 5. CTA: High-impact conversion driver */}
       <LargeCtaBanner />
 
-      {/* 7. About: Founder authority & engineering philosophy */}
+      {/* 6. About: Founder authority & engineering philosophy */}
       <AboutMe section={aboutSection ?? undefined} />
+
+      {/* 7. Process: Defined deliverables per milestone (How It Works) */}
+      <Process section={processSection ?? undefined} />
 
       {/* 8. FAQ: Killing objections before contact */}
       <Faq />
