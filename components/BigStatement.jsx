@@ -10,7 +10,7 @@ export default function BigStatement() {
       <div className="mx-auto max-w-7xl px-5">
         <Reveal>
           <p className="text-5xl font-extrabold tracking-tight text-white leading-[1.08] sm:text-6xl lg:text-7xl">
-            12+ production systems <span className="text-brand">shipped.</span>
+            Built to run in <span className="text-brand">production.</span>
           </p>
           <p className="mt-6 max-w-lg text-base text-muted-foreground leading-relaxed sm:text-lg">
             From customer calls and payments to everyday operations, these products are built to

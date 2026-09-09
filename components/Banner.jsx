@@ -13,12 +13,12 @@ const defaultHero = {
   eyebrow: "Software Engineer & AI Systems Developer",
   headlineLines: ["AI Automation and", "Web Products", "Built Around Your Business."],
   description:
-    "Work directly with Parvej to automate customer workflows, launch a product, or improve an existing platform — from planning through launch, built to hold up in production.",
+    "You have the idea. What you don't have is someone you trust to actually ship it. Work directly with Parvej to automate the workflows eating your team's time — planned, built, and shipped to hold up in production.",
   primaryCta: { label: "Discuss Your Project", href: "#contact" },
   secondaryCta: { label: "Explore Client Work", href: "#portfolio" },
-  trustLabel: "Trusted by 5 clients worldwide",
+  trustLabel: "Trusted by clients worldwide",
   trustStats: [
-    { value: "12", label: "projects shipped" },
+    { value: "2+", label: "years shipping production systems" },
     { value: "<24h", label: "response time" },
   ],
   portraitImage: "/assets/images/banner-cutout.webp",
@@ -71,7 +71,7 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
             ))}
           </h1>
 
-          <p className="mt-6 max-w-xl text-sm leading-relaxed text-muted-foreground sm:mt-7 sm:text-base">
+          <p className="mt-6 max-w-xl text-base leading-relaxed text-white/75 sm:mt-7 sm:text-lg">
             {content.description}
           </p>
 
@@ -99,6 +99,15 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
               {content.secondaryCta.label}
             </a>
           </div>
+
+          {/* Risk reversal, directly under the CTA — mirrors the guarantee copy in
+              Contact so the ~60% who never scroll still see the terms of the ask. */}
+          <p
+            className="hero-rise mt-4 text-xs text-muted-foreground"
+            style={{ "--rise-delay": "520ms" }}
+          >
+            Free feasibility read · No obligation · Reply within 24 hours
+          </p>
 
           {/* Conversion trust strip */}
           <div

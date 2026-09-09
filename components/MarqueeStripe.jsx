@@ -1,6 +1,8 @@
 /**
  * MarqueeStripe — a full-width scrolling ticker that runs immediately after the
- * hero section. It loops project / brand names to signal social proof at a glance.
+ * hero section. It loops shipped project names to signal social proof at a glance.
+ * The visible track is duplicated for a seamless loop; the second copy is
+ * aria-hidden so assistive tech reads each project once.
  */
 
 const DEFAULT_ITEMS = [
@@ -16,12 +18,10 @@ const DEFAULT_ITEMS = [
 ];
 
 export default function MarqueeStripe({ items = DEFAULT_ITEMS }) {
-  // Duplicate the list so the loop is seamless
-  const track = [...items, ...items];
-
   return (
     <div
-      aria-hidden="true"
+      role="region"
+      aria-label="Projects shipped"
       className="relative overflow-hidden bg-ink py-4"
     >
       {/* left fade */}
@@ -30,14 +30,17 @@ export default function MarqueeStripe({ items = DEFAULT_ITEMS }) {
       <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-ink to-transparent sm:w-24" />
 
       <div className="flex w-max animate-marquee items-center gap-10 px-6 sm:gap-16 sm:px-8">
-        {track.map((item, i) => (
-          <span
-            key={i}
-            className="text-lg font-bold uppercase tracking-wide text-white/45 transition-colors hover:text-white/75 sm:text-xl"
-          >
-            {item}
-          </span>
-        ))}
+        {[false, true].map((isClone) =>
+          items.map((item, i) => (
+            <span
+              key={`${isClone ? "clone" : "track"}-${i}`}
+              aria-hidden={isClone || undefined}
+              className="text-lg font-bold uppercase tracking-wide text-white/45 transition-colors hover:text-white/75 sm:text-xl"
+            >
+              {item}
+            </span>
+          ))
+        )}
       </div>
     </div>
   );
