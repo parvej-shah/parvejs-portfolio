@@ -114,7 +114,7 @@ export default function Testimonials({ section = defaultSection }) {
                     </div>
 
                     {/* Full Complete Quote from Abdul Aziz */}
-                    <blockquote className="mt-4 text-base leading-relaxed text-white/95 sm:text-[17px] sm:leading-relaxed">
+                    <blockquote className="mt-4 text-base leading-relaxed text-foreground/95 sm:text-[17px] sm:leading-relaxed">
                       &ldquo;Parvej doesn&apos;t just build websites — he genuinely thinks about cost-efficiency from the client&apos;s perspective. Two things stand out: <span className="font-semibold text-brand">he always over-delivers</span> beyond what he commits to, and <span className="font-semibold text-brand">he delivers ahead of schedule</span>. For non-technical founders looking for someone you can 100% trust with your platform, I highly recommend Parvej.&rdquo;
                     </blockquote>
                   </div>
@@ -125,8 +125,8 @@ export default function Testimonials({ section = defaultSection }) {
                         AA
                       </span>
                       <div>
-                        <p className="text-sm font-semibold text-white">Abdul Aziz</p>
-                        <p className="text-xs text-slate-400 dark:text-muted-foreground">Founder & Head Instructor, MathPro Academy</p>
+                        <p className="text-sm font-semibold text-foreground">Abdul Aziz</p>
+                        <p className="text-xs text-muted-foreground">Founder & Head Instructor, MathPro Academy</p>
                       </div>
                     </div>
 
@@ -166,7 +166,7 @@ export default function Testimonials({ section = defaultSection }) {
               </div>
 
               {/* Full Complete Quote from Md. Seam Ali */}
-              <div className="mt-5 space-y-3.5 text-sm leading-relaxed text-white/90 sm:text-base sm:leading-relaxed">
+              <div className="mt-5 space-y-3.5 text-sm leading-relaxed text-foreground/90 sm:text-base sm:leading-relaxed">
                 <p>
                   &ldquo;I had the opportunity to work with Parvej and the website team during the development of the CPRBD website. Parvej was professional, responsive, and committed throughout the process. He and the team were receptive to feedback, handled website requirements effectively, and worked collaboratively to turn our ideas into a functional and professional web presence.&rdquo;
                 </p>
@@ -185,12 +185,12 @@ export default function Testimonials({ section = defaultSection }) {
                     className="size-12 rounded-full object-cover ring-2 ring-brand/20"
                   />
                   <div>
-                    <p className="text-sm font-semibold text-white sm:text-base">Md. Seam Ali Ahammod Pramaniq</p>
-                    <p className="text-xs text-slate-400 dark:text-muted-foreground">Project Assistant at CPRBD, University of Dhaka</p>
+                    <p className="text-sm font-semibold text-foreground sm:text-base">Md. Seam Ali Ahammod Pramaniq</p>
+                    <p className="text-xs text-muted-foreground">Project Assistant at CPRBD, University of Dhaka</p>
                   </div>
                 </div>
 
-                <span className="hidden text-xs text-slate-400 dark:text-muted-foreground sm:inline">
+                <span className="hidden text-xs text-muted-foreground sm:inline">
                   Data & Policy Research · Web Presence
                 </span>
               </div>

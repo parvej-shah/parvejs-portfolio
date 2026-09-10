@@ -270,42 +270,6 @@ body {
   opacity: 1;
 }
 
-/* In white mood, showcase cards (Portfolio & Testimonials) maintain an Apple/Linear-grade obsidian / dark slate surface */
-[data-theme="light"] .project-card,
-[data-theme="light"] .testimonial-card {
-  background: #0c100e;
-  border-color: rgba(255, 255, 255, 0.1);
-  --foreground: #f2f4f2;
-  --muted-foreground: #9ca8a1;
-  --color-white: #ffffff;
-  --line: rgba(255, 255, 255, 0.1);
-  --line-strong: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.35), 0 0 1px 1px rgba(255, 255, 255, 0.05);
-}
-
-[data-theme="light"] .project-card:hover,
-[data-theme="light"] .testimonial-card:hover {
-  background: #101513;
-  border-color: rgba(0, 230, 118, 0.4);
-  box-shadow: 0 24px 48px -15px rgba(0, 0, 0, 0.5), 0 0 30px -10px rgba(0, 230, 118, 0.2);
-}
-
-[data-theme="light"] .project-card.from-brand\/5,
-[data-theme="light"] .project-card.from-brand\/10 {
-  background-image: linear-gradient(to bottom right, rgba(0, 200, 83, 0.12), #0c100e, rgba(0, 200, 83, 0.15)) !important;
-  border-color: rgba(0, 200, 83, 0.3) !important;
-}
-
-[data-theme="light"] .project-card .flex-wrap span {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.12) !important;
-  color: #cbd5e1 !important;
-}
-
-[data-theme="light"] .project-card .flex-wrap span:hover {
-  border-color: rgba(0, 230, 118, 0.5) !important;
-  color: #ffffff !important;
-}
 
 /* diagonal light sweep across card media on hover */
 .card-sheen {
