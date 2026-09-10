@@ -19,7 +19,8 @@ export default function ParticleField({ className = "" }) {
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const BRAND = [0, 230, 118];
+    const isLight = document.documentElement.getAttribute("data-theme") === "light";
+    const BRAND = isLight ? [0, 180, 75] : [0, 230, 118];
     let width = 0;
     let height = 0;
     let dpr = Math.min(window.devicePixelRatio || 1, 2);

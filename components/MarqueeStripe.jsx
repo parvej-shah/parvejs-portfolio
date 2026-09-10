@@ -35,7 +35,7 @@ export default function MarqueeStripe({ items = DEFAULT_ITEMS }) {
             <span
               key={`${isClone ? "clone" : "track"}-${i}`}
               aria-hidden={isClone || undefined}
-              className="text-lg font-bold uppercase tracking-wide text-white/45 transition-colors hover:text-white/75 sm:text-xl"
+              className="text-lg font-bold uppercase tracking-wide text-foreground/40 transition-colors hover:text-foreground/80 sm:text-xl"
             >
               {item}
             </span>

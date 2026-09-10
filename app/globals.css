@@ -6,19 +6,58 @@
    MAXEL-STYLE DARK THEME — near-black + electric green accent
    ============================================================ */
 
-@theme {
-  --color-brand: #00e676;          /* electric green accent */
-  --color-brand-dark: #00c853;
-  --color-ink: #0a0b0a;            /* page background */
-  --color-ink-2: #0f1110;          /* raised surfaces */
-  --color-ink-3: #161917;          /* cards */
-  --color-line: rgba(255, 255, 255, 0.08);
-  --color-line-strong: rgba(255, 255, 255, 0.14);
-  --color-muted-ink: #8b928d;      /* secondary text */
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: var(--font-sans);
   --font-display: var(--font-sans);
+  --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-muted-ink: var(--muted-ink);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-white: var(--color-white, #ffffff);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
 }
 
-:root {
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --brand: #00e676;
+  --brand-dark: #00c853;
+  --ink: #0a0b0a;
+  --ink-2: #0f1110;
+  --ink-3: #161917;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.14);
+  --muted-ink: #8b928d;
+  --color-white: #ffffff;
+
   --background: #0a0b0a;
   --foreground: #f2f4f2;
   --card: #161917;
@@ -38,35 +77,57 @@
   --input: rgba(255, 255, 255, 0.12);
   --ring: #00e676;
   --radius: 0.75rem;
+
+  --dot-grid-color: rgba(255, 255, 255, 0.05);
+  --brand-glow-color: rgba(0, 230, 118, 0.12);
+  --graffiti-stroke: #00e676;
+  --prose-text: #cbd5e1;
+  --prose-heading: #f8fafc;
+  --blockquote-bg: rgba(255, 255, 255, 0.02);
+  --card-shadow: none;
+  --card-hover-shadow: 0 30px 60px -28px rgba(0, 0, 0, 0.75), 0 18px 44px -22px rgba(0, 230, 118, 0.2);
 }
 
-@theme inline {
-  --font-heading: var(--font-sans);
-  --font-sans: var(--font-sans);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-foreground: var(--foreground);
-  --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
+[data-theme="light"] {
+  color-scheme: light;
+  --brand: #00c853;
+  --brand-dark: #00a844;
+  --ink: #fbfdfc;
+  --ink-2: #ffffff;
+  --ink-3: #f0f4f1;
+  --line: rgba(0, 0, 0, 0.08);
+  --line-strong: rgba(0, 0, 0, 0.16);
+  --muted-ink: #505c52;
+  --color-white: #0a0f0c;
+
+  --background: #fbfdfc;
+  --foreground: #0a0f0c;
+  --card: #ffffff;
+  --card-foreground: #0a0f0c;
+  --popover: #ffffff;
+  --popover-foreground: #0a0f0c;
+  --primary: #00c853;
+  --primary-foreground: #ffffff;
+  --secondary: #f0f4f1;
+  --secondary-foreground: #0a0f0c;
+  --muted: #f0f4f1;
+  --muted-foreground: #505c52;
+  --accent: #00c853;
+  --accent-foreground: #05140b;
+  --destructive: oklch(0.58 0.22 25);
+  --border: rgba(0, 0, 0, 0.08);
+  --input: rgba(0, 0, 0, 0.12);
+  --ring: #00c853;
+  --radius: 0.75rem;
+
+  --dot-grid-color: rgba(0, 0, 0, 0.05);
+  --brand-glow-color: rgba(0, 200, 83, 0.08);
+  --graffiti-stroke: #00963e;
+  --prose-text: #2f3832;
+  --prose-heading: #0a0f0c;
+  --blockquote-bg: rgba(0, 200, 83, 0.05);
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+  --card-hover-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.12), 0 8px 24px -10px rgba(0, 200, 83, 0.15);
 }
 
 html {
@@ -141,8 +202,8 @@ body {
 .graffiti {
   font-weight: 800;
   color: transparent;
-  -webkit-text-stroke: 1.5px var(--color-brand);
-  text-stroke: 1.5px var(--color-brand);
+  -webkit-text-stroke: 1.5px var(--graffiti-stroke, var(--color-brand));
+  text-stroke: 1.5px var(--graffiti-stroke, var(--color-brand));
   letter-spacing: -0.01em;
   transform: rotate(-4deg);
   display: inline-block;
@@ -150,8 +211,8 @@ body {
 
 @media (max-width: 640px) {
   .graffiti {
-    -webkit-text-stroke: 1px var(--color-brand);
-    text-stroke: 1px var(--color-brand);
+    -webkit-text-stroke: 1px var(--graffiti-stroke, var(--color-brand));
+    text-stroke: 1px var(--graffiti-stroke, var(--color-brand));
   }
 }
 
@@ -160,12 +221,14 @@ body {
   background: color-mix(in srgb, var(--color-ink-3) 88%, transparent);
   border: 1px solid var(--color-line);
   border-radius: var(--radius-xl);
-  transition: border-color 0.3s ease, transform 0.3s ease, background 0.3s ease;
+  box-shadow: var(--card-shadow, none);
+  transition: border-color 0.3s ease, transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
 }
 .card-surface:hover {
   border-color: color-mix(in srgb, var(--color-brand) 40%, transparent);
   background: var(--color-ink-3);
   transform: translateY(-4px);
+  box-shadow: var(--card-hover-shadow, none);
 }
 
 /* elevated project card — deeper lift, brand edge light, layered shadow */
@@ -178,8 +241,7 @@ body {
 .project-card:hover {
   transform: translateY(-8px);
   border-color: color-mix(in srgb, var(--color-brand) 45%, transparent);
-  box-shadow: 0 30px 60px -28px rgba(0, 0, 0, 0.75),
-    0 18px 44px -22px rgba(0, 230, 118, 0.2);
+  box-shadow: var(--card-hover-shadow);
 }
 /* brand hairline that fades in along the card's bottom edge */
 .project-card::after {
@@ -224,14 +286,14 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(60% 60% at 70% 30%, rgba(0, 230, 118, 0.12), transparent 70%);
+  background: radial-gradient(60% 60% at 70% 30%, var(--brand-glow-color, rgba(0, 230, 118, 0.12)), transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
 
 /* dotted grid texture */
 .dot-grid {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-image: radial-gradient(var(--dot-grid-color, rgba(255, 255, 255, 0.05)) 1px, transparent 1px);
   background-size: 22px 22px;
 }
 
@@ -322,7 +384,7 @@ body {
 .prose-portfolio h2,
 .prose-portfolio h3,
 .prose-portfolio h4 {
-  color: #ffffff;
+  color: var(--prose-heading, #ffffff);
   font-weight: 700;
   letter-spacing: -0.02em;
 }
@@ -342,12 +404,12 @@ body {
 }
 
 .prose-portfolio p {
-  color: #cbd5e1;
+  color: var(--prose-text, #cbd5e1);
   margin-bottom: 1.25rem;
 }
 
 .prose-portfolio li {
-  color: #cbd5e1;
+  color: var(--prose-text, #cbd5e1);
   line-height: 1.8;
 }
 
@@ -384,11 +446,11 @@ body {
 
 .prose-portfolio blockquote {
   border-left: 3px solid var(--color-brand);
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--blockquote-bg, rgba(255, 255, 255, 0.02));
   border-radius: 0 0.75rem 0.75rem 0;
   padding: 1rem 1.25rem;
   margin: 1.75rem 0;
-  color: #f1f5f9;
+  color: var(--prose-heading, #f1f5f9);
   font-style: italic;
 }
 

@@ -6,6 +6,7 @@ import { Menu, X, ArrowUpRight } from "lucide-react";
 import useScroll from "../hooks/useScrolls";
 import { buttonVariants } from "./ui/button";
 import { cn } from "@/lib/utils";
+import ThemeToggle from "./ThemeToggle";
 
 const navLinks = [
   { name: "Solutions", link: "/#solutions" },
@@ -23,14 +24,14 @@ export default function Navbar() {
     <header
       className={`sticky top-0 z-50 w-full transition-colors duration-300 ${
         scrolled
-          ? "bg-ink/80 backdrop-blur-xl border-b border-line"
+          ? "bg-ink/80 backdrop-blur-xl border-b border-line shadow-sm"
           : "bg-transparent border-b border-transparent"
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
         <Link href="/#top" className="flex items-center gap-2 text-2xl font-black tracking-tight">
           <span className="text-brand">{"<"}</span>
-          <span className="text-white">PS</span>
+          <span className="text-foreground">PS</span>
           <span className="text-brand">{"/>"}</span>
         </Link>
 
@@ -39,14 +40,16 @@ export default function Navbar() {
             <Link
               key={l.link}
               href={l.link}
-              className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-white"
+              className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               {l.name}
             </Link>
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <ThemeToggle />
+
           <Link
             href="/#contact"
             className={cn(
@@ -61,7 +64,7 @@ export default function Navbar() {
           <button
             aria-label="Toggle menu"
             onClick={() => setOpen((o) => !o)}
-            className="grid size-10 place-items-center rounded-full border border-line text-white lg:hidden"
+            className="grid size-10 place-items-center rounded-full border border-line text-foreground lg:hidden"
           >
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
@@ -77,7 +80,7 @@ export default function Navbar() {
                 key={l.link}
                 href={l.link}
                 onClick={() => setOpen(false)}
-                className="flex items-center justify-between rounded-lg px-3 py-3 text-base font-medium text-muted-foreground hover:bg-ink-3 hover:text-white"
+                className="flex items-center justify-between rounded-lg px-3 py-3 text-base font-medium text-muted-foreground hover:bg-ink-3 hover:text-foreground"
               >
                 {l.name}
                 <ArrowUpRight className="size-4 text-brand" />
