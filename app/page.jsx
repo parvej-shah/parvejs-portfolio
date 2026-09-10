@@ -44,9 +44,8 @@ export default async function Home() {
       {/* 1. Hero: Clear outcome-first value proposition */}
       <HeroSection section={heroSection ?? undefined} socialLinks={socialSection?.links} />
 
-      {/* 2. Stats & Brands */}
+      {/* 2. Stats */}
       <Stats section={statsSection ?? undefined} />
-      <MarqueeStripe />
 
       {/* 3. Case Studies: Outcome-first flagship & supporting projects */}
       <Portfolio projects={featuredProjects} />

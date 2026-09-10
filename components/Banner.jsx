@@ -1,5 +1,7 @@
 "use client";
 
+import MarqueeStripe from "./MarqueeStripe";
+
 import Image from "next/image";
 import { ArrowUpRight, CheckCircle2 } from "lucide-react";
 import bannerImg from "../assets/images/banner-cutout.webp";
@@ -206,6 +208,9 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
           <span className="float-y size-1.5 rounded-full bg-brand" />
         </span>
       </div>
+
+      {/* Client brand ticker — visible in the hero fold for immediate social proof */}
+      <MarqueeStripe />
     </section>
   );
 }
