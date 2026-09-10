@@ -49,7 +49,7 @@ export default function Faq() {
       <div className="mx-auto max-w-5xl px-5">
         <Reveal className="text-center max-w-2xl mx-auto mb-14">
           <span className="eyebrow mb-4">Frequently Asked Questions</span>
-          <h2 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl text-white">
+          <h2 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl text-foreground">
             Common questions, answered transparently.
           </h2>
           <p className="mt-4 text-base text-muted-foreground leading-relaxed">
@@ -72,7 +72,7 @@ export default function Faq() {
                   className="flex w-full items-center justify-between gap-4 p-5 sm:p-6 text-left cursor-pointer transition-colors"
                   aria-expanded={isOpen}
                 >
-                  <span className="flex items-center gap-3 text-base sm:text-lg font-semibold text-white">
+                  <span className="flex items-center gap-3 text-base sm:text-lg font-semibold text-foreground">
                     <HelpCircle className="size-5 shrink-0 text-brand" />
                     {faq.question}
                   </span>

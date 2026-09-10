@@ -142,7 +142,7 @@ function ContactForm({ formData, setFormData, categoryId, setCategoryId }) {
   return (
     <>
       <div className="relative">
-        <h3 className="text-xl font-semibold text-white">Tell us about your project</h3>
+        <h3 className="text-xl font-semibold text-foreground">Tell us about your project</h3>
         <p className="text-xs text-muted-foreground mt-0.5">
           Free initial feasibility read — no obligation
         </p>
@@ -179,7 +179,7 @@ function ContactForm({ formData, setFormData, categoryId, setCategoryId }) {
                 className={`rounded-xl border px-3 py-2.5 text-xs font-semibold transition-all text-center cursor-pointer ${
                   categoryId === cat.id
                     ? "border-brand bg-brand/15 text-brand shadow-[0_0_15px_-3px_rgba(0,230,118,0.25)]"
-                    : "border-line bg-ink-2 text-muted-foreground hover:border-line-strong hover:text-white"
+                    : "border-line bg-ink-2 text-muted-foreground hover:border-line-strong hover:text-foreground"
                 }`}
               >
                 {cat.label}
@@ -338,7 +338,7 @@ function MeetingForm({ content, formData, setFormData }) {
 
   return (
     <>
-      <h3 className="relative text-xl font-semibold text-white">Propose a time</h3>
+      <h3 className="relative text-xl font-semibold text-foreground">Propose a time</h3>
 
       <div role="status" aria-live="polite" aria-atomic="true">
         {status.message && (
@@ -539,11 +539,11 @@ export default function Contact({ section = defaultContactSection, meetingSectio
             </p>
 
             {activeTab === "message" && (
-              <div className="mt-6 rounded-2xl border border-brand/25 bg-brand/[0.04] p-5 max-w-md">
+              <div className="mt-6 rounded-2xl border border-brand/30 bg-brand/10 dark:bg-brand/[0.04] p-5 max-w-md shadow-xs">
                 <p className="text-xs font-bold uppercase tracking-wider text-brand">
                   What you get back within 24 hours (Free)
                 </p>
-                <ul className="mt-3 space-y-2 text-xs sm:text-sm text-white/90">
+                <ul className="mt-3 space-y-2 text-xs sm:text-sm text-foreground/90">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="size-4 shrink-0 text-brand mt-0.5" />
                     <span><strong>Feasibility read:</strong> Whether it&apos;s buildable, and the risks we&apos;d watch</span>
@@ -573,14 +573,14 @@ export default function Contact({ section = defaultContactSection, meetingSectio
                     <Wrapper
                       key={label}
                       {...(href ? { href } : {})}
-                      className="group flex items-center gap-4 rounded-2xl border border-line bg-ink-2 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand/40 hover:bg-ink-3"
+                      className="group flex items-center gap-4 rounded-2xl border border-line bg-white/90 dark:bg-ink-2 p-4 shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:border-brand/40 hover:bg-ink-3 hover:shadow-sm"
                     >
                       <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand/15 text-brand transition-all duration-300 group-hover:scale-105 group-hover:bg-brand/25">
                         <Icon className="size-5" />
                       </span>
                       <div className="min-w-0">
                         <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
-                        <p className="break-all font-medium text-white transition-colors duration-300 group-hover:text-brand sm:break-normal sm:truncate">
+                        <p className="break-all font-medium text-foreground transition-colors duration-300 group-hover:text-brand sm:break-normal sm:truncate">
                           {value}
                         </p>
                       </div>
@@ -590,13 +590,13 @@ export default function Contact({ section = defaultContactSection, meetingSectio
               </div>
             ) : (
               <div className="mt-8 space-y-4">
-                <div className="flex items-center gap-4 rounded-2xl border border-line bg-ink-2 p-4">
+                <div className="flex items-center gap-4 rounded-2xl border border-line bg-white/90 dark:bg-ink-2 p-4 shadow-xs">
                   <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand/15 text-brand">
                     <CalendarPlus className="size-5" />
                   </span>
                   <div className="min-w-0">
                     <p className="text-xs uppercase tracking-wide text-muted-foreground">Duration</p>
-                    <p className="font-medium text-white">{meeting.durationLabel}</p>
+                    <p className="font-medium text-foreground">{meeting.durationLabel}</p>
                   </div>
                 </div>
 
@@ -623,14 +623,14 @@ export default function Contact({ section = defaultContactSection, meetingSectio
               aria-hidden
             />
 
-            <div className="relative inline-flex rounded-full border border-line bg-ink-2 p-1">
+            <div className="relative inline-flex rounded-full border border-line bg-white/80 dark:bg-ink-2 p-1 shadow-xs">
               <button
                 type="button"
                 onClick={() => setActiveTab("message")}
                 className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                   activeTab === "message"
                     ? "bg-brand text-[#05140b]"
-                    : "text-muted-foreground hover:text-white"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <MessageSquare className="size-4" />
@@ -642,7 +642,7 @@ export default function Contact({ section = defaultContactSection, meetingSectio
                 className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                   activeTab === "meeting"
                     ? "bg-brand text-[#05140b]"
-                    : "text-muted-foreground hover:text-white"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <CalendarPlus className="size-4" />

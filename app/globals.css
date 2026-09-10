@@ -209,6 +209,17 @@ body {
   display: inline-block;
 }
 
+[data-theme="light"] h1 .graffiti,
+[data-theme="light"] h2 .graffiti {
+  color: transparent;
+  background: linear-gradient(135deg, #007a33 0%, #00b348 55%, #00e06e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-stroke: 0;
+  text-stroke: 0;
+  filter: drop-shadow(0 2px 10px rgba(0, 180, 75, 0.15));
+}
+
 @media (max-width: 640px) {
   .graffiti {
     -webkit-text-stroke: 1px var(--graffiti-stroke, var(--color-brand));

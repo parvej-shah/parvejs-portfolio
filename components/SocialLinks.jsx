@@ -17,7 +17,7 @@ export default function SocialLinks({ className = "", links = defaultLinks }) {
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-brand/50 hover:text-white"
+            className="group inline-flex items-center gap-2 rounded-full border border-line bg-ink-2/80 dark:bg-transparent px-4 py-2 text-sm font-medium text-muted-foreground transition-all shadow-xs hover:border-brand/50 hover:text-foreground hover:shadow-sm"
           >
             <Icon className="size-4 text-brand transition-transform group-hover:scale-110" />
             {label}

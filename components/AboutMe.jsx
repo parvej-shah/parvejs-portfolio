@@ -46,7 +46,7 @@ export default function AboutMe({ section = defaultSection }) {
                 className="h-full w-full object-cover object-[center_30%]"
               />
             </div>
-            <div className="mt-4 inline-flex items-center gap-3 rounded-2xl border border-line bg-ink-3 px-4 py-3 shadow-xl sm:absolute sm:-bottom-5 sm:right-6 sm:mt-0 sm:px-5">
+            <div className="mt-4 inline-flex items-center gap-3 rounded-2xl border border-line bg-white/95 dark:bg-ink-3 px-4 py-3 shadow-xl backdrop-blur sm:absolute sm:-bottom-5 sm:right-6 sm:mt-0 sm:px-5">
               <span className="text-2xl font-extrabold text-brand">{content.badgeValue}</span>
               <span className="max-w-[7rem] text-xs text-muted-foreground">
                 {content.badgeLabel}
@@ -56,17 +56,17 @@ export default function AboutMe({ section = defaultSection }) {
 
           {/* Right: content */}
           <Reveal delay={120}>
-            <h2 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+            <h2 className="text-3xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl">
               {content.heading}
             </h2>
 
-            <div className="mt-6 rounded-2xl border border-line bg-ink-2 p-6">
+            <div className="mt-6 rounded-2xl border border-line bg-ink-2/80 p-6 shadow-sm">
               <Quote className="size-6 text-brand" />
-              <p className="mt-3 text-base font-medium leading-relaxed text-white sm:text-lg">
+              <p className="mt-3 text-base font-medium leading-relaxed text-foreground sm:text-lg">
                 {content.quote}
               </p>
               <p className="mt-4 text-sm text-muted-foreground">
-                <span className="font-semibold text-white">{content.quoteAuthor}</span> — {content.quoteRole}
+                <span className="font-semibold text-foreground">{content.quoteAuthor}</span> — {content.quoteRole}
               </p>
             </div>
 

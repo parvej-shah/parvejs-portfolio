@@ -28,14 +28,14 @@ export default async function Footer() {
   const content = { ...defaultFooter, ...footerSection };
 
   return (
-    <footer className="relative overflow-hidden bg-ink pt-16">
+    <footer className="relative overflow-hidden bg-ink-2/60 dark:bg-ink border-t border-line pt-16">
       <div className="mx-auto max-w-7xl px-5">
         {/* top: brand + links + newsletter */}
         <div className="grid gap-12 pb-16 md:grid-cols-2 lg:grid-cols-[1.3fr_0.7fr_1fr]">
           <div className="max-w-sm">
             <div className="flex items-center gap-1 text-2xl font-black">
               <span className="text-brand">{"<"}</span>
-              <span className="text-white">PS</span>
+              <span className="text-foreground">PS</span>
               <span className="text-brand">{"/>"}</span>
             </div>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
@@ -46,7 +46,7 @@ export default async function Footer() {
                 Email:{" "}
                 <a
                   href={`mailto:${content.email}`}
-                  className="text-white hover:text-brand"
+                  className="text-foreground font-medium hover:text-brand"
                 >
                   {content.email}
                 </a>
@@ -56,7 +56,7 @@ export default async function Footer() {
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wide text-white">
+            <h4 className="text-sm font-semibold uppercase tracking-wide text-foreground">
               Quick Links
             </h4>
             <ul className="mt-4 space-y-2.5">
@@ -74,7 +74,7 @@ export default async function Footer() {
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wide text-white">
+            <h4 className="text-sm font-semibold uppercase tracking-wide text-foreground">
               {content.newsletterHeading}
             </h4>
             <p className="mt-4 text-sm text-muted-foreground">{content.newsletterDescription}</p>

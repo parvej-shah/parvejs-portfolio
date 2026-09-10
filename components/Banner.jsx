@@ -95,7 +95,7 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
               href={content.secondaryCta.href}
               className={cn(
                 buttonVariants({ variant: "outline" }),
-                "h-12 w-full rounded-full border-line bg-transparent px-6 text-sm font-semibold text-foreground hover:border-brand/50 hover:bg-ink-3 sm:w-auto"
+                "h-12 w-full rounded-full border border-line bg-white/80 dark:bg-transparent px-6 text-sm font-semibold text-foreground shadow-xs transition-all hover:border-brand/50 hover:bg-ink-3 hover:shadow-md sm:w-auto"
               )}
             >
               {content.secondaryCta.label}
@@ -176,13 +176,13 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
 
 
             {/* experience chip — drifts up gently on hover */}
-            <div className="absolute right-3 top-3 rounded-2xl border border-line bg-ink/85 px-3 py-2 transition-transform duration-500 ease-out group-hover:-translate-y-1 sm:right-4 sm:top-4 sm:px-4 sm:py-2.5 shadow-md backdrop-blur">
+            <div className="absolute right-3 top-3 rounded-2xl border border-line bg-white/95 dark:bg-ink/85 px-3 py-2 transition-transform duration-500 ease-out group-hover:-translate-y-1 sm:right-4 sm:top-4 sm:px-4 sm:py-2.5 shadow-lg backdrop-blur">
               <p className="text-xl font-extrabold leading-none text-brand">{content.experienceBadge.value}</p>
               <p className="mt-1 text-[11px] text-muted-foreground">{content.experienceBadge.label}</p>
             </div>
 
             {/* availability bar */}
-            <div className="absolute inset-x-3 bottom-3 flex flex-col items-start gap-2 rounded-2xl border border-line bg-ink/85 px-4 py-3 transition-transform duration-500 ease-out group-hover:translate-y-1 min-[420px]:inset-x-4 min-[420px]:bottom-4 min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between shadow-md backdrop-blur">
+            <div className="absolute inset-x-3 bottom-3 flex flex-col items-start gap-2 rounded-2xl border border-line bg-white/95 dark:bg-ink/85 px-4 py-3 transition-transform duration-500 ease-out group-hover:translate-y-1 min-[420px]:inset-x-4 min-[420px]:bottom-4 min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between shadow-lg backdrop-blur">
               <div>
                 <p className="text-sm font-semibold text-foreground">Available for work</p>
                 <p className="text-xs text-muted-foreground">Worldwide · Remote</p>

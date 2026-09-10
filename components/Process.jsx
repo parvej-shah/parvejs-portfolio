@@ -83,15 +83,15 @@ export default function Process({ section = defaultSection }) {
 
                   <div className="relative flex flex-1 flex-col">
                     <div className="flex items-center justify-between gap-4">
-                      <span className="relative grid size-12 place-items-center rounded-2xl border border-line bg-ink-2 text-brand transition-all duration-300 group-hover:border-brand/50 group-hover:shadow-[0_0_0_4px_rgba(0,230,118,0.08)]">
+                      <span className="relative grid size-12 place-items-center rounded-2xl border border-line bg-white dark:bg-ink-2 text-brand shadow-xs transition-all duration-300 group-hover:border-brand/50 group-hover:shadow-[0_0_0_4px_rgba(0,230,118,0.1)]">
                         <Icon className="size-5" />
                       </span>
-                      <span className="text-2xl font-black leading-none text-white/[0.08] transition-colors duration-300 group-hover:text-brand/20">
+                      <span className="text-2xl font-black leading-none text-foreground/15 dark:text-white/[0.08] transition-colors duration-300 group-hover:text-brand/40">
                         0{index + 1}
                       </span>
                     </div>
 
-                    <h3 className="mt-6 flex items-center gap-2 text-xl font-semibold text-white">
+                    <h3 className="mt-6 flex items-center gap-2 text-xl font-semibold text-foreground">
                       {title}
                       {!isLast && (
                         <span className="text-brand/30 transition-colors duration-300 group-hover:text-brand/60" aria-hidden>
@@ -106,7 +106,7 @@ export default function Process({ section = defaultSection }) {
                         <span className="text-[0.65rem] font-medium uppercase tracking-[0.14em] text-muted-foreground/70">
                           Deliverable
                         </span>
-                        <span className="self-start whitespace-nowrap rounded-full border border-brand/20 bg-brand/[0.07] px-2.5 py-1 text-xs font-medium text-brand">
+                        <span className="self-start whitespace-nowrap rounded-full border border-brand/30 bg-brand/10 dark:bg-brand/[0.07] px-2.5 py-1 text-xs font-medium text-brand">
                           {deliverable}
                         </span>
                       </div>
