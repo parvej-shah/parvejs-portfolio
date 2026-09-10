@@ -109,8 +109,8 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
             Free feasibility read · No obligation · Reply within 24 hours
           </p>
 
-          {/* Conversion trust strip */}
-          <div
+          {/* Conversion trust strip — hidden */}
+          {/* <div
             className="hero-rise mt-8 flex flex-col items-start gap-4 min-[420px]:mt-9 min-[420px]:flex-row min-[420px]:flex-wrap min-[420px]:items-center min-[420px]:gap-x-8"
             style={{ "--rise-delay": "540ms" }}
           >
@@ -125,7 +125,7 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
                 <p className="mt-1 text-xs text-muted-foreground">{t.label}</p>
               </div>
             ))}
-          </div>
+          </div> */}
 
           <div
             className="hero-rise mt-8"
