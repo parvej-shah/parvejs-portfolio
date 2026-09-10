@@ -50,22 +50,22 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
         aria-hidden
       />
 
-      <div className="relative z-10 mx-auto grid w-full max-w-7xl flex-1 items-center gap-10 px-5 pt-12 pb-8 sm:gap-12 sm:pt-14 sm:pb-10 lg:grid-cols-[1.05fr_0.95fr] lg:pt-20 lg:pb-12 min-h-0">
+      <div className="relative z-10 mx-auto grid w-full max-w-7xl flex-1 items-center gap-8 px-5 pt-6 pb-2 sm:gap-10 sm:pt-8 sm:pb-3 lg:grid-cols-[1.05fr_0.95fr] lg:pt-10 lg:pb-4 min-h-0">
         {/* Left: headline */}
         <div className="max-w-2xl">
-          <span className="hero-rise eyebrow mb-6" style={{ "--rise-delay": "0ms" }}>
+          <span className="hero-rise eyebrow mb-3 sm:mb-4" style={{ "--rise-delay": "0ms" }}>
             {content.eyebrow}
           </span>
 
           {/* headline + description are LCP candidates: no entrance animation,
               or the browser won't count them as painted until it finishes */}
-          <h1 className="text-4xl font-extrabold leading-[0.95] tracking-tight min-[420px]:text-5xl sm:text-6xl lg:text-7xl">
+          <h1 className="text-4xl font-extrabold leading-[0.95] tracking-tight min-[420px]:text-5xl sm:text-5xl lg:text-6xl">
             {content.headlineLines.map((line, index) => (
               <span
                 key={`${line}-${index}`}
                 className={cn(
                   "block",
-                  index === 1 && "graffiti my-1 text-4xl min-[420px]:text-5xl sm:text-6xl lg:text-7xl"
+                  index === 1 && "graffiti my-1 text-4xl min-[420px]:text-5xl sm:text-5xl lg:text-6xl"
                 )}
               >
                 {line}
@@ -73,12 +73,12 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
             ))}
           </h1>
 
-          <p className="mt-6 max-w-xl text-base leading-relaxed text-white/75 sm:mt-7 sm:text-lg">
+          <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/75 sm:mt-5 sm:text-base">
             {content.description}
           </p>
 
           <div
-            className="hero-rise mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center"
+            className="hero-rise mt-5 flex flex-col items-stretch gap-3 sm:mt-6 sm:flex-row sm:flex-wrap sm:items-center"
             style={{ "--rise-delay": "500ms" }}
           >
             <a
@@ -105,7 +105,7 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
           {/* Risk reversal, directly under the CTA — mirrors the guarantee copy in
               Contact so the ~60% who never scroll still see the terms of the ask. */}
           <p
-            className="hero-rise mt-4 text-xs text-muted-foreground"
+            className="hero-rise mt-3 text-xs text-muted-foreground"
             style={{ "--rise-delay": "520ms" }}
           >
             Free feasibility read · No obligation · Reply within 24 hours
@@ -130,7 +130,7 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
           </div> */}
 
           <div
-            className="hero-rise mt-8"
+            className="hero-rise mt-4 sm:mt-5"
             style={{ "--rise-delay": "620ms" }}
           >
             <SocialLinks links={socialLinks} />
@@ -139,7 +139,7 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
 
         {/* Right: portrait — transform-only rise so the LCP image is never hidden */}
         <div
-          className="hero-rise-lcp relative mx-auto w-full max-w-sm sm:max-w-md"
+          className="hero-rise-lcp relative mx-auto w-full max-w-xs sm:max-w-sm lg:max-w-[400px]"
           style={{ "--rise-delay": "0ms" }}
         >
          <div className="portrait-float relative">
