@@ -35,7 +35,7 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
   return (
     <section
       id="top"
-      className="brand-glow relative flex min-h-screen w-full flex-col border-b border-line"
+      className="brand-glow relative flex min-h-[calc(100dvh-73px)] w-full flex-col border-b border-line"
       aria-label="Hero"
     >
       {/* Layered background: dotted grid + interactive particles + soft glows */}
@@ -50,7 +50,7 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
         aria-hidden
       />
 
-      <div className="relative z-10 mx-auto grid w-full max-w-7xl flex-1 items-center gap-10 px-5 pt-12 pb-8 sm:gap-12 sm:pt-14 sm:pb-10 lg:grid-cols-[1.05fr_0.95fr] lg:pt-20 lg:pb-12">
+      <div className="relative z-10 mx-auto grid w-full max-w-7xl flex-1 items-center gap-10 px-5 pt-12 pb-8 sm:gap-12 sm:pt-14 sm:pb-10 lg:grid-cols-[1.05fr_0.95fr] lg:pt-20 lg:pb-12 min-h-0">
         {/* Left: headline */}
         <div className="max-w-2xl">
           <span className="hero-rise eyebrow mb-6" style={{ "--rise-delay": "0ms" }}>
