@@ -35,7 +35,7 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
   return (
     <section
       id="top"
-      className="brand-glow relative w-full overflow-hidden border-b border-line"
+      className="brand-glow relative w-full border-b border-line"
       aria-label="Hero"
     >
       {/* Layered background: dotted grid + interactive particles + soft glows */}
@@ -197,8 +197,8 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
         </div>
       </div>
 
-      {/* scroll cue */}
-      <div
+      {/* scroll cue — hidden; marquee at section bottom now signals scroll */}
+      {/* <div
         className="hero-rise pointer-events-none absolute bottom-5 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 lg:flex"
         style={{ "--rise-delay": "800ms" }}
         aria-hidden
@@ -207,7 +207,7 @@ export default function HeroSection({ section = defaultHero, socialLinks = [] })
         <span className="flex h-9 w-5 items-start justify-center rounded-full border border-line p-1">
           <span className="float-y size-1.5 rounded-full bg-brand" />
         </span>
-      </div>
+      </div> */}
 
       {/* Client brand ticker — visible in the hero fold for immediate social proof */}
       <MarqueeStripe />
