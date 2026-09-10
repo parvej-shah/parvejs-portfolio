@@ -53,7 +53,7 @@ export default function Testimonials({ section = defaultSection }) {
         {/* 1. Featured Video Case Study (Abdul Aziz — MathPro Academy) */}
         <div className="mt-12">
           <Reveal delay={100} as="div">
-            <div className="card-surface group relative overflow-hidden rounded-3xl border border-line p-6 sm:p-8 transition-all duration-300 hover:border-brand/30">
+            <div className="testimonial-card card-surface group relative overflow-hidden rounded-3xl border border-line p-6 sm:p-8 transition-all duration-300 hover:border-brand/30">
               <div className="grid gap-8 lg:grid-cols-12 lg:items-center">
                 {/* Video Player (7 cols) */}
                 <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-ink-2 lg:col-span-7">
@@ -80,10 +80,10 @@ export default function Testimonials({ section = defaultSection }) {
                         className="object-cover transition-transform duration-700 ease-out group-hover/btn:scale-105"
                         priority={false}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-transparent to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
                       {/* Subtitles pill badge */}
-                      <div className="absolute left-3.5 top-3.5 flex items-center gap-1.5 rounded-full border border-white/15 bg-ink/70 px-2.5 py-1 text-[11px] font-medium text-white/90 backdrop-blur-md">
+                      <div className="absolute left-3.5 top-3.5 flex items-center gap-1.5 rounded-full border border-white/15 bg-black/70 px-2.5 py-1 text-[11px] font-medium text-white/90 backdrop-blur-md">
                         <Subtitles className="size-3.5 text-brand" />
                         <span>English Subtitles (CC)</span>
                       </div>
@@ -126,7 +126,7 @@ export default function Testimonials({ section = defaultSection }) {
                       </span>
                       <div>
                         <p className="text-sm font-semibold text-white">Abdul Aziz</p>
-                        <p className="text-xs text-muted-foreground">Founder & Head Instructor, MathPro Academy</p>
+                        <p className="text-xs text-slate-400 dark:text-muted-foreground">Founder & Head Instructor, MathPro Academy</p>
                       </div>
                     </div>
 
@@ -148,7 +148,7 @@ export default function Testimonials({ section = defaultSection }) {
         {/* 2. Full Written Recommendation (Md. Seam Ali Ahammod Pramaniq — CPRBD, University of Dhaka) */}
         <div className="mt-6">
           <Reveal delay={200} as="article">
-            <div className="card-surface group relative rounded-3xl border border-line p-6 sm:p-8 transition-all duration-300 hover:border-brand/30">
+            <div className="testimonial-card card-surface group relative rounded-3xl border border-line p-6 sm:p-8 transition-all duration-300 hover:border-brand/30">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-1 text-brand">
                   {Array.from({ length: 5 }).map((_, s) => (
@@ -186,11 +186,11 @@ export default function Testimonials({ section = defaultSection }) {
                   />
                   <div>
                     <p className="text-sm font-semibold text-white sm:text-base">Md. Seam Ali Ahammod Pramaniq</p>
-                    <p className="text-xs text-muted-foreground">Project Assistant at CPRBD, University of Dhaka</p>
+                    <p className="text-xs text-slate-400 dark:text-muted-foreground">Project Assistant at CPRBD, University of Dhaka</p>
                   </div>
                 </div>
 
-                <span className="hidden text-xs text-muted-foreground sm:inline">
+                <span className="hidden text-xs text-slate-400 dark:text-muted-foreground sm:inline">
                   Data & Policy Research · Web Presence
                 </span>
               </div>
