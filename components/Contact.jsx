@@ -15,6 +15,7 @@ import {
   SELECT_CATEGORY_EVENT,
   categoryLabelFor,
 } from "@/lib/project-categories";
+import ReCaptcha from "./ReCaptcha";
 
 const defaultContactSection = {
   eyebrow: "Start Your Project",
@@ -37,11 +38,12 @@ const defaultMeetingSection = {
   eyebrow: "Set a Meeting",
   heading: "Want to talk it through live?",
   description:
-    "Propose a date and time that works for you and I'll confirm by email. Once confirmed, you can add it straight to your Google Calendar.",
-  durationLabel: "30 min call",
+    "Book a live 15-minute slot directly on my calendar via Cal.com, or propose a time that works best for you. Instant confirmation with a meeting link sent straight to your calendar.",
+  durationLabel: "15 min call",
   notes: [
+    "Instant booking with real-time availability via Cal.com.",
     "Available for calls across US, European, and global timezones.",
-    "I'll reply within 8 hours to confirm or suggest another time.",
+    "Includes Google Meet or Zoom link generated automatically upon booking.",
   ],
 };
 
@@ -68,7 +70,7 @@ function buildGoogleCalendarUrl({ topic, date, time, durationLabel }) {
   const start = new Date(`${date}T${time}`);
   if (Number.isNaN(start.getTime())) return null;
 
-  const durationMinutes = Number.parseInt(durationLabel, 10) || 30;
+  const durationMinutes = Number.parseInt(durationLabel, 10) || 15;
   const end = new Date(start.getTime() + durationMinutes * 60 * 1000);
 
   const toGCalDate = (d) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
@@ -84,6 +86,8 @@ function buildGoogleCalendarUrl({ topic, date, time, durationLabel }) {
 
 function ContactForm({ formData, setFormData, categoryId, setCategoryId }) {
   const form = useRef();
+  const recaptchaRef = useRef(null);
+  const [recaptchaToken, setRecaptchaToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "" });
 
@@ -104,14 +108,44 @@ function ContactForm({ formData, setFormData, categoryId, setCategoryId }) {
       setStatus({ type: "error", message: "Please describe what you are building (at least 10 characters)." });
       return false;
     }
+    if (!recaptchaToken) {
+      setStatus({ type: "error", message: "Please complete the reCAPTCHA verification to proceed." });
+      return false;
+    }
     return true;
   };
 
-  const sendEmail = (e) => {
+  const sendEmail = async (e) => {
     e.preventDefault();
     setStatus({ type: "", message: "" });
     if (!validateForm()) return;
     setIsLoading(true);
+
+    try {
+      const verifyRes = await fetch("/api/contact/verify-recaptcha", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: recaptchaToken }),
+      });
+      const verifyData = await verifyRes.json();
+      if (!verifyRes.ok || !verifyData.success) {
+        setStatus({
+          type: "error",
+          message: verifyData.error || "reCAPTCHA verification failed. Please try again.",
+        });
+        recaptchaRef.current?.reset();
+        setRecaptchaToken("");
+        setIsLoading(false);
+        return;
+      }
+    } catch {
+      setStatus({
+        type: "error",
+        message: "Failed to verify reCAPTCHA. Please check your connection and try again.",
+      });
+      setIsLoading(false);
+      return;
+    }
 
     const templateParams = {
       name: formData.name,
@@ -129,11 +163,15 @@ function ContactForm({ formData, setFormData, categoryId, setCategoryId }) {
             message: "Request received. I'll review it and reply within 24 hours.",
           });
           setFormData({ name: "", email: "", message: "" });
+          recaptchaRef.current?.reset();
+          setRecaptchaToken("");
           setIsLoading(false);
         },
         (error) => {
           setStatus({ type: "error", message: "Failed to send message. Please try again or email directly." });
           console.log("FAILED...", error?.text);
+          recaptchaRef.current?.reset();
+          setRecaptchaToken("");
           setIsLoading(false);
         }
       );
@@ -242,9 +280,25 @@ function ContactForm({ formData, setFormData, categoryId, setCategoryId }) {
           />
         </div>
 
+        <div className="flex justify-center sm:justify-start my-1">
+          <ReCaptcha
+            ref={recaptchaRef}
+            theme="auto"
+            onVerify={(token) => {
+              setRecaptchaToken(token);
+              setStatus((prev) =>
+                prev.type === "error" && prev.message.includes("reCAPTCHA")
+                  ? { type: "", message: "" }
+                  : prev
+              );
+            }}
+            onExpire={() => setRecaptchaToken("")}
+          />
+        </div>
+
         <Button
           type="submit"
-          disabled={isLoading}
+          disabled={isLoading || !recaptchaToken}
           className="group/send h-12 w-full rounded-full bg-brand text-sm font-semibold text-[#05140b] transition-all hover:bg-brand-dark hover:shadow-[0_8px_30px_-6px_rgba(0,230,118,0.5)] disabled:opacity-60 [&_svg]:size-4 cursor-pointer"
         >
           {isLoading ? (
@@ -490,6 +544,121 @@ function MeetingForm({ content, formData, setFormData }) {
   );
 }
 
+function CalMeetingView({ content, formData, setFormData }) {
+  const [theme, setTheme] = useState("dark");
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [showManualForm, setShowManualForm] = useState(false);
+
+  useEffect(() => {
+    const getTheme = () => {
+      const dataTheme = document.documentElement.getAttribute("data-theme");
+      if (dataTheme === "light" || dataTheme === "dark") return dataTheme;
+      return document.documentElement.classList.contains("dark") ? "dark" : "light";
+    };
+
+    setTheme(getTheme());
+
+    const observer = new MutationObserver(() => {
+      setTheme(getTheme());
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme", "class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const calLink = process.env.NEXT_PUBLIC_CAL_LINK || "parvejshah/15min";
+  const calDirectUrl = `https://cal.com/${calLink}`;
+  const calEmbedUrl = `https://cal.com/${calLink}?embed=true&theme=${theme === "light" ? "light" : "dark"}`;
+
+  if (showManualForm) {
+    return (
+      <div className="flex flex-1 flex-col">
+        <div className="flex items-center justify-between pb-3">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Custom Time Request
+          </span>
+          <button
+            type="button"
+            onClick={() => setShowManualForm(false)}
+            className="text-xs font-medium text-brand hover:underline cursor-pointer"
+          >
+            ← Back to Cal.com calendar
+          </button>
+        </div>
+        <MeetingForm content={content} formData={formData} setFormData={setFormData} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-1 flex-col">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2">
+            <h3 className="text-xl font-semibold text-foreground">Book a 15-min call</h3>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/40 bg-brand/10 px-2.5 py-0.5 text-[11px] font-medium text-brand">
+              <span className="size-1.5 rounded-full bg-brand animate-pulse" />
+              Live Cal.com
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Pick a time directly on my calendar for instant confirmation
+          </p>
+        </div>
+
+        <a
+          href={calDirectUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group/cal inline-flex w-fit items-center gap-1.5 rounded-full border border-brand/40 bg-brand/10 px-3.5 py-1.5 text-xs font-semibold text-brand transition-all hover:border-brand hover:bg-brand hover:text-[#05140b] hover:shadow-[0_4px_20px_-4px_rgba(0,230,118,0.5)] cursor-pointer"
+        >
+          <span>Open in Cal.com</span>
+          <ArrowUpRight className="size-3.5 transition-transform duration-300 group-hover/cal:-translate-y-0.5 group-hover/cal:translate-x-0.5" />
+        </a>
+      </div>
+
+      {/* Interactive Cal.com Frame Container */}
+      <div className="relative mt-4 flex-1 min-h-[560px] sm:min-h-[600px] w-full rounded-2xl border border-line bg-white/60 dark:bg-[#0c0e12]/80 shadow-xs backdrop-blur-sm overflow-hidden transition-colors hover:border-brand/40">
+        {!iframeLoaded && (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-white/95 dark:bg-ink-2/95">
+            <div className="size-8 rounded-full border-2 border-brand/20 border-t-brand animate-spin" />
+            <span className="text-xs text-muted-foreground font-medium animate-pulse">
+              Loading live calendar...
+            </span>
+          </div>
+        )}
+        <iframe
+          src={calEmbedUrl}
+          title="Book a 15-min call with Parvej Shah"
+          className="h-full w-full min-h-[560px] sm:min-h-[600px] border-0 transition-opacity duration-300"
+          style={{ opacity: iframeLoaded ? 1 : 0 }}
+          onLoad={() => setIframeLoaded(true)}
+          allow="camera; microphone; autoplay; clipboard-write"
+        />
+      </div>
+
+      {/* Footer helper & fallback trigger */}
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="size-1.5 rounded-full bg-brand" />
+          Google Meet / Zoom link generated automatically
+        </span>
+        <button
+          type="button"
+          onClick={() => setShowManualForm(true)}
+          className="text-xs text-muted-foreground hover:text-brand hover:underline cursor-pointer transition-colors"
+        >
+          Can&apos;t find a slot? Propose manually
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function Contact({ section = defaultContactSection, meetingSection = defaultMeetingSection, socialLinks = [] }) {
   const [activeTab, setActiveTab] = useState("message");
   // Both forms' state lives here so switching tabs never discards typed input.
@@ -497,7 +666,22 @@ export default function Contact({ section = defaultContactSection, meetingSectio
   const [meetingData, setMeetingData] = useState({ name: "", email: "", date: "", time: "", topic: "" });
   const [categoryId, setCategoryId] = useState(DEFAULT_CATEGORY_ID);
   const contact = { ...defaultContactSection, ...section };
-  const meeting = { ...defaultMeetingSection, ...meetingSection };
+  const meeting = {
+    ...defaultMeetingSection,
+    ...meetingSection,
+    durationLabel:
+      meetingSection?.durationLabel && meetingSection.durationLabel !== "30 min call"
+        ? meetingSection.durationLabel
+        : "15 min call",
+    description:
+      meetingSection?.description && !meetingSection.description.includes("Google Calendar")
+        ? meetingSection.description
+        : defaultMeetingSection.description,
+    notes:
+      meetingSection?.notes && meetingSection.notes.some((n) => n.includes("Cal.com"))
+        ? meetingSection.notes
+        : defaultMeetingSection.notes,
+  };
   const content = activeTab === "message" ? contact : meeting;
 
   useEffect(() => {
@@ -651,20 +835,21 @@ export default function Contact({ section = defaultContactSection, meetingSectio
             </div>
 
             <div className="relative mt-6 flex flex-1 flex-col">
-              {activeTab === "message" ? (
+              <div className={activeTab === "message" ? "flex flex-1 flex-col" : "hidden"}>
                 <ContactForm
                   formData={messageData}
                   setFormData={setMessageData}
                   categoryId={categoryId}
                   setCategoryId={setCategoryId}
                 />
-              ) : (
-                <MeetingForm
+              </div>
+              <div className={activeTab === "meeting" ? "flex flex-1 flex-col" : "hidden"}>
+                <CalMeetingView
                   content={meeting}
                   formData={meetingData}
                   setFormData={setMeetingData}
                 />
-              )}
+              </div>
             </div>
           </Reveal>
         </div>

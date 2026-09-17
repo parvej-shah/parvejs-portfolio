@@ -38,7 +38,7 @@ export async function GET() {
       <description>${escapeXml(post.excerpt)}</description>
       <pubDate>${pubDate}</pubDate>
       <author>parvejshahlabib007@gmail.com (Parvej Shah)</author>
-      ${post.coverImage ? `<enclosure url="${siteUrl}${post.coverImage.url}" length="0" type="image/png" />` : ""}
+      ${post.coverImage ? `<enclosure url="${post.coverImage.url.startsWith("http") ? post.coverImage.url : `${siteUrl}${post.coverImage.url}`}" length="0" type="image/png" />` : ""}
     </item>`;
     })
     .join("\n");

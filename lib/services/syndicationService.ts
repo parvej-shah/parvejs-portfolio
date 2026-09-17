@@ -14,10 +14,14 @@ export async function triggerPostSyndication(post: {
   // 1. Sync to DEV.to if API key is present
   if (devToApiKey) {
     try {
+      const resolvedContent = post.content.replace(
+        /!\[(.*?)\]\(\/(.*?)\)/g,
+        `![$1](${siteUrl}/$2)`
+      );
       const coverImage = post.coverImage ? `${siteUrl}${post.coverImage.url}` : `${siteUrl}/og.jpg`;
       const markdownBody = `> *Originally published at [parvejshah.com/blog/${post.slug}](${canonicalUrl}) by [Parvej Shah](${siteUrl}).*
 
-${post.content}
+${resolvedContent}
 
 ---
 
@@ -50,9 +54,13 @@ ${post.content}
   // 2. Sync to Hashnode if token is present
   if (hashnodeToken && hashnodePublicationId) {
     try {
+      const resolvedContent = post.content.replace(
+        /!\[(.*?)\]\(\/(.*?)\)/g,
+        `![$1](${siteUrl}/$2)`
+      );
       const markdownBody = `> *Originally published at [parvejshah.com/blog/${post.slug}](${canonicalUrl}) by [Parvej Shah](${siteUrl}).*
 
-${post.content}
+${resolvedContent}
 
 ---
 

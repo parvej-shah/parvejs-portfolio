@@ -13,15 +13,134 @@ export interface PostSeedData {
 
 export const blogPosts: PostSeedData[] = [
   {
+    slug: "rapid-software-development-user-experience",
+    title: "We Can Build Software Faster Than Ever. But Can Users Actually Use It?",
+    excerpt:
+      "AI and rapid development let teams build software faster than ever. But as competitors move faster and user expectations rise, usability and refinement matter more, not less.",
+    coverImage: {
+      url: "https://pub-13629069dfd74891bffc487ab4e135f5.r2.dev/blog/rapid-software-development-user-experience.png",
+      alt: "Rapid Software Development, AI, and the Rising UX Bar",
+    },
+    featured: true,
+    publishedAt: new Date("2026-09-17T05:45:00.000Z"),
+    content: `Software development has become remarkably fast.
+
+Agile shortened development cycles. Modern component libraries stopped us from reinventing UI primitives. Cloud platforms removed infrastructure headaches, and APIs turned complex features into one-line integrations.
+
+Now AI-assisted development is accelerating that cadence even further. Prototypes that once required weeks can take shape in a few hours.
+
+That is genuine progress. But it brings us face-to-face with a harder question:
+
+> **We can build software faster than ever. But can users actually use what we're building?**
+
+Because development speed and product usability are not the same thing. And as our competitors get faster too, the standard users measure us against is constantly shifting.
+
+---
+
+## We optimized the developer's side of software
+
+Inside software teams, progress usually sounds like this: sprint complete, API connected, tests passing, feature deployed.
+
+To an engineer, these are major milestones. But to the user, they are completely invisible.
+
+Users don't care whether you work in Scrum or Kanban, or whether code was written by hand or generated with an AI assistant. Their question is straightforward:
+
+> *"I came here to accomplish something. Does this product help me do it?"*
+
+This creates two fundamentally different journeys:
+
+For developers:
+**Idea → Sprint → Build → Test → Deploy**
+
+For users:
+**Need → Understand → Act → Feedback → Outcome**
+
+We can complete the first journey flawlessly while making the second one terrible.
+
+![Two Different Perspectives: Development Team Journey vs User Experience Journey](https://pub-13629069dfd74891bffc487ab4e135f5.r2.dev/blog/rapid-software-development-two-perspectives.png)
+
+Shipping something quickly isn't the same as making it usable.
+
+---
+
+## Rapid prototyping was never meant to mean "build more"
+
+When AI lets a team build ten features in the time it previously took to build two, the default instinct is simple: *build ten features*.
+
+That misses the real opportunity.
+
+The biggest advantage of rapid prototyping isn't producing more code. It's testing assumptions sooner.
+
+Instead of spending months perfecting an idea internally, we can get a working slice in front of real users, observe where they stumble, and iterate.
+
+The loop shifts from **Build → Build → Build → Launch** to:
+
+**Build → Observe → Learn → Improve → Repeat**
+
+![Why Rapid Prototyping Matters: The Old Linear Way vs The Iterative Learning Loop](https://pub-13629069dfd74891bffc487ab4e135f5.r2.dev/blog/why-rapid-prototyping-matters.png)
+
+The first optimizes output. The second optimizes learning. If our core assumptions are flawed, increasing output just means producing the wrong thing faster.
+
+The true promise of rapid software development is **shorter learning time, not just shorter coding time.**
+
+---
+
+## The rising UX bar: "Good enough" is moving
+
+Users' expectations don't stay still while tools improve.
+
+Years ago, rough edges were forgiven because building software was expensive. Today, AI-assisted development, mature design systems, and automated testing make iteration dramatically cheaper.
+
+And your competitors have access to those exact same tools.
+
+Users don't need to understand AI to raise their standards. They experience a product where signup takes 20 seconds, feedback is instant, and redundant steps are gone. When they return to your app, friction that once felt acceptable suddenly feels frustrating.
+
+> **Users compare experiences, not development histories.**
+
+They don't compare your app to what was possible five years ago. They compare it to the best experience they used five minutes ago.
+
+---
+
+## What makes rapidly built software actually usable?
+
+Speed doesn't replace the fundamentals of UX — it amplifies their importance:
+
+1. **Clarity:** The user shouldn't have to decode the interface. Refinement means they intuitively know what to do next without friction.
+2. **Low Friction:** Implementation complexity must never become the user's burden. Every redundant form field or unnecessary screen has a cost.
+3. **Responsive Feedback:** Technical correctness means nothing if the UI leaves users hanging. Communicate state immediately: *loading, processing, confirmed*.
+4. **Predictability:** Consistent patterns build mental models. When software behaves as expected, users stop thinking about the tool and focus on their task.
+5. **Real Outcomes:** Does the feature solve the user's problem? Software is a vehicle; delivering the user's intended outcome is the destination.
+
+---
+
+## The bottleneck is moving
+
+As AI drives the marginal cost of writing code toward zero, implementation is no longer the primary bottleneck.
+
+The real constraints are understanding problems:
+- *What should we build in the first place?*
+- *Where are real people struggling?*
+- *What should we remove instead of adding?*
+
+> **We are reducing the cost of building software much faster than the difficulty of understanding human behavior.**
+
+Velocity shouldn't just measure how many tickets were closed. It should measure **how quickly a team moves from assumption to evidence**.
+
+If a feature takes half the time to build with AI, what should we do with the remaining time?
+
+Build another feature? Or use that time to observe, refine, and make the first one genuinely exceptional?
+`,
+  },
+  {
     slug: "why-browser-agents-fail-in-production-without-semantic-layers",
     title: "Why Browser Agents Fail in Production Without Semantic Layers",
     excerpt:
       "Browser agents do not fail because the model is bad. They fail because modern web applications render complex DOM trees with opaque elements and unstable class names that are hostile to machine parsers.",
     coverImage: {
-      url: "/og/why-browser-agents-fail-in-production-without-semantic-layers.jpg",
+      url: "https://pub-13629069dfd74891bffc487ab4e135f5.r2.dev/og/why-browser-agents-fail-in-production-without-semantic-layers.jpg",
       alt: "Why Browser Agents Fail in Production Without Semantic Layers Cover",
     },
-    featured: true,
+    featured: false,
     publishedAt: new Date("2026-08-27T17:31:00.000Z"),
     content: `## The Fragility of Machine Vision in Modern DOMs
 
@@ -73,7 +192,7 @@ Frontend development is expanding beyond human visual presentation. Treating mac
     excerpt:
       "Two different Flash-tier models across two live voice agents, n8n's built-in staticData cache replacing an external Redis layer, and a 5-question intake that was quietly adding two minutes to every call — here's what actually moved the latency numbers.",
     coverImage: {
-      url: "/blog/voice-ai-sub-18s.png",
+      url: "https://pub-13629069dfd74891bffc487ab4e135f5.r2.dev/blog/voice-ai-sub-18s.png",
       alt: "Voice AI Latency Optimization Architecture Cover",
     },
     featured: true,
@@ -148,7 +267,7 @@ Average call duration on the pest-control agent dropped from an internal ~3m40s 
     excerpt:
       "A 4-stage Qwen pipeline generates every post for Minions.AI, and one safety mechanism does the real work: a gate that blocks any AI-generated claim it can't source — including a hard rule against fabricating customer results, because there aren't paying clients to attribute them to yet.",
     coverImage: {
-      url: "/blog/multi-agent-state-machines.png",
+      url: "https://pub-13629069dfd74891bffc487ab4e135f5.r2.dev/blog/multi-agent-state-machines.png",
       alt: "AI Content Pipeline Safety and Claims Gate Cover",
     },
     featured: true,
@@ -195,7 +314,7 @@ This doesn't solve "AI agents coordinating AI agents" in some general sense — 
     excerpt:
       "When GenMorphics AI Solutions needed a platform to coordinate their global team of domain experts, the hard part wasn't the AI — it was compliance, access control, and building tools flexible enough to match how the org actually runs.",
     coverImage: {
-      url: "/blog/precision-data-sft-rlhf.png",
+      url: "https://pub-13629069dfd74891bffc487ab4e135f5.r2.dev/blog/precision-data-sft-rlhf.png",
       alt: "Building LLM Workforce Platforms Cover",
     },
     featured: true,
@@ -234,7 +353,7 @@ The technical complexity here was never really about AI — it was a direct tran
     excerpt:
       "SellerVai merges rapid-fire customer messages into one reply using an in-memory buffer that explicitly can't run on more than one process. Here's why that's the right call today, and what the code already says about the day it isn't.",
     coverImage: {
-      url: "/blog/conversational-commerce-webhooks.png",
+      url: "https://pub-13629069dfd74891bffc487ab4e135f5.r2.dev/blog/conversational-commerce-webhooks.png",
       alt: "Conversational Commerce Webhook Architecture Cover",
     },
     featured: false,
@@ -304,7 +423,7 @@ Single-process-first isn't a shortcut you apologize for — it's a legitimate st
     excerpt:
       "MathPro Academy's course database holds years of plain-text content next to newly authored Lexical HTML. An earlier attempt at server-rendered LaTeX didn't survive that mix — here's the runtime renderer that replaced it, and why client-side was the right call, not a compromise.",
     coverImage: {
-      url: "/blog/katex-math-server-components.png",
+      url: "https://pub-13629069dfd74891bffc487ab4e135f5.r2.dev/blog/katex-math-server-components.png",
       alt: "Rendering KaTeX Formulas at Scale Cover",
     },
     featured: false,
@@ -349,7 +468,7 @@ If your content has one shape and it's fixed at build time, server-side pre-rend
     excerpt:
       "Payment webhook handlers fail in ways you only discover in production. For MathPro Academy's SSLCommerz integration, the fix wasn't HMAC signature verification — SSLCommerz doesn't sign its IPN payloads that way. It was an active server-to-server validation query, an amount cross-check, and a fraud score the gateway hands you for free.",
     coverImage: {
-      url: "/blog/defensive-webhook-engineering.png",
+      url: "https://pub-13629069dfd74891bffc487ab4e135f5.r2.dev/blog/defensive-webhook-engineering.png",
       alt: "Defensive Webhook Engineering Cover",
     },
     featured: false,
@@ -405,7 +524,7 @@ The instinct to reach for HMAC and \`crypto.timingSafeEqual\` is a reasonable on
     excerpt:
       "LinkedIn periodically ships builds with every class name replaced by a hashed token, breaking any content script built against fixed selectors overnight. Here's the AI-driven strategy generator we built to regenerate selectors on the fly — and why it eventually lost anyway.",
     coverImage: {
-      url: "/blog/manifest-v3-ai-extensions.png",
+      url: "https://pub-13629069dfd74891bffc487ab4e135f5.r2.dev/blog/manifest-v3-ai-extensions.png",
       alt: "Self-Healing Chrome Extensions Cover",
     },
     featured: false,
@@ -458,7 +577,7 @@ The lesson isn't "don't build content-script extensions." It's that self-healing
     excerpt:
       "Badhan's donor coordinators were already posting donor info into Telegram as free text. Instead of building a form nobody would use consistently, we built two parsers matched to two real workflows — one deterministic, one AI-backed.",
     coverImage: {
-      url: "/blog/offline-first-pwa-networks.png",
+      url: "https://pub-13629069dfd74891bffc487ab4e135f5.r2.dev/blog/offline-first-pwa-networks.png",
       alt: "Badhan Donor Intake Parsing Architecture Cover",
     },
     featured: false,
@@ -534,7 +653,7 @@ What it produced: 407 donors and 599 donation records for the Amar Ekushey Hall 
     excerpt:
       "The 'cohort pacing' story behind Codervai CP's module unlocking was cleaner than what's actually in production — a simple admin-publish flow. Here's what's real: the publish flow, the atomic streak upsert that survives a midnight submission storm, and why we didn't build a custom video pipeline.",
     coverImage: {
-      url: "/blog/competitive-programming-lms.png",
+      url: "https://pub-13629069dfd74891bffc487ab4e135f5.r2.dev/blog/competitive-programming-lms.png",
       alt: "Scaling Algorithmic Training Systems Cover",
     },
     featured: false,
@@ -629,7 +748,7 @@ The streak upsert design held up exactly as built — it's still the atomic, sin
     excerpt:
       "CPRBD at the University of Dhaka needed employers and embassies to verify that a professional certificate was real. The actual solution was less exotic than the platform's own docs once claimed: a structured certificate ID, a plain database lookup, and rate limiting.",
     coverImage: {
-      url: "/blog/cryptographic-credential-verification.png",
+      url: "https://pub-13629069dfd74891bffc487ab4e135f5.r2.dev/blog/cryptographic-credential-verification.png",
       alt: "Academic Certificate Verification Cover",
     },
     featured: false,
@@ -676,7 +795,7 @@ None of that came from a tidy requirements document. The people who understood h
     excerpt:
       "React Server Components aren't just a build optimization — they change how you think about where code runs and why. Here's what the migration looked like on a real project and where the component boundary decisions were non-obvious.",
     coverImage: {
-      url: "/blog/nextjs-16-turbopack-deep-dive.png",
+      url: "https://pub-13629069dfd74891bffc487ab4e135f5.r2.dev/blog/nextjs-16-turbopack-deep-dive.png",
       alt: "Next.js 16 and Turbopack Deep Dive Cover",
     },
     featured: false,
@@ -787,7 +906,7 @@ This is the part that takes the most deliberate thought — not the Server/Clien
     excerpt:
       "Every few months a new framework or runtime promises to fix problems I don't have. Here's the case for PostgreSQL, TypeScript, and Next.js — and more importantly, the case for stopping the search.",
     coverImage: {
-      url: "/blog/craft-high-velocity-software.png",
+      url: "https://pub-13629069dfd74891bffc487ab4e135f5.r2.dev/blog/craft-high-velocity-software.png",
       alt: "The Craft of High-Velocity Software Delivery Cover",
     },
     featured: false,

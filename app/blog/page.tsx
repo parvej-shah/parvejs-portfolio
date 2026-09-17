@@ -63,7 +63,7 @@ export default async function BlogPage() {
             >
               <Link
                 href={`/blog/${featured.slug}`}
-                className="relative flex aspect-square items-end overflow-hidden rounded-[1.4rem] border border-line/60 bg-[#fff8f0]"
+                className="relative flex aspect-[16/9] items-end overflow-hidden rounded-[1.4rem] border border-line/60 bg-[#fff8f0]"
               >
                 {featured.coverImage ? (
                   <Image
@@ -72,8 +72,8 @@ export default async function BlogPage() {
                     fill
                     quality={100}
                     unoptimized
-                    sizes="100vw"
-                    className="object-cover transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+                    sizes="(max-width: 1024px) 100vw, 55vw"
+                    className="object-contain transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
                     priority
                   />
                 ) : (
@@ -81,7 +81,6 @@ export default async function BlogPage() {
                     01
                   </div>
                 )}
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-3 via-transparent to-transparent opacity-80" />
                 <div className="card-sheen" aria-hidden />
                 <span className="absolute left-4 top-4 rounded-full border border-brand/30 bg-ink/75 px-3 py-1 text-xs font-semibold text-brand backdrop-blur">
                   Featured article
@@ -126,7 +125,7 @@ export default async function BlogPage() {
                     className="card-surface group flex flex-col overflow-hidden"
                   >
                     <Link href={`/blog/${post.slug}`} className="flex h-full flex-col">
-                      <div className="relative flex aspect-square items-end overflow-hidden bg-[#fff8f0]">
+                      <div className="relative flex aspect-[16/9] items-end overflow-hidden bg-[#fff8f0]">
                         {post.coverImage ? (
                           <Image
                             src={post.coverImage.url}
@@ -134,15 +133,14 @@ export default async function BlogPage() {
                             fill
                             quality={100}
                             unoptimized
-                            sizes="100vw"
-                            className="object-cover transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                            className="object-contain transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
                           />
                         ) : (
                           <div className="dot-grid flex h-full w-full items-center justify-center text-5xl font-black text-white/10">
                             0{index + 2}
                           </div>
                         )}
-                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-3 via-transparent to-transparent opacity-85" />
                         <div className="card-sheen" aria-hidden />
                       </div>
 

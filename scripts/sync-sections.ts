@@ -192,11 +192,12 @@ const sectionContent: Record<SectionKey, unknown> = {
   meeting: {
     eyebrow: "Set a Meeting",
     heading: "Want to talk it through live?",
-    description: "Propose a date and time that works for you and I'll confirm by email. Once confirmed, you can add it straight to your Google Calendar.",
-    durationLabel: "30 min call",
+    description: "Book a live 15-minute slot directly on my calendar via Cal.com, or propose a time that works best for you.",
+    durationLabel: "15 min call",
     notes: [
+      "Instant booking with real-time availability via Cal.com.",
       "Available for calls across US, European, and global timezones.",
-      "I will reply within 24 hours to confirm or suggest another time.",
+      "Includes Google Meet or Zoom link generated automatically upon booking.",
     ],
   },
   social: {

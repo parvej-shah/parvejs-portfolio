@@ -29,7 +29,20 @@ function formatDate(date: Date | null | undefined) {
   }).format(date);
 }
 
+const postMetaTitleMap: Record<string, string> = {
+  "rapid-software-development-user-experience": "Rapid Software Development, AI, and the Rising UX Bar",
+};
+
 const postKeywordsMap: Record<string, string[]> = {
+  "rapid-software-development-user-experience": [
+    "rapid software development",
+    "AI-assisted development",
+    "rapid prototyping",
+    "user experience",
+    "software usability",
+    "Agile development",
+    "UX in software development",
+  ],
   "architecting-sub-18s-voice-ai-pipelines": [
     "voice AI latency",
     "Retell AI",
@@ -174,13 +187,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
+  const metaTitle = postMetaTitleMap[slug] || post.title;
+
   return {
-    title: `${post.title} | Parvej Shah`,
+    title: `${metaTitle} | Parvej Shah`,
     description: post.excerpt,
     keywords,
     alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
-      title: post.title,
+      title: metaTitle,
       description: post.excerpt,
       url: `/blog/${post.slug}`,
       siteName: "Parvej Shah",
@@ -202,7 +217,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     twitter: {
       card: "summary_large_image",
-      title: post.title,
+      title: metaTitle,
       description: post.excerpt,
       images: [ogImageUrl],
       creator: "@parvejshah",
@@ -361,7 +376,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
       {post.coverImage ? (
         <section className="border-b border-line py-12 lg:py-16">
           <div className="mx-auto max-w-6xl px-5">
-            <Reveal className="relative aspect-square md:aspect-[16/8] overflow-hidden rounded-[1.8rem] border border-line bg-[#fff8f0]">
+            <Reveal className="relative aspect-[16/9] overflow-hidden rounded-[1.8rem] border border-line bg-[#fff8f0]">
               <Image
                 src={post.coverImage.url}
                 alt={post.coverImage.alt || post.title}

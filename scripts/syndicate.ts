@@ -19,6 +19,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://parvejshah.com";
 
 // Map slugs to tags for developer platforms
 const TAG_MAP: Record<string, string[]> = {
+  "rapid-software-development-user-experience": ["webdev", "ai", "ux", "softwareengineering"],
   "architecting-sub-18s-voice-ai-pipelines": ["webdev", "ai", "nextjs", "typescript"],
   "defensive-webhook-engineering-payment-gateways": ["webdev", "javascript", "backend", "postgres"],
   "rendering-katex-formulas-nextjs-server-components": ["nextjs", "react", "webperf", "typescript"],
@@ -79,6 +80,11 @@ async function syndicateToDevTo() {
 
       const tags = TAG_MAP[post.slug] || ["webdev", "programming", "tech"];
 
+      const resolvedContent = post.content.replace(
+        /!\[(.*?)\]\(\/(.*?)\)/g,
+        `![$1](${SITE_URL}/$2)`
+      );
+
       const markdownBody = `---
 title: ${post.title}
 published: true
@@ -89,7 +95,7 @@ cover_image: ${coverImage}
 
 > *Originally published at [parvejshah.com/blog/${post.slug}](${SITE_URL}/blog/${post.slug}) by [Parvej Shah](${SITE_URL}).*
 
-${post.content}
+${resolvedContent}
 
 ---
 
@@ -155,9 +161,14 @@ async function syndicateToHashnode() {
       (t) => ({ name: t, slug: t })
     );
 
+    const resolvedContent = post.content.replace(
+      /!\[(.*?)\]\(\/(.*?)\)/g,
+      `![$1](${SITE_URL}/$2)`
+    );
+
     const markdownBody = `> *Originally published at [parvejshah.com/blog/${post.slug}](${canonicalUrl}) by [Parvej Shah](${SITE_URL}).*
 
-${post.content}
+${resolvedContent}
 
 ---
 

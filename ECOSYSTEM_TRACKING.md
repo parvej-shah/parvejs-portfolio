@@ -90,6 +90,7 @@ All 12 articles are live on both the **Canonical Portfolio** and **DEV.to**:
 | 10 | **How We Made Academic Certificates Verifiable Without a Blockchain** | [`/blog/cryptographic-credential-verification-institutional-web`](https://parvejshah.com/blog/cryptographic-credential-verification-institutional-web) | [DEV.to Link](https://dev.to/parvejshah/how-we-made-academic-certificates-verifiable-without-a-blockchain-3gd9) |
 | 11 | **What I Actually Had to Change When Moving to React Server Components** | [`/blog/nextjs-16-turbopack-deep-dive`](https://parvejshah.com/blog/nextjs-16-turbopack-deep-dive) | [DEV.to Link](https://dev.to/parvejshah/what-i-actually-had-to-change-when-moving-to-react-server-components-1ee0) |
 | 12 | **The Stack I Keep Coming Back To and Why I Stop Reconsidering It** | [`/blog/craft-of-high-velocity-software-delivery`](https://parvejshah.com/blog/craft-of-high-velocity-software-delivery) | [DEV.to Link](https://dev.to/parvejshah/the-stack-i-keep-coming-back-to-and-why-i-stop-reconsidering-it-1kb9) |
+| 13 | **We Can Build Software Faster Than Ever. But Can Users Actually Use It?** | [`/blog/rapid-software-development-user-experience`](https://parvejshah.com/blog/rapid-software-development-user-experience) | [DEV.to Link](https://dev.to/parvejshah/we-can-build-software-faster-than-ever-but-can-users-actually-use-it-57cb) |
 
 ---
 
