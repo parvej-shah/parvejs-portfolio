@@ -9,10 +9,10 @@ import { cn } from "@/lib/utils";
 import ThemeToggle from "./ThemeToggle";
 
 const navLinks = [
-  { name: "Solutions", link: "/#solutions" },
-  { name: "Proof", link: "/#portfolio" },
-  { name: "Why Us", link: "/#why-us" },
+  { name: "Projects", link: "/projects" },
+  { name: "Proof", link: "/#testimonials" },
   { name: "Process", link: "/#process" },
+  { name: "Articles", link: "/blog" },
   { name: "FAQ", link: "/#faq" },
 ];
 

@@ -11,7 +11,8 @@ import LargeCtaBanner from "../components/LargeCtaBanner";
 import AboutMe from "../components/AboutMe";
 import Faq from "../components/Faq";
 import Contact from "../components/Contact";
-import { getPublishedProjects, getSection } from "@/lib/data/public";
+import Insights from "../components/Insights";
+import { getPublishedPosts, getPublishedProjects, getSection } from "@/lib/data/public";
 
 export default async function Home() {
   const [
@@ -24,6 +25,7 @@ export default async function Home() {
     contactSection,
     socialSection,
     projects,
+    posts,
   ] = await Promise.all([
     getSection("hero"),
     getSection("stats"),
@@ -34,10 +36,12 @@ export default async function Home() {
     getSection("contact"),
     getSection("social"),
     getPublishedProjects(),
+    getPublishedPosts(),
   ]);
 
-  // Homepage shows only featured items: up to 5 projects.
+  // Homepage shows only featured items: up to 5 projects, top 3 posts.
   const featuredProjects = projects.filter((project) => project.featured).slice(0, 5);
+  const featuredPosts = posts.slice(0, 3);
 
   return (
     <main>
@@ -80,6 +84,9 @@ export default async function Home() {
         meetingSection={meetingSection ?? undefined}
         socialLinks={socialSection?.links}
       />
+
+      {/* 11. Insights: Published articles (last section before footer) */}
+      <Insights posts={featuredPosts} />
     </main>
   );
 }
