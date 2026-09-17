@@ -665,6 +665,17 @@ const sectionContent: Record<SectionKey, unknown> = {
         href: "https://www.mathpro.academy",
       },
       {
+        metric: "Full-Stack Architecture · GenMorphics AI Solutions",
+        quote:
+          "I worked with Parvej and he's the kind of engineer you can just hand something to and stop worrying about it. He knows web development well, and not just the surface of it. He's comfortable with databases, and deployment as well.",
+        name: "Nafis Sajid",
+        role: "Lead Engineer at Samsung R&D · Co-founder, GenMorphics AI Solutions",
+        initials: "NS",
+        avatarUrl: "/testimonials/nafis-sajid.png",
+        rating: 5,
+        href: "https://www.linkedin.com/in/parvejshah/details/recommendations/?detailScreenTabIndex=2",
+      },
+      {
         metric: "Technical Capability & Responsibility · CPRBD Website",
         quote:
           "I had the opportunity to work with Parvej and the website team during the development of the CPRBD website. Parvej was professional, responsive, and committed throughout the process. He and the team were receptive to feedback, handled website requirements effectively, and worked collaboratively to turn our ideas into a functional and professional web presence. What I particularly appreciated was their willingness to understand the programme’s needs and make improvements accordingly. Parvej was reliable in communication and contributed positively to the overall development process. I would gladly recommend him to anyone looking for someone who combines technical capability with a strong sense of teamwork and responsibility.",

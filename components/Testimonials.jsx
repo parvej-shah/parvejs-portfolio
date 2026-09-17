@@ -21,6 +21,17 @@ const defaultSection = {
       href: "https://www.mathpro.academy",
     },
     {
+      metric: "Full-Stack Architecture · GenMorphics AI Solutions",
+      quote:
+        "I worked with Parvej and he's the kind of engineer you can just hand something to and stop worrying about it. He knows web development well, and not just the surface of it. He's comfortable with databases, and deployment as well.",
+      name: "Nafis Sajid",
+      role: "Lead Engineer at Samsung R&D · Co-founder, GenMorphics AI Solutions",
+      initials: "NS",
+      avatarUrl: "/testimonials/nafis-sajid.png",
+      rating: 5,
+      href: "https://www.linkedin.com/in/parvejshah/details/recommendations/?detailScreenTabIndex=2",
+    },
+    {
       metric: "Technical Capability & Responsibility · CPRBD Website",
       quote:
         "I had the opportunity to work with Parvej and the website team during the development of the CPRBD website. Parvej was professional, responsive, and committed throughout the process. He and the team were receptive to feedback, handled website requirements effectively, and worked collaboratively to turn our ideas into a functional and professional web presence. What I particularly appreciated was their willingness to understand the programme’s needs and make improvements accordingly. Parvej was reliable in communication and contributed positively to the overall development process. I would gladly recommend him to anyone looking for someone who combines technical capability with a strong sense of teamwork and responsibility.",
@@ -145,9 +156,62 @@ export default function Testimonials({ section = defaultSection }) {
           </Reveal>
         </div>
 
-        {/* 2. Full Written Recommendation (Md. Seam Ali Ahammod Pramaniq — CPRBD, University of Dhaka) */}
+        {/* 2. Full Written Recommendation (Nafis Sajid — Samsung R&D · GenMorphics AI) */}
         <div className="mt-6">
           <Reveal delay={200} as="article">
+            <div className="testimonial-card card-surface group relative rounded-3xl border border-line p-6 sm:p-8 transition-all duration-300 hover:border-brand/30">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-1 text-brand">
+                  {Array.from({ length: 5 }).map((_, s) => (
+                    <Star key={s} className="size-4 fill-brand" />
+                  ))}
+                </div>
+                <a
+                  href="https://www.linkedin.com/in/parvejshah/details/recommendations/?detailScreenTabIndex=2"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="shrink-0 whitespace-nowrap text-xs font-semibold text-brand hover:underline"
+                >
+                  LinkedIn Review ↗
+                </a>
+              </div>
+
+              {/* Full Complete Quote from Nafis Sajid */}
+              <div className="mt-5 space-y-3.5 text-sm leading-relaxed text-foreground/90 sm:text-base sm:leading-relaxed">
+                <p>
+                  &ldquo;I worked with Parvej and <span className="font-medium text-brand">he&apos;s the kind of engineer you can just hand something to and stop worrying about it</span>.&rdquo;
+                </p>
+                <p>
+                  &ldquo;He knows web development well, and not just the surface of it. <span className="font-medium text-brand">He&apos;s comfortable with databases, and deployment as well.</span>&rdquo;
+                </p>
+              </div>
+
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-line/60 pt-5">
+                <div className="flex items-center gap-3.5">
+                  <Image
+                    src="/testimonials/nafis-sajid.png"
+                    alt="Nafis Sajid"
+                    width={48}
+                    height={48}
+                    className="size-12 rounded-full object-cover ring-2 ring-brand/20"
+                  />
+                  <div>
+                    <p className="text-sm font-semibold text-foreground sm:text-base">Nafis Sajid</p>
+                    <p className="text-xs text-muted-foreground">Lead Engineer at Samsung R&D · Co-founder, GenMorphics AI</p>
+                  </div>
+                </div>
+
+                <span className="hidden text-xs text-muted-foreground sm:inline">
+                  Enterprise Architecture · GenMorphics AI
+                </span>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+
+        {/* 3. Full Written Recommendation (Md. Seam Ali Ahammod Pramaniq — CPRBD, University of Dhaka) */}
+        <div className="mt-6">
+          <Reveal delay={300} as="article">
             <div className="testimonial-card card-surface group relative rounded-3xl border border-line p-6 sm:p-8 transition-all duration-300 hover:border-brand/30">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-1 text-brand">

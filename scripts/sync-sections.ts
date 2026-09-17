@@ -135,6 +135,16 @@ const sectionContent: Record<SectionKey, unknown> = {
         avatarUrl: "",
       },
       {
+        href: "https://www.linkedin.com/in/parvejshah/details/recommendations/?detailScreenTabIndex=2",
+        name: "Nafis Sajid",
+        role: "Lead Engineer at Samsung R&D · Co-founder, GenMorphics AI Solutions",
+        quote: "I worked with Parvej and he's the kind of engineer you can just hand something to and stop worrying about it. He knows web development well, and not just the surface of it. He's comfortable with databases, and deployment as well.",
+        metric: "Full-Stack Architecture · GenMorphics AI Solutions",
+        rating: 5,
+        initials: "NS",
+        avatarUrl: "/testimonials/nafis-sajid.png",
+      },
+      {
         href: "https://www.linkedin.com/in/md-seam-ali-ahammod-pramaniq/",
         name: "Md. Seam Ali Ahammod Pramaniq",
         role: "Project Assistant at CPRBD, University of Dhaka",
