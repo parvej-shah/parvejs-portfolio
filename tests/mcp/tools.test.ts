@@ -7,7 +7,7 @@ import { installTestOAuthEnv, TEST_OWNER_EMAIL, TEST_OWNER_SUBJECT, TEST_RESOURC
 process.env.DATABASE_URL ??= "postgresql://unused:unused@localhost:5432/unused";
 installTestOAuthEnv();
 
-const { createMcpServer } = await import("@/lib/mcp/server");
+const { createMcpServer, __testing } = await import("@/lib/mcp/server");
 const { TOOL_SCOPES } = await import("@/lib/mcp/toolScopes");
 const { MCP_SCOPES } = await import("@/lib/mcp/scopes");
 
@@ -133,5 +133,49 @@ describe("MCP tool surface", () => {
         `${tool.name} must accept expected_version so it cannot silently overwrite an admin edit`
       );
     }
+  });
+});
+
+describe("tool result shape", () => {
+  const { toolResult, collectionResult, blogSummary, projectSummary } = __testing;
+
+  it("serializes the payload into a text block, not only structuredContent", () => {
+    // Clients that read only content blocks -- ChatGPT among them -- otherwise
+    // see the summary sentence and none of the data.
+    const result = collectionResult("blogs", [{ id: "a1", title: "Hello" }], "Found 1 blog posts.");
+    const text = result.content.map((part) => part.text).join("\n");
+    assert.match(text, /Found 1 blog posts\./);
+    assert.match(text, /"id": "a1"/);
+    assert.match(text, /"title": "Hello"/);
+  });
+
+  it("keeps structuredContent in step with the text copy", () => {
+    const result = toolResult({ id: "x", status: "DRAFT" }, "Done.");
+    const jsonBlock = result.content.find((part) => part.text.trim().startsWith("{"));
+    assert.ok(jsonBlock, "a JSON text block must be present");
+    assert.deepEqual(JSON.parse(jsonBlock.text), result.structuredContent);
+  });
+
+  it("drops long-form bodies from listings but keeps what identifies a record", () => {
+    const summary = blogSummary({
+      id: "p1",
+      slug: "a-post",
+      title: "A post",
+      excerpt: "Short excerpt",
+      status: "PUBLISHED",
+      content: "x".repeat(50_000),
+    });
+    assert.equal("content" in summary, false, "full markdown must not ride along in a listing");
+    assert.equal(summary.contentChars, 50_000);
+    assert.equal(summary.slug, "a-post");
+    assert.equal(summary.excerpt, "Short excerpt");
+  });
+
+  it("drops case-study prose from project listings but flags that it exists", () => {
+    const withCase = projectSummary({ id: "j1", title: "P", problem: "long prose", results: "more" });
+    assert.equal("problem" in withCase, false);
+    assert.equal("results" in withCase, false);
+    assert.equal(withCase.hasCaseStudy, true);
+    assert.equal(projectSummary({ id: "j2", title: "P" }).hasCaseStudy, false);
   });
 });

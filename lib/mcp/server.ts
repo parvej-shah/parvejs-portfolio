@@ -47,16 +47,45 @@ function serializable<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 
+/**
+ * Every result carries the payload twice: once as structuredContent, and once
+ * serialized into a text block. The spec calls the text copy a backwards
+ * compatibility measure, but it is not optional in practice -- clients that
+ * read only content blocks (ChatGPT among them) otherwise see the summary
+ * sentence and none of the data, and report the tool as returning nothing.
+ */
 function toolResult(value: unknown, message: string) {
   const data = serializable(value) as Record<string, unknown>;
   return {
-    content: [{ type: "text" as const, text: message }],
+    content: [
+      { type: "text" as const, text: message },
+      { type: "text" as const, text: JSON.stringify(data, null, 2) },
+    ],
     structuredContent: data,
   };
 }
 
 function collectionResult(key: string, values: unknown[], message: string) {
   return toolResult({ [key]: serializable(values) }, message);
+}
+
+/**
+ * Listings omit long-form bodies. Since the payload is now serialized into the
+ * conversation, returning every post's full markdown would spend an enormous
+ * number of tokens to answer "what posts exist". Full text comes from get_blog
+ * and get_project, one record at a time.
+ */
+function blogSummary(post: Record<string, unknown>) {
+  const { content, ...rest } = post as { content: string } & Record<string, unknown>;
+  return { ...rest, contentChars: typeof content === "string" ? content.length : 0 };
+}
+
+function projectSummary(project: Record<string, unknown>) {
+  const { problem, approach, solution, results, ...rest } = project as Record<string, unknown>;
+  return {
+    ...rest,
+    hasCaseStudy: Boolean(problem || approach || solution || results),
+  };
 }
 
 function mutationContext(
@@ -111,14 +140,17 @@ export function createMcpServer(identity: McpIdentity) {
     "list_blogs",
     {
       title: "List blogs",
-      description: "Lists blog posts, including drafts, scheduled posts, published posts, and archives.",
+      description:
+        "Lists blog posts, including drafts, scheduled posts, published posts, and archives. " +
+        "Returns metadata and excerpts only; use get_blog for a post's full content.",
       inputSchema: { limit: z.number().int().min(1).max(100).default(50) },
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true },
     },
     async ({ limit }) => {
       requireMcpScope(identity, "content:read");
       const posts = (await postService.listPosts(true)).slice(0, limit);
-      return collectionResult("blogs", posts, `Found ${posts.length} blog posts.`);
+      const blogs = posts.map((post) => blogSummary(post as unknown as Record<string, unknown>));
+      return collectionResult("blogs", blogs, `Found ${blogs.length} blog posts.`);
     }
   );
 
@@ -297,12 +329,17 @@ export function createMcpServer(identity: McpIdentity) {
     "list_projects",
     {
       title: "List projects",
-      description: "Lists portfolio projects, including unpublished and archived entries.",
+      description:
+        "Lists portfolio projects, including unpublished and archived entries. Returns metadata " +
+        "and summaries only; use get_project for a project's full case study.",
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true },
     },
     async () => {
       requireMcpScope(identity, "content:read");
-      const projects = await projectService.listProjects(true);
+      const listed = await projectService.listProjects(true);
+      const projects = listed.map((project) =>
+        projectSummary(project as unknown as Record<string, unknown>)
+      );
       return collectionResult("projects", projects, `Found ${projects.length} projects.`);
     }
   );
@@ -514,3 +551,6 @@ export function createMcpServer(identity: McpIdentity) {
 
   return server;
 }
+
+/** Result-shaping helpers, exported for tests only. */
+export const __testing = { toolResult, collectionResult, blogSummary, projectSummary };
