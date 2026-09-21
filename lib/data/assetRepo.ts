@@ -17,3 +17,12 @@ export function updateAsset(id: string, data: UpdateAsset) {
 export function deleteAsset(id: string) {
   return prisma.asset.delete({ where: { id } });
 }
+
+export function upsertExternalPostCover(slug: string, title: string, url: string) {
+  const key = `blog-${slug}-cover`;
+  return prisma.asset.upsert({
+    where: { key },
+    update: { url, alt: title },
+    create: { key, url, alt: title },
+  });
+}

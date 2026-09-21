@@ -1,13 +1,19 @@
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { CreatePost, UpdatePost } from "@/lib/types";
 
+type DatabaseClient = Prisma.TransactionClient | typeof prisma;
+
 // Repository pattern: all Post Prisma access lives here. No business logic.
-export function findAllPosts() {
-  return prisma.post.findMany({ orderBy: { createdAt: "desc" } });
+export function findAllPosts(includeArchived = false) {
+  return prisma.post.findMany({
+    where: includeArchived ? undefined : { status: { not: "ARCHIVED" } },
+    orderBy: { createdAt: "desc" },
+  });
 }
 
-export function findPostById(id: string) {
-  return prisma.post.findUnique({ where: { id }, include: { coverImage: true } });
+export function findPostById(id: string, db: DatabaseClient = prisma) {
+  return db.post.findUnique({ where: { id }, include: { coverImage: true } });
 }
 
 export function findPostBySlug(slug: string) {
@@ -25,16 +31,30 @@ export function publishPosts(ids: string[]) {
   return prisma.post.updateMany({ where: { id: { in: ids } }, data: { status: "PUBLISHED" } });
 }
 
-export function createPost(data: CreatePost) {
-  return prisma.post.create({ data });
+export function createPost(data: CreatePost, db: DatabaseClient = prisma) {
+  return db.post.create({ data, include: { coverImage: true } });
 }
 
-export function updatePost(id: string, data: UpdatePost) {
-  return prisma.post.update({ where: { id }, data });
+export function updatePost(id: string, data: UpdatePost, db: DatabaseClient = prisma) {
+  return db.post.update({
+    where: { id },
+    data: { ...data, version: { increment: 1 } },
+    include: { coverImage: true },
+  });
 }
 
-export function deletePost(id: string) {
-  return prisma.post.delete({ where: { id } });
+export async function updatePostIfVersion(
+  id: string,
+  expectedVersion: number,
+  data: UpdatePost,
+  db: DatabaseClient = prisma
+) {
+  const result = await db.post.updateMany({
+    where: { id, version: expectedVersion },
+    data: { ...data, version: { increment: 1 } },
+  });
+  if (result.count === 0) return null;
+  return findPostById(id, db);
 }
 
 export async function upsertPostWithCover(data: {
@@ -86,4 +106,3 @@ export async function upsertPostWithCover(data: {
     },
   });
 }
-

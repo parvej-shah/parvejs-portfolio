@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { errorResponse, zodErrorResponse } from "@/lib/api-response";
 import { reorderProjectsSchema } from "@/lib/validators/project";
 import * as projectService from "@/lib/services/projectService";
+import { createAdminMutationContext } from "@/lib/services/mutationContext";
 
 export async function PATCH(request: NextRequest) {
   const session = await auth();
@@ -12,7 +13,10 @@ export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
     const { orderedIds } = reorderProjectsSchema.parse(body);
-    await projectService.reorderProjects(orderedIds);
+    await projectService.reorderProjects(
+      orderedIds,
+      createAdminMutationContext(session.user?.id ?? session.user?.email ?? "admin")
+    );
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     if (error instanceof ZodError) return zodErrorResponse(error);

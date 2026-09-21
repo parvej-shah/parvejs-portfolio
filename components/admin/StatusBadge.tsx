@@ -5,12 +5,14 @@ const statusStyles: Record<Status, string> = {
   PUBLISHED: "bg-brand/20 text-brand",
   SCHEDULED: "bg-amber-500/20 text-amber-400",
   DRAFT: "border border-line text-muted-foreground",
+  ARCHIVED: "bg-zinc-500/20 text-zinc-400",
 };
 
 const statusLabels: Record<Status, string> = {
   PUBLISHED: "Published",
   SCHEDULED: "Scheduled",
   DRAFT: "Draft",
+  ARCHIVED: "Archived",
 };
 
 export function StatusBadge({ status }: { status: Status }) {

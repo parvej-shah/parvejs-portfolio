@@ -10,6 +10,7 @@ export const postSchema = z.object({
   content: z.string().min(1),
   status: statusSchema.default("DRAFT"),
   featured: z.boolean().default(false),
+  version: z.number().int().positive().default(1),
   coverImageId: z.string().nullable().optional(),
   coverImage: assetSchema.nullable().optional(),
 
@@ -34,6 +35,7 @@ export const createPostSchema = postSchema
     createdAt: true,
     updatedAt: true,
     coverImage: true,
+    version: true,
   })
   .refine(hasFutureSchedule, scheduleRuleOptions);
 
@@ -43,6 +45,7 @@ export const updatePostSchema = postSchema
     createdAt: true,
     updatedAt: true,
     coverImage: true,
+    version: true,
   })
   .partial()
   .refine(hasFutureSchedule, scheduleRuleOptions);

@@ -16,6 +16,7 @@ const statusDotStyles: Record<Post["status"], string> = {
   PUBLISHED: "bg-brand",
   SCHEDULED: "bg-amber-400",
   DRAFT: "border border-line",
+  ARCHIVED: "bg-zinc-500",
 };
 
 // A post lands on the calendar day that reflects its current lifecycle: when it will go

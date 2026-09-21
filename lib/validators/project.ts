@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { assetSchema } from "./asset";
 
-export const statusSchema = z.enum(["DRAFT", "SCHEDULED", "PUBLISHED"]);
+export const statusSchema = z.enum(["DRAFT", "SCHEDULED", "PUBLISHED", "ARCHIVED"]);
 
 export const projectSchema = z.object({
   id: z.string(),
@@ -32,6 +32,7 @@ export const projectSchema = z.object({
 
   order: z.number().int().default(0),
   featured: z.boolean().default(false),
+  version: z.number().int().positive().default(1),
 
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
@@ -40,6 +41,7 @@ export const projectSchema = z.object({
 export const createProjectSchema = projectSchema.omit({
   id: true,
   gallery: true,
+  version: true,
   createdAt: true,
   updatedAt: true,
 });

@@ -4,6 +4,7 @@ import crypto from "crypto";
 import { z, ZodError } from "zod";
 import { errorResponse, zodErrorResponse } from "@/lib/api-response";
 import * as postService from "@/lib/services/postService";
+import { createSystemMutationContext } from "@/lib/services/mutationContext";
 
 const webhookPayloadSchema = z.object({
   title: z.string().min(1),
@@ -20,8 +21,8 @@ const webhookPayloadSchema = z.object({
 
 function verifyWebhookSecret(authHeader: string | null): boolean {
   const secret = process.env.MINIONS_WEBHOOK_SECRET;
-  // If no secret configured in environment, allow webhook
-  if (!secret) return true;
+  // Mutation endpoints must fail closed when their credential is not configured.
+  if (!secret) return false;
   if (!authHeader) return false;
 
   const token = authHeader.replace(/^Bearer\s+/i, "").trim();
@@ -49,15 +50,18 @@ export async function POST(request: NextRequest) {
     const postPublishedAt = rawDate ? new Date(rawDate) : new Date();
     const coverImage = parsed.coverImageUrl || parsed.hero_image_url || null;
 
-    const post = await postService.upsertPostFromWebhook({
-      slug: parsed.slug,
-      title: parsed.title,
-      excerpt: postExcerpt,
-      content: parsed.content,
-      status: parsed.status,
-      publishedAt: parsed.status === "PUBLISHED" ? postPublishedAt : null,
-      coverImageUrl: coverImage,
-    });
+    const post = await postService.upsertPostFromWebhook(
+      {
+        slug: parsed.slug,
+        title: parsed.title,
+        excerpt: postExcerpt,
+        content: parsed.content,
+        status: parsed.status,
+        publishedAt: parsed.status === "PUBLISHED" ? postPublishedAt : null,
+        coverImageUrl: coverImage,
+      },
+      createSystemMutationContext("minions-webhook")
+    );
 
     try {
       revalidatePath("/blog");

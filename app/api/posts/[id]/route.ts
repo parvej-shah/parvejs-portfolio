@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { errorResponse, zodErrorResponse } from "@/lib/api-response";
 import { updatePostSchema } from "@/lib/validators/post";
 import * as postService from "@/lib/services/postService";
+import { createAdminMutationContext } from "@/lib/services/mutationContext";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -33,7 +34,11 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   try {
     const body = await request.json();
     const data = updatePostSchema.parse(body);
-    const post = await postService.updatePost(id, data);
+    const post = await postService.updatePost(
+      id,
+      data,
+      createAdminMutationContext(session.user?.id ?? session.user?.email ?? "admin")
+    );
     return NextResponse.json(post);
   } catch (error) {
     if (error instanceof ZodError) return zodErrorResponse(error);
@@ -41,6 +46,12 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       return errorResponse(error.message, 404);
     }
     if (error instanceof postService.DuplicateSlugError) {
+      return errorResponse(error.message, 409);
+    }
+    if (
+      error instanceof postService.PublishedSlugImmutableError ||
+      error instanceof postService.ArchivedContentError
+    ) {
       return errorResponse(error.message, 409);
     }
     throw error;
@@ -54,7 +65,10 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
   const { id } = await params;
 
   try {
-    await postService.deletePost(id);
+    await postService.archivePost(
+      id,
+      createAdminMutationContext(session.user?.id ?? session.user?.email ?? "admin")
+    );
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     if (error instanceof postService.PostNotFoundError) {

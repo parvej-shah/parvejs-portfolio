@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { errorResponse, zodErrorResponse } from "@/lib/api-response";
 import { updateProjectSchema } from "@/lib/validators/project";
 import * as projectService from "@/lib/services/projectService";
+import { createAdminMutationContext } from "@/lib/services/mutationContext";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -33,7 +34,11 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   try {
     const body = await request.json();
     const data = updateProjectSchema.parse(body);
-    const project = await projectService.updateProject(id, data);
+    const project = await projectService.updateProject(
+      id,
+      data,
+      createAdminMutationContext(session.user?.id ?? session.user?.email ?? "admin")
+    );
     return NextResponse.json(project);
   } catch (error) {
     if (error instanceof ZodError) return zodErrorResponse(error);
@@ -41,6 +46,12 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       return errorResponse(error.message, 404);
     }
     if (error instanceof projectService.DuplicateSlugError) {
+      return errorResponse(error.message, 409);
+    }
+    if (
+      error instanceof projectService.PublishedSlugImmutableError ||
+      error instanceof projectService.ArchivedContentError
+    ) {
       return errorResponse(error.message, 409);
     }
     throw error;
@@ -54,7 +65,10 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
   const { id } = await params;
 
   try {
-    await projectService.deleteProject(id);
+    await projectService.archiveProject(
+      id,
+      createAdminMutationContext(session.user?.id ?? session.user?.email ?? "admin")
+    );
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     if (error instanceof projectService.ProjectNotFoundError) {

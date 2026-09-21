@@ -10,6 +10,13 @@ enum Status {
   DRAFT
   SCHEDULED
   PUBLISHED
+  ARCHIVED
+}
+
+enum AuditActorType {
+  ADMIN
+  MCP_CLIENT
+  SYSTEM
 }
 
 model User {
@@ -52,6 +59,7 @@ model Project {
 
   order    Int     @default(0)
   featured Boolean @default(false)
+  version  Int     @default(1)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -67,6 +75,7 @@ model Post {
   content      String
   status       Status  @default(DRAFT)
   featured     Boolean @default(false)
+  version      Int     @default(1)
   coverImage   Asset?  @relation("PostCoverImage", fields: [coverImageId], references: [id])
   coverImageId String? @unique
 
@@ -100,4 +109,23 @@ model SiteContent {
   data      Json
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String         @id @default(cuid())
+  actorId    String
+  actorType  AuditActorType
+  clientId   String?
+  toolName   String?
+  action     String
+  targetType String
+  targetId   String
+  requestId  String         @unique
+  before     Json?
+  after      Json?
+  metadata   Json?
+  createdAt  DateTime       @default(now())
+
+  @@index([targetType, targetId, createdAt])
+  @@index([actorId, createdAt])
 }

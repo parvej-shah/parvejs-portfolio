@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { errorResponse, zodErrorResponse } from "@/lib/api-response";
 import { createProjectSchema } from "@/lib/validators/project";
 import * as projectService from "@/lib/services/projectService";
+import { createAdminMutationContext } from "@/lib/services/mutationContext";
 
 export async function GET() {
   const session = await auth();
@@ -20,7 +21,10 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const data = createProjectSchema.parse(body);
-    const project = await projectService.createProject(data);
+    const project = await projectService.createProject(
+      data,
+      createAdminMutationContext(session.user?.id ?? session.user?.email ?? "admin")
+    );
     return NextResponse.json(project, { status: 201 });
   } catch (error) {
     if (error instanceof ZodError) return zodErrorResponse(error);

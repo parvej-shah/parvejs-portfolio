@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { errorResponse } from "@/lib/api-response";
 import * as postService from "@/lib/services/postService";
+import { createSystemMutationContext } from "@/lib/services/mutationContext";
 
 // Triggered by the GitHub Actions workflow on a schedule. The publishedAt <= now filter
 // in lib/data/public.ts already keeps visibility correct between runs, so a missed or
@@ -13,6 +14,8 @@ export async function POST(request: NextRequest) {
     return errorResponse("Unauthorized", 401);
   }
 
-  const result = await postService.publishDueScheduled();
+  const result = await postService.publishDueScheduled(
+    createSystemMutationContext("scheduled-publisher")
+  );
   return NextResponse.json(result);
 }

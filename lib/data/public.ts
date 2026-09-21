@@ -25,6 +25,7 @@ const publishedProjectSelect = {
   githubUrl: true,
   order: true,
   featured: true,
+  version: true,
   createdAt: true,
   updatedAt: true,
   gallery: {
@@ -40,6 +41,7 @@ const publishedPostSelect = {
   content: true,
   status: true,
   featured: true,
+  version: true,
   coverImageId: true,
   publishedAt: true,
   createdAt: true,
@@ -143,4 +145,3 @@ const getSectionCached = unstable_cache(
 export const getSection = cache(async <K extends SectionKey>(key: K) => {
   return (await getSectionCached(key)) as SectionData<K> | null;
 });
-

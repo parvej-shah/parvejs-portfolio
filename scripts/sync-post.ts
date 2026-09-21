@@ -1,5 +1,6 @@
 import { prisma as portfolioPrisma } from "../lib/prisma";
 import { upsertPostFromWebhook } from "../lib/services/postService";
+import { createSystemMutationContext } from "../lib/services/mutationContext";
 
 async function syncPost() {
   const assetPayload = {
@@ -55,7 +56,10 @@ Frontend development is expanding beyond human visual presentation. Treating mac
   };
 
   console.log("Upserting post to portfolio database...");
-  const post = await upsertPostFromWebhook(assetPayload);
+  const post = await upsertPostFromWebhook(
+    assetPayload,
+    createSystemMutationContext("manual-post-sync")
+  );
   console.log("Successfully published post to portfolio!", {
     id: post.id,
     title: post.title,

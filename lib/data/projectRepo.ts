@@ -1,31 +1,52 @@
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { CreateProject, UpdateProject } from "@/lib/types";
+
+type DatabaseClient = Prisma.TransactionClient | typeof prisma;
 
 const galleryInclude = { gallery: { orderBy: { createdAt: "asc" as const } } };
 
 // Repository pattern: all Project Prisma access lives here. No business logic.
-export function findAllProjects() {
-  return prisma.project.findMany({ orderBy: { order: "asc" }, include: galleryInclude });
+export function findAllProjects(includeArchived = false) {
+  return prisma.project.findMany({
+    where: includeArchived ? undefined : { status: { not: "ARCHIVED" } },
+    orderBy: { order: "asc" },
+    include: galleryInclude,
+  });
 }
 
-export function findProjectById(id: string) {
-  return prisma.project.findUnique({ where: { id }, include: galleryInclude });
+export function findProjectById(id: string, db: DatabaseClient = prisma) {
+  return db.project.findUnique({ where: { id }, include: galleryInclude });
 }
 
 export function findProjectBySlug(slug: string) {
   return prisma.project.findUnique({ where: { slug } });
 }
 
-export function createProject(data: CreateProject) {
-  return prisma.project.create({ data, include: galleryInclude });
+export function createProject(data: CreateProject, db: DatabaseClient = prisma) {
+  return db.project.create({ data, include: galleryInclude });
 }
 
-export function updateProject(id: string, data: UpdateProject) {
-  return prisma.project.update({ where: { id }, data, include: galleryInclude });
+export function updateProject(id: string, data: UpdateProject, db: DatabaseClient = prisma) {
+  return db.project.update({
+    where: { id },
+    data: { ...data, version: { increment: 1 } },
+    include: galleryInclude,
+  });
 }
 
-export function deleteProject(id: string) {
-  return prisma.project.delete({ where: { id } });
+export async function updateProjectIfVersion(
+  id: string,
+  expectedVersion: number,
+  data: UpdateProject,
+  db: DatabaseClient = prisma
+) {
+  const result = await db.project.updateMany({
+    where: { id, version: expectedVersion },
+    data: { ...data, version: { increment: 1 } },
+  });
+  if (result.count === 0) return null;
+  return findProjectById(id, db);
 }
 
 export function reorderProjects(orderedIds: string[]) {
