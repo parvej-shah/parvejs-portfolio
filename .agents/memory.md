@@ -31,6 +31,20 @@ CMS has two surfaces:
 2. **Section CMS** (homepage sections as `SiteContent` key/value rows, Zod-typed per section)
    — Phase 2, deferred until Phase 1 ships.
 
+## Remote MCP server (mcp.parvejshah.com)
+The site is its **own OAuth 2.1 authorization server**, not just a resource server. Google
+is only the login step — it cannot be the AS because it issues tokens for its own audience
+with its own scopes and has no dynamic client registration, which every MCP client needs.
+`lib/oauth/*` holds the AS (registration, authorize, callback, token, revoke, JWKS);
+`lib/mcp/*` holds the resource server. Access tokens are RS256 JWTs signed by this
+deployment, audienced to `<MCP_PUBLIC_URL>/mcp`.
+
+Authority is the `MCP_ALLOWED_EMAIL`/`MCP_ALLOWED_SUBJECT` allowlist, never possession of a
+`client_id` — registration is deliberately open because MCP clients self-register.
+
+The Google app needs no verification review: only `openid email profile` are requested, and
+no Google refresh token is stored, so testing-mode expiry does not apply.
+
 ## Open decisions / not yet started
 - Prerequisites (Neon project, R2 bucket + API token, `NEXTAUTH_SECRET`, admin credentials)
   are to be provided by the repo owner before Agent A can run migrations/seed — see

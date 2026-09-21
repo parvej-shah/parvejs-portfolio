@@ -129,3 +129,68 @@ model AuditLog {
   @@index([targetType, targetId, createdAt])
   @@index([actorId, createdAt])
 }
+
+// ---------------------------------------------------------------------------
+// OAuth 2.1 authorization server for remote MCP clients.
+// Google is the login step; this server is the token issuer, so access tokens
+// carry this site's audience and scopes instead of Google's.
+// ---------------------------------------------------------------------------
+
+model OAuthClient {
+  id                      String   @id @default(cuid())
+  name                    String
+  secretHash              String?
+  redirectUris            String[]
+  grantTypes              String[]
+  scopes                  String[]
+  tokenEndpointAuthMethod String   @default("none")
+  createdAt               DateTime @default(now())
+
+  authorizations OAuthAuthorization[]
+  refreshTokens  OAuthRefreshToken[]
+}
+
+model OAuthAuthorization {
+  id       String      @id @default(cuid())
+  client   OAuthClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String
+
+  redirectUri         String
+  scopes              String[]
+  resource            String?
+  clientState         String?
+  codeChallenge       String
+  codeChallengeMethod String
+  googleVerifier      String
+
+  codeHash   String?   @unique
+  subject    String?
+  email      String?
+  name       String?
+  consumedAt DateTime?
+
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
+model OAuthRefreshToken {
+  id       String      @id @default(cuid())
+  client   OAuthClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String
+
+  tokenHash String  @unique
+  subject   String
+  email     String?
+  name      String?
+  scopes    String[]
+  resource  String?
+
+  revokedAt DateTime?
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+
+  @@index([subject])
+  @@index([expiresAt])
+}
