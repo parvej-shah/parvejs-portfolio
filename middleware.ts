@@ -11,8 +11,14 @@ export default auth((req) => {
   const isAdminRoute = req.nextUrl.pathname.startsWith("/admin");
 
   if (isAdminRoute && !isLoggedIn) {
-    const loginUrl = new URL("/login", req.nextUrl.origin);
-    return NextResponse.redirect(loginUrl);
+    // Behind Vercel's proxy req.nextUrl.origin is the deployment host, not the
+    // domain the visitor typed, so redirecting to it would strand them on
+    // *.vercel.app and set the session cookie on the wrong domain. Trust the
+    // forwarded host instead, which preserves parvejshah.com.
+    const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host");
+    const proto = req.headers.get("x-forwarded-proto") ?? "https";
+    const origin = host ? `${proto}://${host}` : req.nextUrl.origin;
+    return NextResponse.redirect(new URL("/login", origin));
   }
 });
 

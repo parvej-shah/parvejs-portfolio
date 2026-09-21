@@ -94,9 +94,14 @@ jobs:
           node-version: 24
           cache: 'npm'
 
-      # Reported, not enforced: production dependencies currently carry known
-      # criticals, so failing here would make CI permanently red and train
-      # everyone to ignore it. Drop continue-on-error once they are resolved.
+      # Blocking at critical, which is now the enforced baseline: a new
+      # critical advisory in a production dependency fails the build rather
+      # than sitting unnoticed in a report.
+      #
+      # Not yet blocking at high. Four high advisories remain in Prisma CLI
+      # tooling (prisma, @prisma/config, deepmerge-ts, mysql2) whose only
+      # published remedy is a major downgrade to prisma@6.19.3; none is
+      # reachable at runtime. Tighten this to --audit-level=high once Prisma
+      # ships a fixed 7.x or a stable 8.
       - name: Audit production dependencies
-        continue-on-error: true
-        run: npm audit --omit=dev --audit-level=high
+        run: npm audit --omit=dev --audit-level=critical
