@@ -65,14 +65,40 @@ records that user id for every MCP-driven change.
 Scopes, and why `blog:publish` is separate from `blog:write`:
 
 ```text
-content:read    read blogs, projects, sections, change history
+content:read    read blogs, projects, sections, media, change history
 blog:write      create and edit drafts
 blog:publish    publish, unpublish, archive
 project:write   create, edit, publish, archive projects
+media:write     upload and delete images
 site:write      edit website sections
 ```
 
 A token holding `blog:write` cannot publish. Grant a client only what it needs.
+
+## Attaching a thumbnail
+
+Tool arguments are JSON, so sending image bytes inline would mean base64 --
+roughly 68k tokens for a single 200KB image. Images are therefore ingested by
+URL: `upload_image` fetches a public https URL, compresses it to WebP under
+200KB through the same pipeline a dashboard upload uses, and returns an asset id
+to pass as `cover_image_id`.
+
+```text
+upload_image({ source_url, alt })  ->  asset_id
+create_blog({ ..., cover_image_id: asset_id })  ->  draft
+publish_blog({ blog_id, expected_version })     ->  live
+```
+
+Because the server fetches a URL the caller chose, that fetch is guarded against
+server-side request forgery: https only, DNS resolved and checked against every
+private, loopback, link-local and carrier-grade-NAT range (including the cloud
+metadata address, and IPv4-mapped IPv6 forms of it), redirects followed manually
+so each hop is re-validated, an allowlist of image content types, a 5MB ceiling
+measured on the received body rather than trusted from Content-Length, and a
+10-second timeout.
+
+`delete_media` refuses while an image is still used as a post cover or project
+gallery image, so deleting one cannot leave a page pointing at a dead URL.
 
 ## 3. Route the MCP domain
 

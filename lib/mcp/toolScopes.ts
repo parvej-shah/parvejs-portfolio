@@ -13,6 +13,7 @@ export const TOOL_SCOPES: Record<string, McpScope> = {
   get_project: "content:read",
   get_site_section: "content:read",
   get_change_history: "content:read",
+  list_media: "content:read",
   create_blog: "blog:write",
   update_blog: "blog:write",
   publish_blog: "blog:publish",
@@ -23,5 +24,7 @@ export const TOOL_SCOPES: Record<string, McpScope> = {
   publish_project: "project:write",
   unpublish_project: "project:write",
   archive_project: "project:write",
+  upload_image: "media:write",
+  delete_media: "media:write",
   update_site_section: "site:write",
 };

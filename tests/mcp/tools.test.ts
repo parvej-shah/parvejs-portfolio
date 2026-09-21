@@ -42,12 +42,14 @@ describe("MCP tool surface", () => {
         "archive_project",
         "create_blog",
         "create_project",
+        "delete_media",
         "get_blog",
         "get_change_history",
         "get_connection_profile",
         "get_project",
         "get_site_section",
         "list_blogs",
+        "list_media",
         "list_projects",
         "publish_blog",
         "publish_project",
@@ -56,6 +58,7 @@ describe("MCP tool surface", () => {
         "update_blog",
         "update_project",
         "update_site_section",
+        "upload_image",
       ]
     );
   });
@@ -111,9 +114,19 @@ describe("MCP tool surface", () => {
   });
 
   it("requires expected_version on tools that modify existing content", () => {
-    const creates = new Set(["create_blog", "create_project", "update_site_section"]);
+    // Exempt: tools that create rather than modify, and asset tools -- Asset
+    // carries no version column, so delete_media is guarded by its in-use check
+    // instead of optimistic concurrency.
+    const unversioned = new Set([
+      "create_blog",
+      "create_project",
+      "update_site_section",
+      "upload_image",
+      "delete_media",
+    ]);
     for (const tool of tools.filter(
-      (candidate) => TOOL_SCOPES[candidate.name] !== "content:read" && !creates.has(candidate.name)
+      (candidate) =>
+        TOOL_SCOPES[candidate.name] !== "content:read" && !unversioned.has(candidate.name)
     )) {
       assert.ok(
         tool.inputSchema.properties?.expected_version,

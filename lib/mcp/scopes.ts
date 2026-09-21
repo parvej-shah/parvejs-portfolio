@@ -8,6 +8,7 @@ export const MCP_SCOPES = [
   "blog:write",
   "blog:publish",
   "project:write",
+  "media:write",
   "site:write",
 ] as const;
 

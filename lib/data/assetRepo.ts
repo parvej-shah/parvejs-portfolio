@@ -10,6 +10,22 @@ export function findAssetById(id: string) {
   return prisma.asset.findUnique({ where: { id } });
 }
 
+export function listAssets(limit: number) {
+  return prisma.asset.findMany({
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: { postCover: { select: { id: true, slug: true, title: true } } },
+  });
+}
+
+/** Includes the references that make an asset unsafe to delete. */
+export function findAssetWithUsage(id: string) {
+  return prisma.asset.findUnique({
+    where: { id },
+    include: { postCover: { select: { id: true, slug: true, title: true } } },
+  });
+}
+
 export function updateAsset(id: string, data: UpdateAsset) {
   return prisma.asset.update({ where: { id }, data });
 }

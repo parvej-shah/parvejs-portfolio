@@ -2,6 +2,9 @@ import { randomUUID } from "node:crypto";
 import sharp from "sharp";
 import { uploadObject, deleteObject } from "@/lib/storage";
 import * as assetRepo from "@/lib/data/assetRepo";
+import * as auditRepo from "@/lib/data/auditRepo";
+import { fetchRemoteImage } from "@/lib/services/remoteImage";
+import type { MutationContext } from "@/lib/services/mutationContext";
 
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 const MAX_SIZE_BYTES = 5 * 1024 * 1024;
@@ -80,6 +83,84 @@ export async function uploadImage(file: File, projectId?: string) {
     height,
     projectId: projectId ?? null,
   });
+}
+
+/**
+ * Ingests an image the caller named by URL. Tool arguments are JSON, so sending
+ * bytes inline would mean base64 -- roughly 68k tokens for a single 200KB image
+ * -- which is why remote ingestion is the path agents get. The fetch itself is
+ * guarded in remoteImage.ts; everything after it reuses the same compression
+ * and storage path as a dashboard upload, so an MCP-sourced image is not a
+ * second class of asset.
+ */
+export async function uploadImageFromUrl(
+  sourceUrl: string,
+  options: { alt?: string | null; projectId?: string | null },
+  context: MutationContext
+) {
+  const remote = await fetchRemoteImage(sourceUrl);
+  const { buffer, width, height } = await compressToWebp(remote.buffer);
+
+  const key = `uploads/${randomUUID()}.${OUTPUT_EXTENSION}`;
+  const url = await uploadObject(key, buffer, OUTPUT_CONTENT_TYPE);
+
+  const asset = await auditRepo.runAuditedMutation(
+    context,
+    {
+      action: "UPLOAD_IMAGE",
+      targetType: "ASSET",
+      metadata: {
+        sourceUrl: remote.sourceUrl,
+        sourceContentType: remote.contentType,
+        sourceBytes: remote.buffer.length,
+        storedBytes: buffer.length,
+      },
+    },
+    (tx) =>
+      tx.asset.create({
+        data: {
+          key,
+          url,
+          alt: options.alt ?? null,
+          width,
+          height,
+          projectId: options.projectId ?? null,
+        },
+      }),
+    (created) => created.id
+  );
+
+  return asset;
+}
+
+export function listImages(limit: number) {
+  return assetRepo.listAssets(limit);
+}
+
+export class AssetInUseError extends Error {
+  constructor(id: string, usedBy: string) {
+    super(`Asset ${id} is still in use as ${usedBy}; detach it before deleting.`);
+    this.name = "AssetInUseError";
+  }
+}
+
+/**
+ * Deleting a referenced asset would leave a post or project pointing at a dead
+ * URL, so an in-use asset is refused rather than cascaded.
+ */
+export async function deleteImageChecked(id: string, context: MutationContext) {
+  const asset = await assetRepo.findAssetWithUsage(id);
+  if (!asset) throw new AssetNotFoundError(id);
+  if (asset.postCover) throw new AssetInUseError(id, `the cover image of "${asset.postCover.title}"`);
+  if (asset.projectId) throw new AssetInUseError(id, "a project gallery image");
+
+  await deleteObject(asset.key);
+  return auditRepo.runAuditedMutation(
+    context,
+    { action: "DELETE_IMAGE", targetType: "ASSET", targetId: id, before: asset },
+    (tx) => tx.asset.delete({ where: { id } }),
+    (deleted) => deleted.id
+  );
 }
 
 export async function updateImageAlt(id: string, alt: string | null) {

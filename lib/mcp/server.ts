@@ -4,6 +4,7 @@ import * as auditRepo from "@/lib/data/auditRepo";
 import * as postService from "@/lib/services/postService";
 import * as projectService from "@/lib/services/projectService";
 import * as sectionService from "@/lib/services/sectionService";
+import * as uploadService from "@/lib/services/uploadService";
 import type { MutationContext } from "@/lib/services/mutationContext";
 import { requireMcpScope, type McpIdentity } from "@/lib/mcp/auth";
 import { sectionKeys } from "@/lib/validators/section";
@@ -431,6 +432,70 @@ export function createMcpServer(identity: McpIdentity) {
       }
     );
   }
+
+  server.registerTool(
+    "upload_image",
+    {
+      title: "Upload image",
+      description:
+        "Fetches an image from a public https URL, compresses it to WebP under 200KB, stores it, " +
+        "and returns an asset id. Pass that id as cover_image_id to create_blog or update_blog to " +
+        "use it as a post thumbnail.",
+      inputSchema: {
+        source_url: z.string().url(),
+        alt: z.string().max(300).optional(),
+        idempotency_key: idempotencyKeySchema,
+      },
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+    },
+    async ({ source_url, alt, idempotency_key }) => {
+      requireMcpScope(identity, "media:write");
+      const context = mutationContext(identity, "upload_image", idempotency_key);
+      const prior = await priorMutationResult(context);
+      if (prior) return toolResult(prior, "That image was already uploaded.");
+      const asset = await uploadService.uploadImageFromUrl(source_url, { alt: alt ?? null }, context);
+      return toolResult(
+        asset,
+        `Stored image as asset ${asset.id} (${asset.width}x${asset.height}). ` +
+          `Pass cover_image_id: "${asset.id}" to attach it to a post.`
+      );
+    }
+  );
+
+  server.registerTool(
+    "list_media",
+    {
+      title: "List media",
+      description: "Lists stored images, newest first, showing which post each one covers if any.",
+      inputSchema: { limit: z.number().int().min(1).max(100).default(25) },
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true },
+    },
+    async ({ limit }) => {
+      requireMcpScope(identity, "content:read");
+      const media = await uploadService.listImages(limit);
+      return collectionResult("media", media, `Loaded ${media.length} images.`);
+    }
+  );
+
+  server.registerTool(
+    "delete_media",
+    {
+      title: "Delete media",
+      description:
+        "Permanently deletes a stored image. Refuses while the image is still used as a post " +
+        "cover or project gallery image.",
+      inputSchema: { asset_id: idSchema, idempotency_key: idempotencyKeySchema },
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true },
+    },
+    async ({ asset_id, idempotency_key }) => {
+      requireMcpScope(identity, "media:write");
+      const context = mutationContext(identity, "delete_media", idempotency_key);
+      const prior = await priorMutationResult(context);
+      if (prior) return toolResult(prior, "That image was already deleted.");
+      const asset = await uploadService.deleteImageChecked(asset_id, context);
+      return toolResult(asset, `Deleted image ${asset.id}.`);
+    }
+  );
 
   server.registerTool(
     "get_change_history",
