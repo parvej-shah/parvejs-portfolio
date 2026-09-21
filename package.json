@@ -20,7 +20,8 @@
     "mcp:keygen": "tsx scripts/generate-mcp-key.ts",
     "test": "tsx --test tests/**/*.test.ts",
     "test:integration": "tsx --test tests/integration/*.test.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "admin:reset-password": "tsx scripts/reset-admin-password.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
