@@ -75,13 +75,13 @@ function collectionResult(key: string, values: unknown[], message: string) {
  * number of tokens to answer "what posts exist". Full text comes from get_blog
  * and get_project, one record at a time.
  */
-function blogSummary(post: Record<string, unknown>) {
-  const { content, ...rest } = post as { content: string } & Record<string, unknown>;
+function blogSummary(post: Record<string, unknown>): Record<string, unknown> {
+  const { content, ...rest } = post;
   return { ...rest, contentChars: typeof content === "string" ? content.length : 0 };
 }
 
-function projectSummary(project: Record<string, unknown>) {
-  const { problem, approach, solution, results, ...rest } = project as Record<string, unknown>;
+function projectSummary(project: Record<string, unknown>): Record<string, unknown> {
+  const { problem, approach, solution, results, ...rest } = project;
   return {
     ...rest,
     hasCaseStudy: Boolean(problem || approach || solution || results),
