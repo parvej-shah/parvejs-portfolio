@@ -77,32 +77,17 @@ A token holding `blog:write` cannot publish. Grant a client only what it needs.
 
 ## Attaching a thumbnail
 
-`upload_image` stores an image and returns an asset id to pass as
-`cover_image_id`. Either way the image is compressed to WebP under 200KB through
-the same pipeline a dashboard upload uses, so an MCP-sourced image is not a
-second class of asset.
+Tool arguments are JSON, so sending image bytes inline would mean base64 --
+roughly 68k tokens for a single 200KB image. Images are therefore ingested by
+URL: `upload_image` fetches a public https URL, compresses it to WebP under
+200KB through the same pipeline a dashboard upload uses, and returns an asset id
+to pass as `cover_image_id`.
 
 ```text
-upload_image({ source_url, alt })    ->  asset_id   # preferred
-upload_image({ image_base64, alt })  ->  asset_id   # local file, no public URL
+upload_image({ source_url, alt })  ->  asset_id
 create_blog({ ..., cover_image_id: asset_id })  ->  draft
 publish_blog({ blog_id, expected_version })     ->  live
 ```
-
-**Prefer `source_url`.** Tool arguments are JSON, so inline bytes travel base64
-through the model's context -- roughly 68k tokens for a single 200KB image --
-whereas a URL is fetched server to server for nothing. `image_base64` exists for
-the case with no alternative: a file the client holds locally that is not
-reachable over HTTPS. Give exactly one of the two.
-
-Inline payloads are capped at 2MB decoded, refused from the encoded length
-before a buffer is allocated. The format is identified from the bytes' own magic
-signature -- a declared MIME type is a claim about content the server is about
-to hand to an image decoder, so it is ignored. Base64 is validated before
-decoding, because `Buffer.from` silently discards characters outside the
-alphabet and would turn a truncated payload into a corrupt image rather than an
-error. In practice the binding limit is the client's context window, not the
-2MB ceiling.
 
 Because the server fetches a URL the caller chose, that fetch is guarded against
 server-side request forgery: https only, DNS resolved and checked against every

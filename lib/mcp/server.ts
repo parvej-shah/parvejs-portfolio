@@ -475,35 +475,22 @@ export function createMcpServer(identity: McpIdentity) {
     {
       title: "Upload image",
       description:
-        "Stores an image and returns an asset id. Pass that id as cover_image_id to create_blog " +
-        "or update_blog to use it as a post thumbnail. Give either source_url (preferred: the " +
-        "image is fetched server side, costing no context) or image_base64 for a local file with " +
-        "no public URL. Either way the image is compressed to WebP under 200KB.",
+        "Fetches an image from a public https URL, compresses it to WebP under 200KB, stores it, " +
+        "and returns an asset id. Pass that id as cover_image_id to create_blog or update_blog to " +
+        "use it as a post thumbnail.",
       inputSchema: {
-        source_url: z.string().url().optional(),
-        image_base64: z.string().min(1).optional(),
+        source_url: z.string().url(),
         alt: z.string().max(300).optional(),
         idempotency_key: idempotencyKeySchema,
       },
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
     },
-    async ({ source_url, image_base64, alt, idempotency_key }) => {
+    async ({ source_url, alt, idempotency_key }) => {
       requireMcpScope(identity, "media:write");
-      // Exactly one source, checked here because inputSchema is a field map and
-      // cannot express the alternation itself.
-      if (Boolean(source_url) === Boolean(image_base64)) {
-        throw new Error(
-          source_url
-            ? "Give either source_url or image_base64, not both."
-            : "Give either source_url (preferred) or image_base64."
-        );
-      }
       const context = mutationContext(identity, "upload_image", idempotency_key);
       const prior = await priorMutationResult(context);
       if (prior) return toolResult(prior, "That image was already uploaded.");
-      const asset = source_url
-        ? await uploadService.uploadImageFromUrl(source_url, { alt: alt ?? null }, context)
-        : await uploadService.uploadImageFromData(image_base64!, { alt: alt ?? null }, context);
+      const asset = await uploadService.uploadImageFromUrl(source_url, { alt: alt ?? null }, context);
       return toolResult(
         asset,
         `Stored image as asset ${asset.id} (${asset.width}x${asset.height}). ` +

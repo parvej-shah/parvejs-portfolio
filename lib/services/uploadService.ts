@@ -4,7 +4,6 @@ import { uploadObject, deleteObject } from "@/lib/storage";
 import * as assetRepo from "@/lib/data/assetRepo";
 import * as auditRepo from "@/lib/data/auditRepo";
 import { fetchRemoteImage } from "@/lib/services/remoteImage";
-import { decodeInlineImage } from "@/lib/services/inlineImage";
 import type { MutationContext } from "@/lib/services/mutationContext";
 
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
@@ -86,30 +85,36 @@ export async function uploadImage(file: File, projectId?: string) {
   });
 }
 
-type ImageIngestOptions = { alt?: string | null; projectId?: string | null };
-
 /**
- * Shared tail of every agent-sourced upload: compress, store, and record the
- * asset in the same audited transaction. Only the way the bytes arrive differs
- * between the URL and inline paths, so only that part lives in the callers.
+ * Ingests an image the caller named by URL. Tool arguments are JSON, so sending
+ * bytes inline would mean base64 -- roughly 68k tokens for a single 200KB image
+ * -- which is why remote ingestion is the path agents get. The fetch itself is
+ * guarded in remoteImage.ts; everything after it reuses the same compression
+ * and storage path as a dashboard upload, so an MCP-sourced image is not a
+ * second class of asset.
  */
-async function storeIngestedImage(
-  input: Buffer,
-  sourceMetadata: Record<string, unknown>,
-  options: ImageIngestOptions,
+export async function uploadImageFromUrl(
+  sourceUrl: string,
+  options: { alt?: string | null; projectId?: string | null },
   context: MutationContext
 ) {
-  const { buffer, width, height } = await compressToWebp(input);
+  const remote = await fetchRemoteImage(sourceUrl);
+  const { buffer, width, height } = await compressToWebp(remote.buffer);
 
   const key = `uploads/${randomUUID()}.${OUTPUT_EXTENSION}`;
   const url = await uploadObject(key, buffer, OUTPUT_CONTENT_TYPE);
 
-  return auditRepo.runAuditedMutation(
+  const asset = await auditRepo.runAuditedMutation(
     context,
     {
       action: "UPLOAD_IMAGE",
       targetType: "ASSET",
-      metadata: { ...sourceMetadata, sourceBytes: input.length, storedBytes: buffer.length },
+      metadata: {
+        sourceUrl: remote.sourceUrl,
+        sourceContentType: remote.contentType,
+        sourceBytes: remote.buffer.length,
+        storedBytes: buffer.length,
+      },
     },
     (tx) =>
       tx.asset.create({
@@ -124,46 +129,8 @@ async function storeIngestedImage(
       }),
     (created) => created.id
   );
-}
 
-/**
- * Ingests an image the caller named by URL. This is the path agents should
- * normally take: the bytes move server to server instead of through the
- * model's context. The fetch itself is guarded in remoteImage.ts; everything
- * after it reuses the same compression and storage path as a dashboard upload,
- * so an MCP-sourced image is not a second class of asset.
- */
-export async function uploadImageFromUrl(
-  sourceUrl: string,
-  options: ImageIngestOptions,
-  context: MutationContext
-) {
-  const remote = await fetchRemoteImage(sourceUrl);
-  return storeIngestedImage(
-    remote.buffer,
-    { source: "url", sourceUrl: remote.sourceUrl, sourceContentType: remote.contentType },
-    options,
-    context
-  );
-}
-
-/**
- * Ingests an image the caller sent inline as base64, for files that have no
- * public URL to fetch from. Expensive in context, so the tool description
- * points at uploadImageFromUrl first.
- */
-export async function uploadImageFromData(
-  imageBase64: string,
-  options: ImageIngestOptions,
-  context: MutationContext
-) {
-  const inline = decodeInlineImage(imageBase64);
-  return storeIngestedImage(
-    inline.buffer,
-    { source: "inline", sourceContentType: inline.contentType },
-    options,
-    context
-  );
+  return asset;
 }
 
 export function listImages(limit: number) {
