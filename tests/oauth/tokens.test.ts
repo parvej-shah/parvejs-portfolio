@@ -12,7 +12,9 @@ import {
 process.env.DATABASE_URL ??= "postgresql://unused:unused@localhost:5432/unused";
 installTestOAuthEnv();
 
-const { mintAccessToken, verifyAccessToken } = await import("@/lib/oauth/tokens");
+const { mintAccessToken, verifyAccessToken, ACCESS_TOKEN_TTL_SECONDS } = await import(
+  "@/lib/oauth/tokens"
+);
 const { getSigningKey } = await import("@/lib/oauth/keys");
 const { decodeProtectedHeader, decodeJwt } = await import("jose");
 
@@ -98,9 +100,12 @@ describe("MCP access tokens", () => {
     await assert.rejects(() => verifyAccessToken(expired), /"exp"/);
   });
 
-  it("expires access tokens within an hour", async () => {
+  it("expires access tokens on the configured short lifetime", async () => {
     const claims = decodeJwt(token);
     assert.ok(claims.exp && claims.iat);
-    assert.equal(claims.exp - claims.iat, 3600);
+    assert.equal(claims.exp - claims.iat, ACCESS_TOKEN_TTL_SECONDS);
+    // Tokens are verified without a database lookup, so the lifetime is the
+    // revocation window. Keep it short.
+    assert.ok(ACCESS_TOKEN_TTL_SECONDS <= 900, "access tokens must not outlive 15 minutes");
   });
 });

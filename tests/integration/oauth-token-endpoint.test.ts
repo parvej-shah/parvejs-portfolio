@@ -48,9 +48,10 @@ describe("OAuth token endpoint", { skip }, async () => {
         resource: `${process.env.MCP_PUBLIC_URL}/mcp`,
         codeChallenge: s256Challenge(verifier),
         codeChallengeMethod: "S256",
-        googleVerifier: randomToken(),
+        approvalNonce: randomToken(),
+        approvedAt: new Date(),
         codeHash: hashToken(code),
-        subject: "google-subject-123",
+        subject: "admin-user-id-123",
         email: "owner@example.test",
         name: "Site Owner",
         expiresAt: new Date(Date.now() + 600_000),
@@ -102,7 +103,7 @@ describe("OAuth token endpoint", { skip }, async () => {
     assert.ok(body.refresh_token);
 
     const claims = await verifyAccessToken(body.access_token);
-    assert.equal(claims.sub, "google-subject-123");
+    assert.equal(claims.sub, "admin-user-id-123");
     assert.equal(claims.client_id, clientId);
   });
 

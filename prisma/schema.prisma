@@ -161,12 +161,13 @@ model OAuthAuthorization {
   clientState         String?
   codeChallenge       String
   codeChallengeMethod String
-  googleVerifier      String
+  approvalNonce       String
 
   codeHash   String?   @unique
   subject    String?
   email      String?
   name       String?
+  approvedAt DateTime?
   consumedAt DateTime?
 
   expiresAt DateTime

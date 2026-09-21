@@ -5,7 +5,7 @@ import { getOAuthConfig } from "@/lib/oauth/config";
 import { getSigningKey, MCP_JWT_ALGORITHM } from "@/lib/oauth/keys";
 import { hashToken, randomToken } from "@/lib/oauth/pkce";
 
-export const ACCESS_TOKEN_TTL_SECONDS = 3600;
+export const ACCESS_TOKEN_TTL_SECONDS = 900;
 export const REFRESH_TOKEN_TTL_SECONDS = 60 * 60 * 24 * 30;
 
 export type TokenSubject = {

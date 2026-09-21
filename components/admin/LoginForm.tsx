@@ -6,7 +6,7 @@ import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export function LoginForm() {
+export function LoginForm({ callbackUrl = "/admin" }: { callbackUrl?: string }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,7 +31,7 @@ export function LoginForm() {
       return;
     }
 
-    router.push("/admin");
+    router.push(callbackUrl);
     router.refresh();
   }
 

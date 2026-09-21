@@ -17,11 +17,6 @@ export type OAuthConfig = {
   registrationEndpoint: string;
   revocationEndpoint: string;
   jwksUri: string;
-  googleClientId: string;
-  googleClientSecret: string;
-  googleRedirectUri: string;
-  allowedSubject?: string;
-  allowedEmail?: string;
 };
 
 function requireEnv(name: string): string {
@@ -33,17 +28,13 @@ function requireEnv(name: string): string {
 /**
  * Every endpoint is derived from one public origin so a deployment cannot end up
  * advertising metadata that disagrees with the URLs it actually serves.
+ *
+ * There is no identity-provider configuration here: the owner signs in with the
+ * same admin session that guards /admin, which already grants every capability
+ * the MCP tools expose.
  */
 export function getOAuthConfig(): OAuthConfig {
   const issuer = requireEnv("MCP_PUBLIC_URL").replace(/\/$/, "");
-  const allowedSubject = process.env.MCP_ALLOWED_SUBJECT;
-  const allowedEmail = process.env.MCP_ALLOWED_EMAIL;
-
-  if (!allowedSubject && !allowedEmail) {
-    throw new OAuthConfigurationError(
-      "MCP OAuth must allowlist either MCP_ALLOWED_SUBJECT or MCP_ALLOWED_EMAIL"
-    );
-  }
 
   return {
     issuer,
@@ -53,11 +44,6 @@ export function getOAuthConfig(): OAuthConfig {
     registrationEndpoint: `${issuer}/oauth/register`,
     revocationEndpoint: `${issuer}/oauth/revoke`,
     jwksUri: `${issuer}/.well-known/jwks.json`,
-    googleClientId: requireEnv("MCP_GOOGLE_CLIENT_ID"),
-    googleClientSecret: requireEnv("MCP_GOOGLE_CLIENT_SECRET"),
-    googleRedirectUri: `${issuer}/oauth/callback`,
-    allowedSubject,
-    allowedEmail,
   };
 }
 
