@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch: {}
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Typecheck and tests
+    runs-on: ubuntu-latest
+
+    # The integration suite asserts guarantees that are enforced by database
+    # writes — single-use authorization codes, refresh rotation, replay
+    # detection — so it needs a real Postgres rather than a mock.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: mcptest
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      # Throwaway database, created fresh for each run and discarded with the runner.
+      TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/mcptest
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/mcptest
+      # prisma.config.ts reads DIRECT_URL for migrations.
+      DIRECT_URL: postgresql://postgres:postgres@localhost:5432/mcptest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      # Must precede the test run: `npm test` covers tests/** including the
+      # integration suite, which un-skips itself as soon as TEST_DATABASE_URL is
+      # set and would otherwise query tables that do not exist yet.
+      - name: Apply migrations to the test database
+        run: npx prisma migrate deploy
+
+      - name: Tests (unit + integration)
+        run: npm test
+
+      # Catches route- and type-level breakage that tests do not, such as a
+      # handler that fails to compile under the App Router. Static generation
+      # reads the empty test database, which yields no paths and is fine.
+      - name: Build
+        run: npm run build
+
+      # The ESLint config currently throws "Converting circular structure to
+      # JSON" before it lints anything. Reported rather than enforced so the
+      # rest of CI stays meaningful; make this blocking once the config is fixed.
+      - name: Lint (known broken — eslint config)
+        continue-on-error: true
+        run: npm run lint
+
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      # Reported, not enforced: production dependencies currently carry known
+      # criticals, so failing here would make CI permanently red and train
+      # everyone to ignore it. Drop continue-on-error once they are resolved.
+      - name: Audit production dependencies
+        continue-on-error: true
+        run: npm audit --omit=dev --audit-level=high

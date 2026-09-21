@@ -19,7 +19,8 @@
     "syndicate": "tsx scripts/syndicate.ts",
     "mcp:keygen": "tsx scripts/generate-mcp-key.ts",
     "test": "tsx --test tests/**/*.test.ts",
-    "test:integration": "tsx --test tests/integration/*.test.ts"
+    "test:integration": "tsx --test tests/integration/*.test.ts",
+    "typecheck": "tsc --noEmit"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
