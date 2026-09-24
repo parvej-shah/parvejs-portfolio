@@ -178,30 +178,38 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     "University of Dhaka",
   ];
 
+  // Determine dedicated OG social preview image:
+  // WhatsApp and messaging platforms require images < 300KB (ideal: 70-150KB) and 1200x630 JPEG.
   let ogImageUrl = `${defaultSiteUrl}/blog/${post.slug}.jpg`;
   if (post.coverImage?.url) {
-    if (post.coverImage.url.startsWith("/blog/")) {
-      ogImageUrl = `${defaultSiteUrl}${post.coverImage.url}`;
-    } else if (post.coverImage.url.startsWith("http")) {
-      ogImageUrl = post.coverImage.url;
+    if (post.coverImage.url.startsWith("http")) {
+      // If R2 CDN image is a heavy PNG, point to its optimized 1200x630 JPEG companion
+      ogImageUrl = post.coverImage.url.endsWith(".png")
+        ? post.coverImage.url.replace(/\.png$/, ".jpg")
+        : post.coverImage.url;
+    } else if (post.coverImage.url.startsWith("/blog/")) {
+      const jpgPath = post.coverImage.url.replace(/\.png$/, ".jpg");
+      ogImageUrl = `${defaultSiteUrl}${jpgPath}`;
     }
   }
 
   const metaTitle = postMetaTitleMap[slug] || post.title;
+  const canonicalUrl = `${defaultSiteUrl}/blog/${post.slug}`;
 
   return {
     title: `${metaTitle} | Parvej Shah`,
     description: post.excerpt,
     keywords,
-    alternates: { canonical: `/blog/${post.slug}` },
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title: metaTitle,
       description: post.excerpt,
-      url: `/blog/${post.slug}`,
+      url: canonicalUrl,
       siteName: "Parvej Shah",
       images: [
         {
           url: ogImageUrl,
+          secureUrl: ogImageUrl,
           width: 1200,
           height: 630,
           alt: post.title,
